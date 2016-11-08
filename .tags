@@ -1,0 +1,76 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AnimCount	lib/led_strip/led_strip_anim.cpp	/^const uint16_t AnimCount =$/;"	v
+EndingColor	lib/led_strip/led_strip_anim.cpp	/^  RgbColor EndingColor;$/;"	m	struct:MyAnimationState	file:
+FILESYSTEM_H_	lib/file_system/file_system.h	2;"	d
+FadeOutAnimUpdate	lib/led_strip/led_strip_anim.cpp	/^void FadeOutAnimUpdate(const AnimationParam &param) {$/;"	f
+IndexPixel	lib/led_strip/led_strip_anim.cpp	/^  uint16_t IndexPixel; \/\/ which pixel this animation is effecting$/;"	m	struct:MyAnimationState	file:
+LEDSTRIPS_H_	lib/led_strip/led_strip.h	2;"	d
+LoopAnimUpdate	lib/led_strip/led_strip_anim.cpp	/^void LoopAnimUpdate(const AnimationParam &param) {$/;"	f
+MyAnimationState	lib/led_strip/led_strip_anim.cpp	/^struct MyAnimationState {$/;"	s	file:
+NONE	lib/led_strip/led_strip.h	/^typedef enum { RAINBOW, RAINBOW_CYCLE, PLAIN, NONE } strip_modes;$/;"	e	enum:__anon1
+NTPPROVIDER_H_	lib/ntp_provider/ntp_provider.h	2;"	d
+NTP_PACKET_SIZE	lib/ntp_provider/ntp_provider.cpp	/^const int NTP_PACKET_SIZE = 48;$/;"	v
+NextPixelMoveDuration	lib/led_strip/led_strip_anim.cpp	/^const uint16_t NextPixelMoveDuration =$/;"	v
+OTA_H_	lib/ota/ota.h	2;"	d
+PASSWD_local	data/config.json	/^  "PASSWD_local": "weemos_passwd"$/;"	f
+PASSWD_local	src/wemos.cpp	/^char *SSID_local = NULL, *PASSWD_local = NULL, *SSID_remote = NULL,$/;"	v
+PASSWD_remote	data/config.json	/^  "PASSWD_remote": "N\/A",$/;"	f
+PASSWD_remote	src/wemos.cpp	/^     *PASSWD_remote = NULL;$/;"	v
+PLAIN	lib/led_strip/led_strip.h	/^typedef enum { RAINBOW, RAINBOW_CYCLE, PLAIN, NONE } strip_modes;$/;"	e	enum:__anon1
+PixelCount	lib/led_strip/led_strip_anim.cpp	/^const uint16_t PixelCount =$/;"	v
+PixelFadeDuration	lib/led_strip/led_strip_anim.cpp	/^const uint16_t PixelFadeDuration = 300; \/\/ third of a second$/;"	v
+RAINBOW	lib/led_strip/led_strip.h	/^typedef enum { RAINBOW, RAINBOW_CYCLE, PLAIN, NONE } strip_modes;$/;"	e	enum:__anon1
+RAINBOW_CYCLE	lib/led_strip/led_strip.h	/^typedef enum { RAINBOW, RAINBOW_CYCLE, PLAIN, NONE } strip_modes;$/;"	e	enum:__anon1
+SSID_local	data/config.json	/^  "SSID_local": "Weemos",$/;"	f
+SSID_local	src/wemos.cpp	/^char *SSID_local = NULL, *PASSWD_local = NULL, *SSID_remote = NULL,$/;"	v
+SSID_remote	data/config.json	/^  "SSID_remote": "N\/A",$/;"	f
+SSID_remote	src/wemos.cpp	/^char *SSID_local = NULL, *PASSWD_local = NULL, *SSID_remote = NULL,$/;"	v
+SetRandomSeed	lib/led_strip/led_strip_anim.cpp	/^void SetRandomSeed() {$/;"	f
+StartingColor	lib/led_strip/led_strip_anim.cpp	/^  RgbColor StartingColor;$/;"	m	struct:MyAnimationState	file:
+WEBSERVICE_H_	lib/web_service/web_service.h	2;"	d
+Wheel	lib/led_strip/led_strip.cpp	/^RgbColor Wheel(byte WheelPos) {$/;"	f
+WiFiEvent	src/wemos.cpp	/^void WiFiEvent(WiFiEvent_t event) {$/;"	f
+animationState	lib/led_strip/led_strip_anim.cpp	/^MyAnimationState animationState[AnimCount];$/;"	v
+colorGamma	lib/led_strip/led_strip_anim.cpp	/^    colorGamma; \/\/ for any fade animations, best to correct gamma$/;"	v
+config_file	lib/file_system/file_system.cpp	/^const char *config_file = "\/config.json";$/;"	v
+epoch	lib/ntp_provider/ntp_provider.cpp	/^unsigned long epoch = 0;$/;"	v
+frontColor	lib/led_strip/led_strip_anim.cpp	/^RgbColor frontColor;     \/\/ the color at the front of the loop$/;"	v
+frontPixel	lib/led_strip/led_strip_anim.cpp	/^uint16_t frontPixel = 0; \/\/ the front of the loop$/;"	v
+get_file_content	lib/file_system/file_system.cpp	/^String get_file_content(const char *file_name) {$/;"	f
+handle_web_server_client	lib/web_service/web_service.cpp	/^void handle_web_server_client() { server.handleClient(); }$/;"	f
+j	lib/led_strip/led_strip.cpp	/^uint16_t j = 0;$/;"	v
+listen_for_OTA	lib/ota/ota.cpp	/^void listen_for_OTA() {$/;"	f
+load_config	lib/file_system/file_system.cpp	/^bool load_config() {$/;"	f
+loop	lib/led_strip/led_strip_anim.cpp	/^void loop() {$/;"	f
+loop	src/wemos.cpp	/^void loop() {$/;"	f
+ota_timer	lib/ota/ota.cpp	/^Ticker ota_timer;$/;"	v
+packetBuffer	lib/ntp_provider/ntp_provider.cpp	/^byte packetBuffer[NTP_PACKET_SIZE]; \/\/ buffer to hold incoming and outgoing$/;"	v
+plain	lib/led_strip/led_strip.cpp	/^void plain() {$/;"	f
+printTime	lib/ntp_provider/ntp_provider.cpp	/^void printTime() {$/;"	f
+rainbow	lib/led_strip/led_strip.cpp	/^void rainbow() {$/;"	f
+rainbowCycle	lib/led_strip/led_strip.cpp	/^void rainbowCycle() {$/;"	f
+recieveNTPpacket	lib/ntp_provider/ntp_provider.cpp	/^bool recieveNTPpacket() {$/;"	f
+rest	src/wemos.cpp	/^aREST rest = aREST();$/;"	v
+save_config	lib/file_system/file_system.cpp	/^bool save_config() {$/;"	f
+selected_strip_mode	lib/led_strip/led_strip.cpp	/^strip_modes selected_strip_mode = NONE;$/;"	v
+sendNTPpacket	lib/ntp_provider/ntp_provider.cpp	/^void sendNTPpacket() {$/;"	f
+setup	lib/led_strip/led_strip_anim.cpp	/^void setup() {$/;"	f
+setup	src/wemos.cpp	/^void setup() {$/;"	f
+setup_NTP	lib/ntp_provider/ntp_provider.cpp	/^void setup_NTP(unsigned int localPort) {$/;"	f
+setup_OTA	lib/ota/ota.cpp	/^void setup_OTA(const uint16_t port, const char *host_name,$/;"	f
+setup_strip	lib/led_strip/led_strip.cpp	/^void setup_strip(uint8_t pixels) {$/;"	f
+setup_web_server	lib/web_service/web_service.cpp	/^void setup_web_server(const char *host_name) {$/;"	f
+stop_OTA	lib/ota/ota.cpp	/^void stop_OTA() { ota_timer.detach(); }$/;"	f
+strip	lib/led_strip/led_strip.cpp	/^NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> *strip = NULL;$/;"	v
+strip_mode	lib/led_strip/led_strip.cpp	/^void strip_mode(strip_modes mode, uint32_t delay_time) {$/;"	f
+strip_modes	lib/led_strip/led_strip.h	/^typedef enum { RAINBOW, RAINBOW_CYCLE, PLAIN, NONE } strip_modes;$/;"	t	typeref:enum:__anon1
+strip_timer	lib/led_strip/led_strip.cpp	/^Ticker strip_timer;$/;"	v
+strip_timer_tick	lib/led_strip/led_strip.cpp	/^uint32_t strip_timer_tick = 0;$/;"	v
+time_update	lib/ntp_provider/ntp_provider.cpp	/^Ticker time_update;$/;"	v
+udp_ntp	lib/ntp_provider/ntp_provider.cpp	/^WiFiUDP udp_ntp;$/;"	v
+update_npt	lib/ntp_provider/ntp_provider.cpp	/^void update_npt() {$/;"	f
