@@ -18,7 +18,7 @@ private:
     void static timer_tick(IR *);
 
 public:
-    IR(const uint8_t port = D1) : IR(port, 0) {}
+    IR(const uint8_t port) : IR(port, 0) {}
 
     IR(const uint8_t, const uint32_t);
 

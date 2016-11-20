@@ -8,6 +8,11 @@
 #include <ntp_provider.h>
 #include <web_service.h>
 
+#ifdef __ESP_01__
+static const uint8_t D0 = 3;
+static const uint8_t D1 = 4;
+#endif
+
 char *SSID_local = NULL, *PASSWD_local = NULL, *SSID_remote = NULL,
         *PASSWD_remote = NULL;
 LedStrip<NeoEsp8266Uart800KbpsMethod> *strip_service;
