@@ -4,3 +4,4 @@ CMakeListsPrivate.txt
 .gcc-flags.json
 .piolibdeps
 .idea/
+.tags

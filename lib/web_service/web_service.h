@@ -1,12 +1,50 @@
-#ifndef WEBSERVICE_H_
-#define WEBSERVICE_H_
+#ifndef WEMOS_D1_WEBSERVICE_H_
+#define WEMOS_D1_WEBSERVICE_H_
 
+#include <DNSServer.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <file_system.h>
+#include <base64.h>
 
-void setup_web_server(const char *host_name);
+#define DNS_HOSTNAME "weemos"
+#define DNS_HOSTNAME_AP "weemos.local"
 
-void handle_web_server_client();
+#define RESP_JSON "application/json"
+#define RESP_HTML "text/html"
+#define RESP_TEXT "text/plain"
 
-#endif /* WEBSERVICE_H_ */
+typedef String (*WebServiceFunction)(String);
+
+class WebService {
+    ESP8266WebServer *web_server = NULL;
+    DNSServer *dns_server = NULL;
+    String credentials;
+
+private:
+    void on_not_found();
+
+    bool valid_credentials();
+
+    void tmp() {}
+
+public:
+    WebService() : WebService("", "") {}
+
+    WebService(String user, String pass);
+
+    void add_handler(const char *, HTTPMethod, const char *, WebServiceFunction);
+
+    void add_handler_auth(const char *, HTTPMethod, const char *,
+                          WebServiceFunction);
+
+    void cycle_routine();
+
+    virtual ~WebService() {
+        delete web_server;
+        dns_server->stop();
+        delete dns_server;
+    }
+};
+
+#endif /* WEMOS_D1_WEBSERVICE_H_ */

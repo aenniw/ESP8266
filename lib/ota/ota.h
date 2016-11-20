@@ -1,5 +1,5 @@
-#ifndef OTA_H_
-#define OTA_H_
+#ifndef WEMOS_D1_OTA_H_
+#define WEMOS_D1_OTA_H_
 
 #include <ArduinoOTA.h>
 #include <Ticker.h>
@@ -11,4 +11,4 @@ void stop_OTA();
 
 void listen_for_OTA();
 
-#endif /* OTA_H_ */
+#endif /* WEMOS_D1_OTA_H_ */
