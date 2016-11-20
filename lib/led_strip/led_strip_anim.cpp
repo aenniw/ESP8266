@@ -2,24 +2,24 @@
 #include <NeoPixelBus.h>
 
 const uint16_t PixelCount =
-    10; // make sure to set this to the number of pixels in your strip
+        10; // make sure to set this to the number of pixels in your strip
 const uint16_t AnimCount =
-    PixelCount / 5 * 2 +
-    1; // we only need enough animations for the tail and one extra
+        PixelCount / 5 * 2 +
+        1; // we only need enough animations for the tail and one extra
 
 const uint16_t PixelFadeDuration = 300; // third of a second
 // one second divide by the number of pixels = loop once a second
 const uint16_t NextPixelMoveDuration =
-    1000 / PixelCount; // how fast we move through the pixels
+        1000 / PixelCount; // how fast we move through the pixels
 
-NeoGamma<NeoGammaTableMethod>
-    colorGamma; // for any fade animations, best to correct gamma
+NeoGamma <NeoGammaTableMethod>
+        colorGamma; // for any fade animations, best to correct gamma
 
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, 0);
+NeoPixelBus <NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, 0);
 struct MyAnimationState {
-  RgbColor StartingColor;
-  RgbColor EndingColor;
-  uint16_t IndexPixel; // which pixel this animation is effecting
+    RgbColor StartingColor;
+    RgbColor EndingColor;
+    uint16_t IndexPixel; // which pixel this animation is effecting
 };
 
 NeoPixelAnimator animations(AnimCount); // NeoPixel animation management object
@@ -28,78 +28,78 @@ uint16_t frontPixel = 0; // the front of the loop
 RgbColor frontColor;     // the color at the front of the loop
 
 void SetRandomSeed() {
-  uint32_t seed;
+    uint32_t seed;
 
-  // random works best with a seed that can use 31 bits
-  // analogRead on a unconnected pin tends toward less than four bits
-  seed = analogRead(0);
-  delay(1);
-
-  for (int shifts = 3; shifts < 31; shifts += 3) {
-    seed ^= analogRead(0) << shifts;
+    // random works best with a seed that can use 31 bits
+    // analogRead on a unconnected pin tends toward less than four bits
+    seed = analogRead(0);
     delay(1);
-  }
 
-  // Serial.println(seed);
-  randomSeed(seed);
+    for (int shifts = 3; shifts < 31; shifts += 3) {
+        seed ^= analogRead(0) << shifts;
+        delay(1);
+    }
+
+    // Serial.println(seed);
+    randomSeed(seed);
 }
 
 void FadeOutAnimUpdate(const AnimationParam &param) {
-  // this gets called for each animation on every time step
-  // progress will start at 0.0 and end at 1.0
-  // we use the blend function on the RgbColor to mix
-  // color based on the progress given to us in the animation
-  RgbColor updatedColor = RgbColor::LinearBlend(
-      animationState[param.index].StartingColor,
-      animationState[param.index].EndingColor, param.progress);
-  // apply the color to the strip
-  strip.SetPixelColor(animationState[param.index].IndexPixel,
-                      colorGamma.Correct(updatedColor));
+    // this gets called for each animation on every time step
+    // progress will start at 0.0 and end at 1.0
+    // we use the blend function on the RgbColor to mix
+    // color based on the progress given to us in the animation
+    RgbColor updatedColor = RgbColor::LinearBlend(
+            animationState[param.index].StartingColor,
+            animationState[param.index].EndingColor, param.progress);
+    // apply the color to the strip
+    strip.SetPixelColor(animationState[param.index].IndexPixel,
+                        colorGamma.Correct(updatedColor));
 }
 
 void LoopAnimUpdate(const AnimationParam &param) {
-  // wait for this animation to complete,
-  // we are using it as a timer of sorts
-  if (param.state == AnimationState_Completed) {
-    // done, time to restart this position tracking animation/timer
-    animations.RestartAnimation(param.index);
+    // wait for this animation to complete,
+    // we are using it as a timer of sorts
+    if (param.state == AnimationState_Completed) {
+        // done, time to restart this position tracking animation/timer
+        animations.RestartAnimation(param.index);
 
-    // pick the next pixel inline to start animating
-    //
-    frontPixel = (frontPixel + 1) % PixelCount; // increment and wrap
-    if (frontPixel == 0) {
-      // we looped, lets pick a new front color
-      frontColor = HslColor(random(360) / 360.0f, 1.0f, 0.25f);
+        // pick the next pixel inline to start animating
+        //
+        frontPixel = (frontPixel + 1) % PixelCount; // increment and wrap
+        if (frontPixel == 0) {
+            // we looped, lets pick a new front color
+            frontColor = HslColor(random(360) / 360.0f, 1.0f, 0.25f);
+        }
+
+        uint16_t indexAnim;
+        // do we have an animation available to use to animate the next front pixel?
+        // if you see skipping, then either you are going to fast or need to
+        // increase
+        // the number of animation channels
+        if (animations.NextAvailableAnimation(&indexAnim, 1)) {
+            animationState[indexAnim].StartingColor = frontColor;
+            animationState[indexAnim].EndingColor = RgbColor(0, 0, 0);
+            animationState[indexAnim].IndexPixel = frontPixel;
+
+            animations.StartAnimation(indexAnim, PixelFadeDuration,
+                                      FadeOutAnimUpdate);
+        }
     }
-
-    uint16_t indexAnim;
-    // do we have an animation available to use to animate the next front pixel?
-    // if you see skipping, then either you are going to fast or need to
-    // increase
-    // the number of animation channels
-    if (animations.NextAvailableAnimation(&indexAnim, 1)) {
-      animationState[indexAnim].StartingColor = frontColor;
-      animationState[indexAnim].EndingColor = RgbColor(0, 0, 0);
-      animationState[indexAnim].IndexPixel = frontPixel;
-
-      animations.StartAnimation(indexAnim, PixelFadeDuration,
-                                FadeOutAnimUpdate);
-    }
-  }
 }
 
 void setup() {
-  SetRandomSeed();
+    SetRandomSeed();
 
-  // we use the index 0 animation to time how often we move to the next
-  // pixel in the strip
-  animations.StartAnimation(0, NextPixelMoveDuration, LoopAnimUpdate);
+    // we use the index 0 animation to time how often we move to the next
+    // pixel in the strip
+    animations.StartAnimation(0, NextPixelMoveDuration, LoopAnimUpdate);
 }
 
 void loop() {
-  // this is all that is needed to keep it running
-  // and avoiding using delay() is always a good thing for
-  // any timing related routines
-  animations.UpdateAnimations();
-  strip.Show();
+    // this is all that is needed to keep it running
+    // and avoiding using delay() is always a good thing for
+    // any timing related routines
+    animations.UpdateAnimations();
+    strip.Show();
 }
