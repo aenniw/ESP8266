@@ -1,117 +1,28 @@
 <html>
 <head>
-    <!--script language="JavaScript" type="text/javascript" src=jquery-2.1.4.min.js.gz></script-->
-    <script language="JavaScript" type="text/javascript">
-        function hexToR(h) {
-            return parseInt((cutHex(h)).substring(0, 2), 16)
-        }
-        function hexToG(h) {
-            return parseInt((cutHex(h)).substring(2, 4), 16)
-        }
-        function hexToB(h) {
-            return parseInt((cutHex(h)).substring(4, 6), 16)
-        }
-        function cutHex(h) {
-            return (h.charAt(0) == "#") ? h.substring(1, 7) : h
-        }
-
-        function login() {
-
-        }
-
-        function setStripMode() {
-            var data = "{ \"mode\":" + document.getElementById("strip_mode").value + "}";
-            var xhttp = CORSRequest("POST", "set-strip-mode");
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.setRequestHeader("Accept", "application/json");
-            xhttp.send(data);
-        }
-
-        function setStripColor() {
-            var r = hexToR(document.getElementById("strip_color").value),
-                    g = hexToG(document.getElementById("strip_color").value),
-                    b = hexToB(document.getElementById("strip_color").value);
-            console.log(r + " " + g + " " + b);
-            var data = "{ \"color\": { \"r\" : " + r + ",\"g\" : " + g + ",\"b\" : " + b + "}}";
-            var xhttp = CORSRequest("POST", "set-strip-color");
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.setRequestHeader("Accept", "application/json");
-            xhttp.send(data);
-        }
-
-        function setStripDelay() {
-            var data = "{ \"delay\":" + document.getElementById("strip_delay").value + "}";
-            var xhttp = CORSRequest("POST", "set-strip-delay");
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.setRequestHeader("Accept", "application/json");
-            xhttp.send(data);
-        }
-
-        function setStripBrightness() {
-            var data = "{ \"brightness\":" + document.getElementById("strip_brightness").value + "}";
-            var xhttp = CORSRequest("POST", "set-strip-brightness");
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.setRequestHeader("Accept", "application/json");
-            xhttp.send(data);
-        }
-
-        function CORSRequest(method, path) {
-            var xhr = new XMLHttpRequest(),
-                    url = "http://" + location.host + "/" + path;
-            if ("withCredentials" in xhr) {
-                xhr.open(method, url, true);
-            } else if (typeof XDomainRequest != "undefined") {
-                xhr = new XDomainRequest();
-                xhr.open(method, url);
-            } else {
-                xhr = null;
-            }
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(document.getElementById("acc").value + ":" + document.getElementById("pass").value));
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    console.log(xhr.responseText);
-                }
-            };
-            return xhr;
-        }
-    </script>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/common_style.css">
+    <link rel="stylesheet" href="css/index_style.css">
+    <script language="JavaScript" type="text/javascript" src=js/strip_requests.js></script>
+    <script language="JavaScript" type="text/javascript" src=js/time_requests.js></script>
+    <script language="JavaScript" type="text/javascript" src=js/common.js></script>
     <!--meta http-equiv='refresh' content='5'/-->
-    <title>ESP8266 Demo</title>
-    <style>
-        body {
-            background-color: whitesmoke;
-            font-family: Arial, Helvetica, Sans-Serif;
-            Color: #000088;
-        }
-    </style>
+    <title>Weemos IOT</title>
 </head>
-<body>
-<h1>Hello from ESP8266!</h1>
-Account: <input type="text" id="acc" value="admin" maxlength="10" autocomplete="on" autofocus/><br/>
-Password: <input type="password" id="pass" value="admin" maxlength="10" autocomplete="off"/><br/>
+<body onload="onMenuClick('content','html/status.html')">
+<div id="header">
+    <input type="button" onclick="onMenuClick('content','html/status.html')" value="Home">
+    <input type="button" onclick="onMenuClick('content','html/administration.html')" value="Administration">
+    <input type="button" onclick="onMenuClick('content','html/wifi.html')" value="Wifi">
+    <input type="button" onclick="onMenuClick('content','html/strip.html')" value="Led Strip">
+    <input type="button" onclick="onMenuClick('content','html/ir.html')" value="Infrared">
+    <input type="button" onclick="logout()" value="Logout">
+</div>
 
-<input type="color" id="strip_color" value="#ff0000" onchange="setStripColor()">
-<select id="strip_mode" onchange="setStripMode()">
-    <option value=-1>Off</option>
-    <option value=0>Rainbow</option>
-    <option value=1>Rainbow Cycle</option>
-</select>
-Speed: <input type="number" id="strip_delay" value="10" onchange="setStripDelay()"/>
-Brightness: <input type="number" id="strip_brightness" value="100" min="0" max="100"
-                   onchange="setStripBrightness()"/><br/>
+<div id="content"></div>
 
-
-<!--
-Access Point <br/>
-Account: <input id="ap_ssid" value="admin"/><br/>
-Password: <input id="ap_passwd" value="admin"/><br/>
-Wifi Station <br/>
-Account: <input id="sta_ssid" value="admin"/><br/>
-Password: <input id="sta_passwd" value="admin"/><br/>
-<button type="button" onclick="applySettings()">Apply settings</button>
-<button type="button" onclick="saveSettings()">Save settings</button>
-<br/>
--->
-
+<div id="footer">
+    <span>Copyright © 2016 · All Rights reserved · Version 0.12</span>
+</div>
 </body>
 </html>

@@ -2,13 +2,34 @@
 #define WEMOS_D1_OTA_H_
 
 #include <ArduinoOTA.h>
-#include <Ticker.h>
+#include <API.h>
 
-void setup_OTA(const uint16_t port, const char *host_name,
-               const char *password);
+#define FAILSAFE_SERVICE_NAME "_failsafe_service_"
 
-void stop_OTA();
+class FAILSAFE_Service : public ESP_Service {
+protected:
+private:
+    static void on_progress(unsigned int progress, unsigned int total) {
+        Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    }
 
-void listen_for_OTA();
+    static void on_error(ota_error_t error);
+
+    static void on_start() { Serial.println("Start"); }
+
+    static void on_end() { Serial.println("End"); }
+
+public:
+    FAILSAFE_Service() : FAILSAFE_Service(NULL, 8266) {}
+
+    FAILSAFE_Service(const char *password, uint16_t port = 8266) : FAILSAFE_Service(password, NULL, port) {}
+
+    FAILSAFE_Service(const char *password, const char *hostname, uint16_t port);
+
+    const char *get_name() { return FAILSAFE_SERVICE_NAME; };
+
+    void cycle_routine() { ArduinoOTA.handle(); }
+};
+
 
 #endif /* WEMOS_D1_OTA_H_ */
