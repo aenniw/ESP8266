@@ -1,0 +1,49 @@
+<fieldset>
+    <legend>Access</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td width="33%">User</td>
+            <td><input type="text" id="user" placeholder="Username"></td>
+        </tr>
+        <tr>
+            <td width="33%">Password</td>
+            <td><input type="password" id="pass" placeholder="Password"></td>
+        </tr>
+        </tbody>
+    </table>
+</fieldset>
+<fieldset>
+    <legend>Time</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td width="33%">NTP server</td>
+            <td><input type="text" id="ntp_server" placeholder="NTP server"></td>
+        </tr>
+        <tr>
+            <td width="33%">Update Time</td>
+            <td><input type="button" onclick="" value="Update"></td>
+        </tr>
+        <tr>
+            <td width="33%">Time zone</td>
+            <td>
+                <select id="time-zone">
+                    <option value=0>UTC0</option>
+                    <option value=1>UTC1</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Set Time</td>
+            <td><input type="datetime-local" id="time_zone" placeholder="Username"></td>
+        </tr>
+        <tr>
+            <td width="33%">Local Time</td>
+            <td id="localtime">Thu Dec 15 01:25:01 2016</td>
+        </tr>
+        </tbody>
+    </table>
+</fieldset>
+<input type="button" onclick="" value="Save" style="float: left;width: 50%">
+<input type="button" onclick="" value="Apply" style="overflow: hidden;width: 50%">

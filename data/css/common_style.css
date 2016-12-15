@@ -1,0 +1,71 @@
+@charset "utf-8";
+
+body {
+    background: #2c3338;
+    color: #606468;
+    font: 87.5%/1.5em 'Open Sans', sans-serif;
+    margin: 0;
+}
+
+input {
+    border: none;
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5em;
+    padding: 0;
+    -webkit-appearance: none;
+}
+
+form {
+    margin: auto;
+    padding: 22px 22px 22px 22px;
+    border-radius: 5px;
+    background: #282e33;
+    border-top: 3px solid #434a52;
+    border-bottom: 3px solid #434a52;
+}
+
+span {
+    background-color: transparent;
+    border-radius: 3px 0 0 3px;
+    color: #606468;
+}
+
+input[type="text"], input[type="number"], input[type="password"], input[type="datetime-local"], select {
+    background-color: #3b4148;
+    color: #a9a9a9;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    margin: 20px auto;
+    position: relative;
+}
+
+input[type="text"], input[type="number"], input[type="password"] {
+    border-radius: 0 3px 3px 0;
+    margin-bottom: 1em;
+    padding: 0 16px;
+    width: 120px;
+}
+
+input[type="color"] {
+    background-color: #3b4148;
+    border-radius: 0 3px 3px 0;
+    margin-bottom: 1em;
+    width: 120px;
+}
+
+input[type="button"] {
+    background: #b5cd60;
+    border: 0;
+    height: 30px;
+    color: white;
+    cursor: pointer;
+    width: 120px;
+    transition: background 0.3s ease-in-out;
+}
+
+input[type="button"]:hover {
+    background: #16aa56;
+}

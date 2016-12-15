@@ -1,19 +1,16 @@
 #include <ntp_provider.h>
 
-#define NTP_PACKET_SIZE 48
-const byte packetBuffer[NTP_PACKET_SIZE] = {
-        0b11100011, 0, 6, 0xEC, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0x4E, 49, 52,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-void Time::send_ntp_packet() {
+void Time::send_ntp_packet(const char *ntp_server = "time.nist.gov") {
     IPAddress timeServerIP; // time.nist.gov NTP server address
     WiFi.hostByName(ntp_server, timeServerIP);
 #ifdef __DEBUG__
     Serial.println("sending NTP packet...");
 #endif
     socket->beginPacket(timeServerIP, 123); // NTP requests are to port 123
-    socket->write(packetBuffer, NTP_PACKET_SIZE);
+    socket->write((const byte[]) {
+            0b11100011, 0, 6, 0xEC, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0x4E, 49, 52,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 48);
     socket->endPacket();
 }
 
@@ -27,7 +24,7 @@ void Time::recieve_ntp_packet() {
         // Unix time starts on Jan 1 1970. In seconds, that's 2208988800:
         set_time((word(packet[0], packet[1]) << 16 | word(packet[2], packet[3])) -
                  2208988800UL);
-        time_update->attach(1, timer_tick, &epoch);
+        ntp_update = false;
     }
 }
 
@@ -49,9 +46,9 @@ void Time::print_time(unsigned long epoch) {
 #endif
 
 void Time::cycle_routine() {
-    if (epoch == 0 && WiFi.status() == WL_CONNECTED) {
-        send_ntp_packet();
-        delay(1000);
+    if (WiFi.status() == WL_CONNECTED && ntp_update) {
+        if (epoch % 2)
+            send_ntp_packet();
         recieve_ntp_packet();
     }
 }

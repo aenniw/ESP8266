@@ -1,0 +1,13 @@
+{
+  "mode": 3,
+  "ap": {
+    "ssid": "Weemos-AP",
+    "pass": "weemos",
+    "hidden": false,
+    "channel": 5
+  },
+  "client": {
+    "ssid": "station",
+    "pass": "passwd"
+  }
+}

@@ -5,3 +5,7 @@ CMakeListsPrivate.txt
 .piolibdeps
 .idea/
 .tags
+/cmake-build-debug/
+/data/.idea/
+*.py
+/CMakeLists.txt

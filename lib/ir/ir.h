@@ -5,11 +5,15 @@
 #include <IRremoteESP8266.h>
 #include <Ticker.h>
 #include <map>
+#include <API.h>
+#include <functional>
 
+#define IR_SERVICE_NAME    "_ir_service_"
 
-typedef void (*IRServiceFunction)();
+typedef std::function<void(void)> IRServiceFunction;
 
-class IR {
+class IR : public ESP_Service {
+protected:
     Ticker *ir_timer = NULL;
     IRrecv *ir_recv = NULL;
     std::map<unsigned long, IRServiceFunction> handlers_map;
@@ -23,6 +27,8 @@ public:
     IR(const uint8_t, const uint32_t);
 
     void cycle_routine();
+
+    const char *get_name() { return IR_SERVICE_NAME; };
 
     void add_handler(unsigned long key, IRServiceFunction);
 

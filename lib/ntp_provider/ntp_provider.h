@@ -4,6 +4,9 @@
 #include <ESP8266WiFi.h>
 #include <Ticker.h>
 #include <WiFiUdp.h>
+#include <API.h>
+
+#define NTP_SERVICE_NAME "_ntp_service_"
 
 typedef enum {
     UTC__12_00 = -720,
@@ -47,15 +50,16 @@ typedef enum {
     UTC_14_00 = 840
 } UTC_TIME_ZONES;
 
-class Time {
-    Ticker *time_update;
-    WiFiUDP *socket;
+class Time : public ESP_Service {
+protected:
+    Ticker *time_update = NULL;
+    WiFiUDP *socket = NULL;
     UTC_TIME_ZONES time_zone;
     unsigned long epoch;
-    const char *ntp_server;
+    boolean ntp_update = false;
 
 private:
-    void send_ntp_packet();
+    void send_ntp_packet(const char *);
 
     void recieve_ntp_packet();
 
@@ -67,9 +71,10 @@ private:
     }
 
 public:
-    Time(const uint16_t port, const char *server = "time.nist.gov") {
-        ntp_server = server;
+    Time(const uint16_t port, unsigned long time = 0) {
         time_update = new Ticker();
+        time_update->attach(1, timer_tick, &epoch);
+        set_time(time);
         socket = new WiFiUDP();
         socket->begin(port);
     }
@@ -78,15 +83,23 @@ public:
 
     UTC_TIME_ZONES get_time_zone() { return time_zone; }
 
-    void set_time(unsigned long t) { epoch = time_zone * 60 + t; }
+    void set_time(unsigned long t) {
+        time_update->detach();
+        epoch = t + time_zone * 60;
+        time_update->attach(1, timer_tick, &epoch);
+    }
 
     unsigned long get_time() { return epoch; }
+
+    void update_time_ntp() { ntp_update = true; }
 
 #ifdef __DEBUG__
 
     void static print_time(unsigned long epoch);
 
 #endif
+
+    const char *get_name() { return NTP_SERVICE_NAME; };
 
     void cycle_routine();
 
