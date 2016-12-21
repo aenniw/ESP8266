@@ -3,6 +3,10 @@
 
 IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/markszabo/IRremoteESP8266)
 
+[Datasheet](https://espressif.com/sites/default/files/documentation/0a-esp8266ex_datasheet_en.pdf) | 
+[RTOS API](https://espressif.com/sites/default/files/documentation/20b-esp8266_rtos_sdk_api_reference_v1.4.0_0.pdf) | 
+[RTOS programing guide](https://espressif.com/sites/default/files/documentation/20a-esp8266_rtos_sdk_programming_guide_en.pdf)
+
 ![ESP-8266 layout](img/ESP8266_layout.jpg)
 ![Wemos D1 layout](img/Wemos_layout.jpg)
 
