@@ -3,7 +3,7 @@
 //#include <NeoPixelAnimator.h>
 #include <NeoPixelBus.h>
 #include <Ticker.h>
-#include <API.h>
+#include <esp_api.h>
 #include <WiFiUdp.h>
 
 #define STRIP_SERVICE_NAME "_strip_service_"

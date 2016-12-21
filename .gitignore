@@ -1,11 +1,4 @@
 .pioenvs
-CMakeListsPrivate.txt
-.clang_complete
-.gcc-flags.json
 .piolibdeps
 .idea/
-.tags
 /cmake-build-debug/
-/data/.idea/
-*.py
-/CMakeLists.txt

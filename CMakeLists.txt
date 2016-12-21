@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.2)
+project(esp8266_projects_root)
+
+set(CMAKE_CXX_STANDARD 11)
+
+add_subdirectory(IOTbase)
+add_subdirectory(Ambi-Light-LE46B650)

@@ -5,7 +5,7 @@
 #include <initializer_list>
 #include <FS.h>
 
-String get_file_content(const char *);
+String ICACHE_FLASH_ATTR get_file_content(const char *);
 
 template<typename T>
 T get_config_(JsonObject &json, std::initializer_list<const char *> *keys,
