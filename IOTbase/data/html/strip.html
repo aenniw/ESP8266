@@ -1,0 +1,37 @@
+<fieldset>
+    <legend>Lep strip</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td width="33%">Led Count</td>
+            <td><input type="number" id="count" placeholder="1-65536" min="1" max="65536"></td>
+        </tr>
+        <tr>
+            <td width="33%">Mode</td>
+            <td>
+                <select id="mode">
+                    <option value=-1>OFF</option>
+                    <option value=-2>COLOR</option>
+                    <option value=2>REMOTE</option>
+                    <option value=0>RAINBOW</option>
+                    <option value=1>RAINBOW CYCLE</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Color</td>
+            <td><input type="color" id="color"></td>
+        </tr>
+        <tr>
+            <td width="33%">Brightness</td>
+            <td><input type="number" id="brightness" placeholder="0-255" min="1" max="255"></td>
+        </tr>
+        <tr>
+            <td width="33%">Animation delay [ms]</td>
+            <td><input type="number" id="delay" placeholder="1-1000" min="1" max="1000"></td>
+        </tr>
+        </tbody>
+    </table>
+</fieldset>
+<input type="button" onclick="setConfigStrip(true)" value="Save" style="float: left;width: 50%">
+<input type="button" onclick="setConfigStrip(false)" value="Apply" style="overflow: hidden;width: 50%">
