@@ -8,8 +8,9 @@
 #define HORIZONTAL_LEDS 60
 #define VERTICAL_LEDS 34
 
-WiFiUDP *udp_socket;
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> *strip;
+static WiFiUDP *udp_socket;
+static int missed_ticks = 0;
+static NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> *strip;
 
 void ICACHE_FLASH_ATTR setup() {
     Serial.begin(115200);
@@ -28,12 +29,23 @@ void ICACHE_FLASH_ATTR setup() {
 
 void loop() {
     if (udp_socket->parsePacket()) {
+        if (missed_ticks != 0) missed_ticks = 0;
         uint8_t buffer[6 * (HORIZONTAL_LEDS + VERTICAL_LEDS)];
         udp_socket->readBytes(buffer, 6 * (HORIZONTAL_LEDS + VERTICAL_LEDS));
         for (uint16_t p = 0; p < 2 * (HORIZONTAL_LEDS + VERTICAL_LEDS); p++) {
             strip->SetPixelColor(p, RgbColor(buffer[0 + 3 * p], buffer[1 + 3 * p], buffer[2 + 3 * p]));
         }
         strip->Show();
+    } else if (missed_ticks >= 500000) {
+        for (uint16_t p = 0; p < 2 * (HORIZONTAL_LEDS + VERTICAL_LEDS); p++) {
+            strip->SetPixelColor(p, RgbColor(0, 0, 0));
+        }
+        strip->Show();
+        missed_ticks = -1;
+    } else if (missed_ticks >= 0) {
+        missed_ticks++;
+    } else {
+        delay(500);
     }
     yield(); // WATCHDOG/WIFI feed
 }
