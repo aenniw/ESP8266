@@ -16,7 +16,7 @@ void ICACHE_FLASH_ATTR setup() {
     Serial.begin(115200);
     strip = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod>(2 * (HORIZONTAL_LEDS + VERTICAL_LEDS), 0);
     strip->Begin();
-    WiFi.mode(WIFI_AP);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     while (WiFi.status() != WL_CONNECTED) {
         delay(50);
