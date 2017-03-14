@@ -1,7 +1,9 @@
 #include <Arduino.h>
+#include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
+#include <ESP8266mDNS.h>
 #include <NeoPixelBus.h>
+#include <WiFiUdp.h>
 
 #define WIFI_SSID "****"
 #define WIFI_PASS "****"
@@ -24,6 +26,8 @@ void ICACHE_FLASH_ATTR setup() {
     }
     udp_socket = new WiFiUDP();
     udp_socket->begin(65000);
+    ArduinoOTA.setPort(8266);
+    ArduinoOTA.begin();
     delay(100);
 }
 
@@ -45,6 +49,7 @@ void loop() {
     } else if (missed_ticks >= 0) {
         missed_ticks++;
     } else {
+        ArduinoOTA.handle();
         delay(500);
     }
     yield(); // WATCHDOG/WIFI feed
