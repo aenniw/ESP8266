@@ -5,10 +5,13 @@
 #include <NeoPixelBus.h>
 #include <WiFiUdp.h>
 
+// TODO: remove, these needs to be changeable during runtime/reboot per user
 #define WIFI_SSID "****"
 #define WIFI_PASS "****"
 #define HORIZONTAL_LEDS 60
 #define VERTICAL_LEDS 34
+// TODO: this may be shifted to LE46B650 logic if possible
+#define SMOOTH_FADING
 
 static WiFiUDP *udp_socket;
 static int missed_ticks = 0;
@@ -20,6 +23,7 @@ void ICACHE_FLASH_ATTR setup() {
     strip->Begin();
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
+    // TODO: if not connected in few second go to AP mode, to be able to reflash or update settings of module.
     while (WiFi.status() != WL_CONNECTED) {
         delay(50);
         Serial.print(".");
@@ -37,7 +41,14 @@ void loop() {
         uint8_t buffer[6 * (HORIZONTAL_LEDS + VERTICAL_LEDS)];
         udp_socket->readBytes(buffer, 6 * (HORIZONTAL_LEDS + VERTICAL_LEDS));
         for (uint16_t p = 0; p < 2 * (HORIZONTAL_LEDS + VERTICAL_LEDS); p++) {
+#ifndef SMOOTH_FADING
             strip->SetPixelColor(p, RgbColor(buffer[0 + 3 * p], buffer[1 + 3 * p], buffer[2 + 3 * p]));
+#else
+            RgbColor current_color = strip->GetPixelColor(p);
+            strip->SetPixelColor(p, RgbColor((uint8_t) (0.5 * (buffer[0 + 3 * p] + current_color.R)),
+                                             (uint8_t) (0.5 * (buffer[1 + 3 * p] + current_color.G)),
+                                             (uint8_t) (0.5 * (buffer[2 + 3 * p] + current_color.B))));
+#endif
         }
         strip->Show();
     } else if (missed_ticks >= 500000) {
