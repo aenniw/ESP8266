@@ -9,6 +9,8 @@ class Log {
 public:
     static void init();
 
+    static void print(const char *format, ...);
+
     static void println(const char *format, ...);
 
     static void println(const String &msg);
