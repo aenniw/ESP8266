@@ -59,8 +59,6 @@ RestService::RestService(const char *user, const char *pass, const uint16_t port
             on_not_found();
     });
     web_server->begin();
-    if (MDNS.begin(DNS_HOSTNAME)) MDNS.addService("http", "tcp", port);
-    else Log::println("Error setting up MDNS responder!");
 }
 
 void RestService::on_not_found() {
@@ -88,7 +86,7 @@ void RestService::on_not_found() {
 }
 
 void RestService::on_invalid_credentials() {
-    File file = SPIFFS.open("/login.html", "r");
+    File file = SPIFFS.open("/login.html.gz", "r");
     if (file) {
         web_server->streamFile(file, RESP_HTML);
         file.close();
@@ -112,9 +110,12 @@ bool RestService::valid_credentials() {
 
 void RestService::add_handler(const char *uri, HTTPMethod method,
                               const char *resp_type,
-                              RestServiceFunction handler) {
+                              RestServiceFunction handler,
+                              const bool authentication) {
     web_server->on(uri, [=]() {
         Log::println("Recieved on %s\n", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
             web_server->send(200, resp_type, handler(web_server->arg("plain")));
         } else
@@ -125,26 +126,26 @@ void RestService::add_handler(const char *uri, HTTPMethod method,
 void RestService::add_handler_auth(const char *uri, HTTPMethod method,
                                    const char *resp_type,
                                    RestServiceFunction handler) {
-    web_server->on(uri, [=]() {
-        Log::println("Recieved on %s\n", uri);
-        if (!valid_credentials())
-            return on_invalid_credentials();
-        if (method == HTTP_ANY || method == web_server->method()) {
-            web_server->send(200, resp_type, handler(web_server->arg("plain")));
-        } else
-            on_not_found();
-    });
+    add_handler(uri, method, resp_type, handler, 0);
 }
 
 void RestService::add_handler_file(const char *uri, HTTPMethod method,
                                    const char *resp_type,
-                                   const char *file_name) {
+                                   const char *file_name,
+                                   const bool authentication) {
     web_server->on(uri, [=]() {
         Log::println("Recieved on %s\n", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
             File file = SPIFFS.open(file_name, "r");
-            web_server->streamFile(file, resp_type);
-            file.close();
+            if (file) {
+                web_server->streamFile(file, resp_type);
+                file.close();
+            } else {
+                Log::println("File %s cannot be opened.", file_name);
+                on_not_found();
+            }
         } else
             on_not_found();
     });
@@ -153,17 +154,7 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
 void RestService::add_handler_file_auth(const char *uri, HTTPMethod method,
                                         const char *resp_type,
                                         const char *file_name) {
-    web_server->on(uri, [=]() {
-        Log::println("Recieved on %s\n", uri);
-        if (!valid_credentials())
-            return on_invalid_credentials();
-        if (method == HTTP_ANY || method == web_server->method()) {
-            File file = SPIFFS.open(file_name, "r");
-            web_server->streamFile(file, resp_type);
-            file.close();
-        } else
-            on_not_found();
-    });
+    add_handler_file(uri, method, resp_type, file_name, 1);
 }
 
 void RestService::cycle_routine() {

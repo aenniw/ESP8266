@@ -26,7 +26,7 @@ void OtaService::on_end() {
 }
 
 void OtaService::on_progress(unsigned int progress, unsigned int total) {
-    Log::println("Progress: %u%%\r", (progress / (total / 100)));
+    Log::print("Progress: %u%%\r", (progress / (total / 100)));
 }
 
 void OtaService::on_error(ota_error_t error) {

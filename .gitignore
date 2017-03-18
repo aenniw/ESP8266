@@ -2,3 +2,4 @@
 .piolibdeps
 .idea/
 /cmake-build-debug/
+/IOTbase/data/*

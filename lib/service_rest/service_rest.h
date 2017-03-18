@@ -49,11 +49,13 @@ public:
 
     RestService(const char *, const char *, const uint16_t);
 
-    void add_handler(const char *, HTTPMethod, const char *, RestServiceFunction);
+    void add_handler(const char *, HTTPMethod, const char *, RestServiceFunction,
+                     const bool authentication = 0);
 
     void add_handler_auth(const char *, HTTPMethod, const char *, RestServiceFunction);
 
-    void add_handler_file(const char *, HTTPMethod, const char *, const char *);
+    void add_handler_file(const char *, HTTPMethod, const char *, const char *,
+                          const bool authentication = 0);
 
     void add_handler_file_auth(const char *, HTTPMethod, const char *, const char *);
 
