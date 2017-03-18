@@ -21,20 +21,19 @@
             <td width="33%">Mode</td>
             <td>
                 <select id="wifi-mode">
-                    <option>OFF</option>
-                    <option>AP</option>
-                    <option>STA</option>
-                    <option>STA+AP</option>
+                    <option value="1">STA</option>
+                    <option value="2">AP</option>
+                    <option value="1">AP+STA</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td width="33%">Hostname</td>
-            <td><input type="text" id="hostname" placeholder="hostname.local"></td>
+            <td><input type="text" id="hostname" placeholder="hostname.lan"></td>
         </tr>
         <tr>
             <td width="33%">MAC address</td>
-            <td><input type="text" id="mac" placeholder="0::0"></td>
+            <td id="mac"></td>
         </tr>
         </tbody>
     </table>
@@ -46,11 +45,9 @@
         <tr>
             <td width="33%">Station</td>
             <td>
-                <select id="sta-ssid">
-                    <option>AP 1</option>
-                    <option>AP 2</option>
-                </select>
+                <select id="sta-ssid"></select>
             </td>
+            <td><input type="button" onclick="getNetworksInfo()" value="Refresh"></td>
         </tr>
         <tr>
             <td width="33%">Password</td>
@@ -59,11 +56,11 @@
         </tbody>
         <tr>
             <td width="33%">Status</td>
-            <td id="status">Connected</td>
+            <td id="sta-status">N/A</td>
         </tr>
         <tr>
             <td width="33%">IP address</td>
-            <td id="sta-ip-address">0.0.0.0</td>
+            <td id="sta-ip"></td>
         </tr>
     </table>
 </fieldset>
@@ -73,7 +70,19 @@
         <tbody>
         <tr>
             <td width="33%">SSID</td>
-            <td><input type="text" id="ssid" placeholder="SSID"></td>
+            <td><input type="text" id="ap-ssid" placeholder="SSID"></td>
+        </tr>
+        <tr>
+            <td width="33%">Auth</td>
+            <td>
+                <select id="ap-auth-mode">
+                    <option value="0">OPEN</option>
+                    <option value="1">WEP</option>
+                    <option value="2">WPA</option>
+                    <option value="3">WPA2</option>
+                    <option value="4">WPA/WPA2</option>
+                </select>
+            </td>
         </tr>
         <tr>
             <td width="33%">Password</td>
@@ -86,15 +95,15 @@
         <tr>
             <td width="33%">Hidden</td>
             <td>
-                <select id="ap-visibility">
-                    <option>Hidden</option>
-                    <option>Visible</option>
+                <select id="ap-hidden">
+                    <option value="0">Visible</option>
+                    <option value="1">Hidden</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td width="33%">IP address</td>
-            <td id="ap-ip-address">0.0.0.0</td>
+            <td id="ap-ip"></td>
         </tr>
         </tbody>
     </table>
