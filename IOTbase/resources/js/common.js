@@ -165,7 +165,6 @@ function getSystemInfo() {
             getE("model").innerHTML = resp["model"];
             getE("firmware").innerHTML = resp["firmware"];
             getE("chip-id").innerHTML = resp["chip-id"];
-            getE("up-time").innerHTML = resp["up-time"];
         }
     };
     req.send();

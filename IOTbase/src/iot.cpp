@@ -11,22 +11,19 @@
 #include <service_ota.h>
 
 #define CONFIG_GLOBAL "/json/config-global.json"
-#define CONFIG_STRIP "/json/config-strip.json"
 
 #define HTML_INDEX "/index.html"
 #define HTML_ADMINISTRATION "/html/administration.html"
 #define HTML_STATUS "/html/status.html"
-#define HTML_STRIP "/html/strip.html"
 #define HTML_WIFI "/html/wifi.html"
-#define HTML_IR "/html/ir.html"
+#define HTML_LOG "/html/log.html"
 
 #define CSS_COMMON "/css/common_style.css"
 #define CSS_INDEX "/css/index_style.css"
 #define CSS_LOGIN "/css/login_style.css"
 
 #define JS_COMMON "/js/common.js"
-#define JS_TIME "/js/time_requests.js"
-#define JS_STRIP "/js/strip.js"
+#define JS_LOG "/js/log.js"
 
 std::vector<ESP_Service *> services;
 
@@ -35,12 +32,10 @@ void ICACHE_FLASH_ATTR setup_front_end(RestService *web_service) {
     web_service->add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX".gz", true);
     web_service->add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML, HTML_ADMINISTRATION".gz", true);
     web_service->add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS".gz", true);
-    web_service->add_handler_file(HTML_STRIP, HTTP_ANY, RESP_HTML, HTML_STRIP".gz", true);
     web_service->add_handler_file(HTML_WIFI, HTTP_ANY, RESP_HTML, HTML_WIFI".gz", true);
-    web_service->add_handler_file(HTML_IR, HTTP_ANY, RESP_HTML, HTML_IR".gz", true);
+    web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG".gz", true);
     //JAVASCRIPT
-    web_service->add_handler_file(JS_STRIP, HTTP_ANY, RESP_JS, JS_STRIP".gz", true);
-    web_service->add_handler_file(JS_TIME, HTTP_ANY, RESP_JS, JS_TIME".gz", true);
+    web_service->add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG".gz", true);
     web_service->add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON".gz");
     //CSS
     web_service->add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON".gz");
@@ -174,6 +169,7 @@ void ICACHE_FLASH_ATTR setup() {
     WiFi.mode(WIFI_STA);
     const char *admin_acc = "admin", *admin_pass = "admin";
 
+    services.push_back(Log::getInstance());
     services.push_back(OtaService::get_instance(admin_pass));
     services.push_back(setup_web_service(admin_acc, admin_pass));
 }
