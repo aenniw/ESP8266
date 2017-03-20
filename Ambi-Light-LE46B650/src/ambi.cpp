@@ -1,9 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoOTA.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 #include <NeoPixelBus.h>
-#include <WiFiUdp.h>
 
 // TODO: remove, these needs to be changeable during runtime/reboot per user
 #define WIFI_SSID "****"
