@@ -1,9 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoOTA.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 #include <NeoPixelBus.h>
-#include <WiFiUdp.h>
 
 // TODO: remove, these needs to be changeable during runtime/reboot per user
 #define WIFI_SSID "****"
@@ -44,10 +41,17 @@ void loop() {
 #ifndef SMOOTH_FADING
             strip->SetPixelColor(p, RgbColor(buffer[0 + 3 * p], buffer[1 + 3 * p], buffer[2 + 3 * p]));
 #else
-            RgbColor current_color = strip->GetPixelColor(p);
-            strip->SetPixelColor(p, RgbColor((uint8_t) (0.5 * (buffer[0 + 3 * p] + current_color.R)),
-                                             (uint8_t) (0.5 * (buffer[1 + 3 * p] + current_color.G)),
-                                             (uint8_t) (0.5 * (buffer[2 + 3 * p] + current_color.B))));
+            RgbColor color = RgbColor((uint8_t) (0.5 * (buffer[0 + 3 * p] + strip->GetPixelColor(p).R)),
+                                      (uint8_t) (0.5 * (buffer[1 + 3 * p] + strip->GetPixelColor(p).G)),
+                                      (uint8_t) (0.5 * (buffer[2 + 3 * p] +
+                                                        strip->GetPixelColor(p).B))),
+                    color_next = p < 2 * (HORIZONTAL_LEDS + VERTICAL_LEDS) - 1 ?
+                                 strip->GetPixelColor((uint16_t) (p + 1)) : strip->GetPixelColor(0),
+                    color_prev = p > 0 ? strip->GetPixelColor((uint16_t) (p - 1)) :
+                                 strip->GetPixelColor(2 * (HORIZONTAL_LEDS + VERTICAL_LEDS) - 1);
+            strip->SetPixelColor(p, RgbColor((uint8_t) (0.3 * color_prev.R + 0.4 * color.R + 0.3 * color_next.R),
+                                             (uint8_t) (0.3 * color_prev.G + 0.4 * color.G + 0.3 * color_next.G),
+                                             (uint8_t) (0.3 * color_prev.B + 0.4 * color.B + 0.3 * color_next.B)));
 #endif
         }
         strip->Show();
