@@ -22,3 +22,6 @@ Note:
 | RX        | RXD      | DATA      | RXD                           |
 | G         | GND      | GND       | Ground                        |
 | 5V / 3V3  | - / 3.3V | +V        | Power                         |
+
+*   Connect a capacitor with a capacitance between 100uF and 1000uF from power to ground to smooth out the power supply.
+*   Add a 220 or 470 Ohm resistor between the Arduino digital output pin and the strip data input pin to reduce noise on that line.
