@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <Ticker.h>
 #include <WiFiUdp.h>
-#include <esp_api.h>
+#include <commons.h>
 #include <logger.h>
 
 typedef enum {

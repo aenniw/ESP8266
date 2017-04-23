@@ -5,8 +5,13 @@
 #include <ArduinoJson.h>
 #include <initializer_list>
 #include <FS.h>
+#include <EEPROM.h>
 
 String ICACHE_FLASH_ATTR get_file_content(const char *);
+
+class ConfigEEPROM {
+    // TODO: implement EEPROM wrapper for wiring complex data structures SEE: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM/examples
+};
 
 class ConfigJSON {
 private:

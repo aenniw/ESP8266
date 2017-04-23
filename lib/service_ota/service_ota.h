@@ -2,7 +2,7 @@
 #define OTA_SERVICE_H_
 
 #include <ArduinoOTA.h>
-#include <esp_api.h>
+#include <commons.h>
 #include <logger.h>
 
 class OtaService : public ESP_Service {

@@ -1,19 +1,12 @@
 #include <Arduino.h>
 #include <vector>
 
-#include <esp_api.h>
+#include <commons.h>
 #include <file_system.h>
 #include <service_rest.h>
 #include <service_ota.h>
 
 std::vector<ESP_Service *> services;
-
-void *checked_free(void *ptr) {
-    if (ptr != NULL) {
-        free(ptr);
-    }
-    return NULL;
-}
 
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
