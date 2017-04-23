@@ -15,6 +15,7 @@ RestService::RestService(const char *user, const char *pass,
         strcpy(acc, user);
         passwd = (char *) malloc(sizeof(char) * (1 + strlen(pass)));
         strcpy(passwd, pass);
+        login_id = generate_login_id();
     }
     web_server = new ESP8266WebServer(port);
     const char *headerkeys[] = {"Cookie"};
@@ -25,7 +26,7 @@ RestService::RestService(const char *user, const char *pass,
             on_invalid_credentials();
         } else if (HTTP_GET == web_server->method()) {
             String header("HTTP/1.1 301 OK\r\nSet-Cookie: LOGINID=");
-            header += get_login_id();
+            header += login_id;
             header += "\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
             web_server->sendContent(header);
         } else
@@ -68,8 +69,8 @@ void RestService::on_not_found() {
 #endif
 }
 
-uint32_t RestService::get_login_id() { // TODO: create on start of service
-    uint32_t id = ESP.getChipId();
+uint32_t RestService::generate_login_id() {
+    uint32_t id = ESP.getChipId() + ESP.getVcc();
     for (int i = strlen(acc); i >= 0; i--) {
         id += acc[i];
     }
@@ -95,7 +96,7 @@ bool RestService::valid_credentials() {
     }
     if (web_server->hasHeader("Cookie")) {
         String valid_cookie("LOGINID=");
-        valid_cookie += get_login_id();
+        valid_cookie += login_id;
         if (web_server->header("Cookie").indexOf(valid_cookie) != -1) {
             return true;
         }
