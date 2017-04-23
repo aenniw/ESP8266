@@ -10,7 +10,14 @@
 <div id="header">
     <input type="button" onclick="loadResource('content','status',true)" value="Home">
     <input type="button" onclick="loadResource('content','administration',true)" value="Administration">
-    <input type="button" onclick="loadResource('content','services')" value="Services">
+    <div class="drop-down">
+        <button>Services</button>
+        <div class="drop-down-content">
+            <input type="button" onclick="loadResource('content','service-a')" value="Service A">
+            <input type="button" onclick="loadResource('content','service-b')" value="Service B">
+            <input type="button" onclick="loadResource('content','service-c')" value="Service C">
+        </div>
+    </div>
     <input type="button" onclick="loadResource('content','log',true)" value="Logs">
     <input type="button" onclick="logout()" value="Logout">
 </div>
