@@ -38,3 +38,7 @@ IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/marksza
 | 4     | software restart ,system_restart , GPIO status won’t change   |
 | 5     | wake up from deep-sleep                                       |
 | 6     | external system reset                                         |
+
+#### [EspExceptionDecoder](https://github.com/me-no-dev/EspExceptionDecoder)
+
+```java -jar ./EspStackTraceDecoder.jar ~/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-addr2line ./firmware.elf ./stacktrace.txt```
