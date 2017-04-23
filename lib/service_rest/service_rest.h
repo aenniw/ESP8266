@@ -51,6 +51,7 @@ class RestService : public ESP_Service {
 protected:
     ESP8266WebServer *web_server = NULL;
     char *acc = NULL, *passwd = NULL;
+    uint32_t login_id = 0;
 
 private:
     void on_not_found();
@@ -59,7 +60,7 @@ private:
 
     bool valid_credentials();
 
-    uint32_t get_login_id();
+    uint32_t generate_login_id();
 
 public:
     RestService() : RestService(NULL, NULL, 80) {}
