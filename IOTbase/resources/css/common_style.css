@@ -70,18 +70,3 @@ input[type=button], [type=submit], button {
 input[type=button]:hover, [type=submit]:hover {
     background: #16aa56
 }
-
-.drop-down {
-    position: relative;
-    display: inline-block;
-}
-
-.drop-down-content {
-    display: none;
-    position: absolute;
-    z-index: 1;
-}
-
-.drop-down:hover .drop-down-content {
-    display: block;
-}
