@@ -6,6 +6,8 @@ Import("env")
 
 
 def cleanup_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     for root, dirs, files in os.walk(directory):
         for dir_to_proccess in dirs:
             if not dir_to_proccess.startswith("."):
@@ -44,6 +46,7 @@ def compress_html_resources():
     cleanup_dir("./data")
     print "Building resources for FS"
     process_dir("./resources")
+
 
 if "uploadfs" in BUILD_TARGETS or "buildfs" in BUILD_TARGETS:
     compress_html_resources()
