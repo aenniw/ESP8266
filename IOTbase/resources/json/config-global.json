@@ -1,4 +1,10 @@
 {
-  "acc": "admin",
-  "pass": "admin"
+  "rest-acc": "admin",
+  "rest-pass": "admin",
+  "default-config": {
+    "wifi-mode": 2,
+    "wifi-ap-ssid": "IOT-base",
+    "wifi-ap-pass": "",
+    "config-restored": 0
+  }
 }

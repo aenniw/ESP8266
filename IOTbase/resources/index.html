@@ -4,12 +4,12 @@
     <link rel="stylesheet" href="css/common_style.css">
     <link rel="stylesheet" href="css/index_style.css">
     <script language="JavaScript" type="text/javascript" src=js/common.js></script>
-    <title>Weemos IOT</title>
+    <title>ESP8266 IOT-Node</title>
 </head>
-<body onload="loadResource('content','status')">
+<body onload="loadResource('content','status',true)">
 <div id="header">
-    <input type="button" onclick="loadResource('content','status')" value="Home">
-    <input type="button" onclick="loadResource('content','administration')" value="Administration">
+    <input type="button" onclick="loadResource('content','status',true)" value="Home">
+    <input type="button" onclick="loadResource('content','administration',true)" value="Administration">
     <input type="button" onclick="loadResource('content','services')" value="Services">
     <input type="button" onclick="loadResource('content','log',true)" value="Logs">
     <input type="button" onclick="logout()" value="Logout">
@@ -18,7 +18,7 @@
 <div id="content"></div>
 
 <div id="footer">
-    <span>Copyright © 2017 · All Rights reserved · Version 0.12</span>
+    <span>Copyright © 2017 · All Rights reserved · Version 0.2</span>
 </div>
 </body>
 </html>
