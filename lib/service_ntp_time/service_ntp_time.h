@@ -49,7 +49,7 @@ typedef enum {
     UTC_14_00 = 840
 } UTC_TIME_ZONES;
 
-class NtpTimeService : public ESP_Service {
+class NtpTimeService : public Service {
 protected:
     Ticker *time_update = NULL;
     WiFiUDP *socket = NULL;

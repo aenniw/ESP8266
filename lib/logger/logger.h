@@ -7,7 +7,7 @@
 #include <Hash.h>
 #include <commons.h>
 
-class Log : public ESP_Service {
+class Log : public Service {
 private:
     static WebSocketsServer webSocket;
 public:

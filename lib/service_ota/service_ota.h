@@ -5,7 +5,7 @@
 #include <commons.h>
 #include <logger.h>
 
-class OtaService : public ESP_Service {
+class OtaService : public Service {
 private:
     static void on_progress(unsigned int progress, unsigned int total);
 

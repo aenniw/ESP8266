@@ -6,7 +6,7 @@
 #include <service_rest.h>
 #include <service_ota.h>
 
-std::vector<ESP_Service *> services;
+std::vector<Service *> services;
 
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
@@ -59,7 +59,7 @@ void ICACHE_FLASH_ATTR setup() {
 }
 
 void loop() {
-    for (std::vector<ESP_Service *>::iterator i = services.begin();
+    for (std::vector<Service *>::iterator i = services.begin();
          i != services.end(); i++)
         (*i)->cycle_routine();
     yield(); // WATCHDOG/WIFI feed

@@ -14,7 +14,7 @@ typedef enum {
 
 RgbColor wheel(byte);
 
-class RGBStrip : public ESP_Service {
+class RGBStrip : public Service {
 public:
     virtual void set_mode(STRIP_MODES);
 
