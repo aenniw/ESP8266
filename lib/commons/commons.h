@@ -2,6 +2,7 @@
 #define COMMONS_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 void *checked_free(void *ptr);
 
@@ -12,6 +13,7 @@ public:
 
 class Device {
     // TODO: design API for sensors
+    virtual uint8_t get_id();
 };
 
 #endif //COMMONS_H

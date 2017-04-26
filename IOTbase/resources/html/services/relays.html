@@ -1,0 +1,22 @@
+<fieldset>
+    <legend>Relay service</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td>
+                <input type="button" onclick='addRelay(get("available-relay-pins"))' value="Add Relay">
+                <select id="available-relay-pins">
+                    <!-- Generated HTML code will be inserted here -->
+                </select>
+                <input type="button" onclick="getAvailablePins()" value="Refresh pins">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</fieldset>
+<fieldset>
+    <legend>Active relays</legend>
+    <table>
+        <tbody id="relays"><!-- Generated HTML code will be inserted here --></tbody>
+    </table>
+</fieldset>
