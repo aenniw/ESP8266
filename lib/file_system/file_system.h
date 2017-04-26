@@ -7,6 +7,21 @@
 #include <FS.h>
 #include <EEPROM.h>
 
+#define CONFIG_GLOBAL_JSON "/json/config-global.json"
+#define HTML_INDEX "/index.html"
+#define HTML_LOGIN "/login.html"
+#define HTML_ADMINISTRATION "/html/administration.html"
+#define HTML_STATUS "/html/status.html"
+#define HTML_WIFI "/html/wifi.html"
+#define HTML_LOG "/html/log.html"
+#define CSS_COMMON "/css/common_style.css"
+#define CSS_INDEX "/css/index_style.css"
+#define CSS_LOGIN "/css/login_style.css"
+#define JS_COMMON "/js/common.js"
+#define JS_LOG "/js/log.js"
+#define JS_ADMINISTRATION "/js/administration.js"
+#define JS_STATUS "/js/status.js"
+
 String ICACHE_FLASH_ATTR get_file_content(const char *);
 
 class ConfigEEPROM {
@@ -83,5 +98,9 @@ public:
 
     static char *getString(const char *file, std::initializer_list<const char *> keys);
 };
+
+void set_wifi_config_reset(const bool);
+
+const bool ICACHE_FLASH_ATTR wifi_config_reset();
 
 #endif /* WEMOS_D1_FILESYSTEM_H_ */

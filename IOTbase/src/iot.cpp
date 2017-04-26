@@ -24,37 +24,7 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_acc);
         checked_free(admin_pass);
     }
-    {   // Restore default config
-        if (!ConfigJSON::get<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"})) {
-            Log::println("Restore default config");
-            const WiFiMode_t wifi_mode = (WiFiMode_t) ConfigJSON::get<int>(CONFIG_GLOBAL_JSON,
-                                                                           {"default-config", "wifi-mode"});
-            WiFi.mode(wifi_mode);
-            char *wifi_ap_ssid = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "wifi-ap-ssid"}),
-                    *wifi_ap_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "wifi-ap-pass"}),
-                    *wifi_sta_ssid = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "wifi-sta-ssid"}),
-                    *wifi_sta_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "wifi-sta-pass"});
-            switch (wifi_mode) {
-                case WIFI_AP:
-                    WiFi.softAP(wifi_ap_ssid, wifi_ap_pass);
-                    break;
-                case WIFI_AP_STA:
-                    WiFi.softAP(wifi_ap_ssid, wifi_ap_pass);
-                    WiFi.begin(wifi_sta_ssid, wifi_sta_pass);
-                    break;
-                case WIFI_STA:
-                    WiFi.begin(wifi_sta_ssid, wifi_sta_pass);
-                    break;
-            }
-            // Toggle reset flag
-            ConfigJSON::set<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"}, true);
-            // Free allocated resources
-            checked_free(wifi_ap_ssid);
-            checked_free(wifi_ap_pass);
-            checked_free(wifi_sta_ssid);
-            checked_free(wifi_sta_pass);
-        }
-    }
+    wifi_config_reset();
     delay(500);
 }
 

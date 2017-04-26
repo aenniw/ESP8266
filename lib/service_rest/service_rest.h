@@ -16,21 +16,6 @@ extern "C" {
 #define JSON_RESP_OK "{ \"result\" : true }"
 #define JSON_RESP_NOK "{ \"result\" : false }"
 
-#define HTML_INDEX "/index.html"
-#define HTML_ADMINISTRATION "/html/administration.html"
-#define HTML_STATUS "/html/status.html"
-#define HTML_WIFI "/html/wifi.html"
-#define HTML_LOG "/html/log.html"
-#define CSS_COMMON "/css/common_style.css"
-#define CSS_INDEX "/css/index_style.css"
-#define CSS_LOGIN "/css/login_style.css"
-#define JS_COMMON "/js/common.js"
-#define JS_LOG "/js/log.js"
-#define JS_ADMINISTRATION "/js/administration.js"
-#define JS_STATUS "/js/status.js"
-
-#define CONFIG_GLOBAL_JSON "/json/config-global.json"
-
 #define RESP_JS "application/javascript"
 #define RESP_GZ "application/x-gzip"
 #define RESP_ZIP "application/x-zip"
