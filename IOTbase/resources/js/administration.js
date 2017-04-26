@@ -1,4 +1,4 @@
-serviceOnLoad.set("administration", function adminLoad() {
+serviceOnLoad.set("administration", function () {
     getGlobalConfig();
     getWifiConfig();
     getWifiApConfig();
@@ -60,9 +60,8 @@ function getWifiConfig() {
 
 function setWifiConfig() {
     // TODO: Add Mac update
-    var modes = getE("wifi-mode");
     var data = "{" +
-        " mode:" + "\"" + modes.options[modes.selectedIndex].value + "\"" + "," +
+        " mode:" + "\"" + getS("wifi-mode").value + "\"" + "," +
         " hostname:" + "\"" + get("hostname") + "\"" +
         "}";
     var req = CORSRequest("POST", "set-config-wifi");
@@ -118,9 +117,8 @@ function getWifiStaConfig() {
 }
 
 function setWifiStaConfig() {
-    var ssids = getE("sta-ssid");
     var data = "{" +
-        " ssid:" + "\"" + ssids.options[ssids.selectedIndex].innerHTML + "\"" + "," +
+        " ssid:" + "\"" + getS("sta-ssid").innerHTML + "\"" + "," +
         " pass:" + "\"" + get("sta-pass") + "\"" +
         "}";
     var req = CORSRequest("POST", "set-config-wifi-sta");

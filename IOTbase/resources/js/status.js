@@ -1,4 +1,4 @@
-serviceOnLoad.set("status", function statusLoad() {
+serviceOnLoad.set("status", function () {
     getSystemInfo();
     getCpuInfo();
     getMemInfo();

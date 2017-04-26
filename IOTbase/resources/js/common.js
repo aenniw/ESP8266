@@ -64,6 +64,11 @@ function getE(id) {
     return document.getElementById(id);
 }
 
+function getS(id) {
+    var elem = getE("sta-ssid");
+    return elem.options[elem.selectedIndex];
+}
+
 function CORSRequest(method, path) {
     var xhr = new XMLHttpRequest(),
         url = "http://" + location.host + "/" + path;
