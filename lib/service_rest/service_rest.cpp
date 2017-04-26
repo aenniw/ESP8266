@@ -81,7 +81,7 @@ uint32_t RestService::generate_login_id() {
 }
 
 void RestService::on_invalid_credentials() {
-    File file = SPIFFS.open("/login.html.gz", "r");
+    File file = SPIFFS.open(HTML_LOGIN".gz", "r");
     if (file) {
         web_server->streamFile(file, RESP_HTML);
         file.close();
