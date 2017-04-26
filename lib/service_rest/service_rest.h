@@ -47,7 +47,7 @@ typedef enum {
     ALL, HTML, CALLBACKS_WIFI, CALLBACKS_SYSTEM, LOGGING
 } REST_INIT;
 
-class RestService : public ESP_Service {
+class RestService : public Service {
 protected:
     ESP8266WebServer *web_server = NULL;
     char *acc = NULL, *passwd = NULL;

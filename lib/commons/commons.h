@@ -5,12 +5,12 @@
 
 void *checked_free(void *ptr);
 
-class ESP_Service {
+class Service {
 public:
     virtual void cycle_routine();
 };
 
-class ESP_Sensor {
+class Device {
     // TODO: design API for sensors
 };
 

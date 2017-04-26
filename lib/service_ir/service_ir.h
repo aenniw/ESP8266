@@ -10,7 +10,7 @@
 
 typedef std::function<void(void)> IRServiceFunction;
 
-class IRService : public ESP_Service {
+class IRService : public Service {
 protected:
     std::map<unsigned long, IRServiceFunction> handlers_map;
     IRrecv *ir_recv = NULL;
