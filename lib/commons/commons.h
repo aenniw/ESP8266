@@ -11,9 +11,17 @@ public:
     virtual void cycle_routine();
 };
 
+typedef enum {
+    ANY, RELAY
+} DEVICE_TYPE;
+
 class Device {
-    // TODO: design API for sensors
-    virtual uint8_t get_id();
+public:
+    virtual uint8_t get_id() const;
+
+    virtual DEVICE_TYPE get_type() const;
+
+    virtual ~Device();
 };
 
 #endif //COMMONS_H
