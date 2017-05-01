@@ -20,8 +20,6 @@ public:
     virtual uint8_t get_id() const;
 
     virtual DEVICE_TYPE get_type() const;
-
-    virtual ~Device();
 };
 
 #endif //COMMONS_H

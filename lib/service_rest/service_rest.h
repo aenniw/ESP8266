@@ -7,6 +7,7 @@
 #include <ESP8266mDNS.h>
 #include <file_system.h>
 #include <commons.h>
+#include <devices.h>
 #include <logger.h>
 
 extern "C" {
@@ -29,7 +30,7 @@ extern "C" {
 
 typedef std::function<String(String)> RestServiceFunction;
 typedef enum {
-    ALL, HTML, CALLBACKS_WIFI, CALLBACKS_SYSTEM, LOGGING
+    ALL, HTML, CALLBACKS_WIFI, CALLBACKS_SYSTEM, LOGGING, RELAYS
 } REST_INIT;
 
 class RestService : public Service {

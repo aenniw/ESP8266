@@ -55,13 +55,13 @@ void RestService::on_not_found() {
     message += web_server->headers();
     message += "\n";
     for (uint8_t i = 0; i < web_server->headers(); i++) {
-      message +=
-          " " + web_server->headerName(i) + ": " + web_server->header(i) + "\n";
+        message +=
+                " " + web_server->headerName(i) + ": " + web_server->header(i) + "\n";
     }
     message += "\nArguments: " + web_server->args();
     message += "\n";
     for (uint8_t i = 0; i < web_server->args(); i++) {
-      message += " " + web_server->argName(i) + ": " + web_server->arg(i) + "\n";
+        message += " " + web_server->argName(i) + ": " + web_server->arg(i) + "\n";
     }
     web_server->send(404, RESP_TEXT, message);
 #else
@@ -150,6 +150,7 @@ RestService *RestService::initialize(RestService *web_service,
             initialize(web_service, CALLBACKS_SYSTEM);
             initialize(web_service, CALLBACKS_WIFI);
             initialize(web_service, LOGGING);
+            initialize(web_service, RELAYS);
             break;
         case HTML:
             // HTML
@@ -207,7 +208,7 @@ RestService *RestService::initialize(RestService *web_service,
                                                   system_rtc_clock_cali_proc() *
                                                   1000000); // seconds
                                          resp += ",\"firmware\":\""
-                                         FIRMWARE;
+                                                 FIRMWARE;
                                          resp += "\",\"model\":\" Wemos D1 mini";
                                          return resp + "\"}";
                                      },
@@ -331,7 +332,7 @@ RestService *RestService::initialize(RestService *web_service,
                         if (!json.success())
                             return JSON_RESP_NOK;
                         const char *ssid = parseJSON<const char *>(json, "ssid"),
-                                *passphrase = parseJSON<const char *>(json, "passwd");
+                                *passphrase = parseJSON<const char *>(json, "pass");
                         const int32_t channel = parseJSON<uint8_t>(json, "channel");
                         if (ssid != NULL) {
                             WiFi.begin(ssid, passphrase, channel);
@@ -351,6 +352,77 @@ RestService *RestService::initialize(RestService *web_service,
                                          return resp + "]}";
                                      },
                                      true);
+            break;
+        case RELAYS:
+            web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY".gz", true);
+            web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY ".gz", true);
+
+            web_service->add_handler("/set-relay-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
+                StaticJsonBuffer<50> jsonBuffer;
+                JsonObject &json = jsonBuffer.parseObject(arg);
+                if (!json.success())
+                    return JSON_RESP_NOK;
+                const uint8_t pin = parseJSON<uint8_t>(json, "pin"),
+                        state = parseJSON<uint8_t>(json, "state");
+                Relay *d = (Relay *) Devices::get(pin);
+                if (d == NULL) {
+                    return JSON_RESP_NOK;
+                }
+                d->set_state(state);
+                return JSON_RESP_OK;
+            }, true);
+            web_service->add_handler("/devices-add", HTTP_POST, RESP_JSON, [](String arg) -> String {
+                StaticJsonBuffer<50> jsonBuffer;
+                JsonObject &json = jsonBuffer.parseObject(arg);
+                if (!json.success())
+                    return JSON_RESP_NOK;
+                const uint8_t pin = parseJSON<uint8_t>(json, "pin");
+                const DEVICE_TYPE type = (const DEVICE_TYPE) parseJSON<int8_t>(json, "type", -1);
+                if (Devices::put(pin, type) != NULL) {
+                    return JSON_RESP_OK;
+                }
+                return JSON_RESP_NOK;
+            }, true);
+            web_service->add_handler("/devices-remove", HTTP_POST, RESP_JSON, [](String arg) -> String {
+                StaticJsonBuffer<20> jsonBuffer;
+                JsonObject &json = jsonBuffer.parseObject(arg);
+                if (!json.success())
+                    return JSON_RESP_NOK;
+                const uint8_t pin = parseJSON<uint8_t>(json, "pin");
+                if (Devices::remove(pin)) {
+                    return JSON_RESP_OK;
+                }
+                return JSON_RESP_NOK;
+            }, true);
+            web_service->add_handler("/devices-get-available-pins", HTTP_GET, RESP_JSON, [](String arg) -> String {
+                String resp = "{ \"pins\":[";
+                uint32_t len = 0;
+                const uint8_t *pins = Devices::get_pins(&len);
+                for (uint32_t i = 0; i < len; i++) {
+                    resp += pins[i];
+                    if (i + 1 < len) {
+                        resp += ",";
+                    }
+                }
+                return resp + "]}";
+            }, true);
+            web_service->add_handler("/devices-get-relays", HTTP_GET, RESP_JSON, [](String arg) -> String {
+                std::list<Device *> devices;
+                Devices::get_devices(RELAY, &devices);
+                String resp = "{ \"devices\" : [";
+                for (std::list<Device *>::iterator i = devices.begin(); i != devices.end(); i++) {
+                    resp += "{ \"id\":";
+                    resp += (*i)->get_id();
+                    resp += ", \"state\":";
+                    resp += ((Relay *) (*i))->get_state();
+                    resp += "}";
+                    if (i++ != devices.end()) {
+                        resp += ",";
+                    }
+                    i--;
+                }
+                return resp + "]}";
+            }, true);
             break;
         case LOGGING:
             WiFi.onStationModeGotIP([](WiFiEventStationModeGotIP e) {
