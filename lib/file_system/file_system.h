@@ -14,6 +14,7 @@
 #define HTML_STATUS "/html/status.html"
 #define HTML_WIFI "/html/wifi.html"
 #define HTML_LOG "/html/log.html"
+#define HTML_RELAY "/html/services/relays.html"
 #define CSS_COMMON "/css/common_style.css"
 #define CSS_INDEX "/css/index_style.css"
 #define CSS_LOGIN "/css/login_style.css"
@@ -21,6 +22,7 @@
 #define JS_LOG "/js/log.js"
 #define JS_ADMINISTRATION "/js/administration.js"
 #define JS_STATUS "/js/status.js"
+#define JS_RELAY "/js/services/relays.js"
 
 String ICACHE_FLASH_ATTR get_file_content(const char *);
 

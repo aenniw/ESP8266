@@ -26,7 +26,8 @@ function switchRelayState(id) {
 }
 
 function addRelay(id) {
-    var data = '{' + '"pin":"' + getS(id).value + '"}';
+    var data = '{' + '"pin":"' + getS(id).value + '",' +
+        +'"type": 1 }';
     var req = CORSRequest("POST", "devices-add");
     req.onreadystatechange = function () {
         if (req.readyState == 4 && req.status == 200) {
