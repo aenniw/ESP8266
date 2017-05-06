@@ -19,7 +19,7 @@ def cleanup_dir(directory):
 
 def process_dir(directory):
     for root, dirs, files in os.walk(directory):
-        dest_root = "./data/" + "".join(root.split("/")[2:])
+        dest_root = "./data/" + "/".join(root.split("/")[2:])
         for name in files:
             if name.endswith((".html", ".css", ".js")):
                 with open(root + "/" + name, 'rb') as f_in, gzip.open(dest_root + "/" + name + ".gz", 'wb') as f_out:
@@ -37,7 +37,8 @@ def process_dir(directory):
                 shutil.copyfile(root + "/" + name, dest_root + "/" + name)
         for dir_to_process in dirs:
             if not dir_to_process.startswith("."):
-                os.mkdir(dest_root + "/" + dir_to_process)
+                if not os.path.exists(dest_root + "/" + dir_to_process):
+                    os.mkdir(dest_root + "/" + dir_to_process)
                 process_dir(root + "/" + dir_to_process)
 
 
