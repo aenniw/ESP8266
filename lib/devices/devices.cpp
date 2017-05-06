@@ -4,11 +4,11 @@ static std::map<uint8_t, Device *> devices;
 static const uint8_t BOARD_PINS[] = {
 #ifdef  ARDUINO_ESP8266_ESP01
         0, 2, 3, 1
-#elif ARDUINO_ESP8266_WEMOS_D1MINI
+#else
         D0, D1, D2, D3, D4, D5, D6, D7, D8, RX, TX
 #endif
 };
-static const size_t BOARD_PINS_LEN = sizeof(BOARD_PINS) / sizeof(uint8_t);
+static const size_t BOARD_PINS_LEN = sizeof(BOARD_PINS);
 
 
 void Devices::get_devices(const DEVICE_TYPE t, std::list<Device *> *d) {
@@ -82,7 +82,8 @@ bool Relay::get_state() {
 }
 
 void Relay::set_state(const bool flag) {
-    digitalWrite(pin, flag ? 1 : 0);
+    state = flag ? 1 : 0;
+    digitalWrite(pin, state);
 }
 
 uint8_t Relay::get_id() const {
