@@ -65,7 +65,7 @@ function getE(id) {
 }
 
 function getS(id) {
-    var elem = getE("sta-ssid");
+    var elem = getE(id);
     return elem.options[elem.selectedIndex];
 }
 

@@ -302,9 +302,9 @@ RestService *RestService::initialize(RestService *web_service,
                         if (!json.success())
                             return JSON_RESP_NOK;
                         const char *ssid = parseJSON<const char *>(json, "ssid"),
-                                *passphrase = parseJSON<const char *>(json, "pass");
-                        const uint8_t channel = parseJSON<uint8_t>(json, "channel"),
-                                ssid_hidden = parseJSON<uint8_t>(json, "hidden");
+                                *passphrase = parseJSON<const char *>(json, "pass", NULL);
+                        const uint8_t channel = parseJSON<uint8_t>(json, "channel", 1),
+                                ssid_hidden = parseJSON<uint8_t>(json, "hidden", 0);
                         if (ssid != NULL) {
                             WiFi.softAP(ssid, passphrase, channel, ssid_hidden);
                         } else
@@ -332,10 +332,9 @@ RestService *RestService::initialize(RestService *web_service,
                         if (!json.success())
                             return JSON_RESP_NOK;
                         const char *ssid = parseJSON<const char *>(json, "ssid"),
-                                *passphrase = parseJSON<const char *>(json, "pass");
-                        const int32_t channel = parseJSON<uint8_t>(json, "channel");
+                                *passphrase = parseJSON<const char *>(json, "pass", NULL);
                         if (ssid != NULL) {
-                            WiFi.begin(ssid, passphrase, channel);
+                            WiFi.begin(ssid, passphrase);
                         } else
                             return JSON_RESP_NOK;
                         return JSON_RESP_OK;
@@ -358,12 +357,12 @@ RestService *RestService::initialize(RestService *web_service,
             web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY ".gz", true);
 
             web_service->add_handler("/set-relay-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
-                StaticJsonBuffer<50> jsonBuffer;
+                StaticJsonBuffer<100> jsonBuffer;
                 JsonObject &json = jsonBuffer.parseObject(arg);
                 if (!json.success())
                     return JSON_RESP_NOK;
-                const uint8_t pin = parseJSON<uint8_t>(json, "pin"),
-                        state = parseJSON<uint8_t>(json, "state");
+                const uint8_t pin = parseJSON<uint8_t>(json, "pin");
+                const bool state = parseJSON<bool>(json, "state", false);
                 Relay *d = (Relay *) Devices::get(pin);
                 if (d == NULL) {
                     return JSON_RESP_NOK;
@@ -372,7 +371,7 @@ RestService *RestService::initialize(RestService *web_service,
                 return JSON_RESP_OK;
             }, true);
             web_service->add_handler("/devices-add", HTTP_POST, RESP_JSON, [](String arg) -> String {
-                StaticJsonBuffer<50> jsonBuffer;
+                StaticJsonBuffer<100> jsonBuffer;
                 JsonObject &json = jsonBuffer.parseObject(arg);
                 if (!json.success())
                     return JSON_RESP_NOK;
@@ -384,7 +383,7 @@ RestService *RestService::initialize(RestService *web_service,
                 return JSON_RESP_NOK;
             }, true);
             web_service->add_handler("/devices-remove", HTTP_POST, RESP_JSON, [](String arg) -> String {
-                StaticJsonBuffer<20> jsonBuffer;
+                StaticJsonBuffer<100> jsonBuffer;
                 JsonObject &json = jsonBuffer.parseObject(arg);
                 if (!json.success())
                     return JSON_RESP_NOK;
@@ -411,15 +410,14 @@ RestService *RestService::initialize(RestService *web_service,
                 Devices::get_devices(RELAY, &devices);
                 String resp = "{ \"devices\" : [";
                 for (std::list<Device *>::iterator i = devices.begin(); i != devices.end(); i++) {
+                    if (i != devices.begin()) {
+                        resp += ",";
+                    }
                     resp += "{ \"id\":";
                     resp += (*i)->get_id();
                     resp += ", \"state\":";
                     resp += ((Relay *) (*i))->get_state();
                     resp += "}";
-                    if (i++ != devices.end()) {
-                        resp += ",";
-                    }
-                    i--;
                 }
                 return resp + "]}";
             }, true);
