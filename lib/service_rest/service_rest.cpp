@@ -363,7 +363,7 @@ RestService *RestService::initialize(RestService *web_service,
                     return JSON_RESP_NOK;
                 const uint8_t pin = parseJSON<uint8_t>(json, "pin");
                 const bool state = parseJSON<bool>(json, "state", false);
-                Relay *d = (Relay *) Devices::get(pin);
+                DigitalIO *d = (DigitalIO *) Devices::get(pin);
                 if (d == NULL) {
                     return JSON_RESP_NOK;
                 }
@@ -407,7 +407,7 @@ RestService *RestService::initialize(RestService *web_service,
             }, true);
             web_service->add_handler("/devices-get-relays", HTTP_GET, RESP_JSON, [](String arg) -> String {
                 std::list<Device *> devices;
-                Devices::get_devices(RELAY, &devices);
+                Devices::get_devices(DIGITAL_IO, &devices);
                 String resp = "{ \"devices\" : [";
                 for (std::list<Device *>::iterator i = devices.begin(); i != devices.end(); i++) {
                     if (i != devices.begin()) {
@@ -416,7 +416,7 @@ RestService *RestService::initialize(RestService *web_service,
                     resp += "{ \"id\":";
                     resp += (*i)->get_id();
                     resp += ", \"state\":";
-                    resp += ((Relay *) (*i))->get_state();
+                    resp += ((DigitalIO *) (*i))->get_state();
                     resp += "}";
                 }
                 return resp + "]}";

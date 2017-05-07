@@ -22,12 +22,12 @@ public:
     static void get_devices(const DEVICE_TYPE, std::list<Device *> *d);
 };
 
-class Relay : public Device {
+class DigitalIO : public Device {
 private:
     uint8_t pin, state = 0;
 
 public:
-    Relay(const uint8_t);
+    DigitalIO(const uint8_t);
 
     bool get_state();
 

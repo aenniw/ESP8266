@@ -43,8 +43,8 @@ Device *Devices::put(const uint8_t p, const DEVICE_TYPE t) {
     }
     Device *d = NULL;
     switch (t) {
-        case RELAY:
-            d = new Relay(p);
+        case DIGITAL_IO:
+            d = new DigitalIO(p);
             break;
         default:
             return NULL;
@@ -71,25 +71,25 @@ Device *Devices::get(const uint8_t p) {
     return devices[p];
 }
 
-Relay::Relay(const uint8_t p) {
+DigitalIO::DigitalIO(const uint8_t p) {
     pin = p;
     pinMode(pin, OUTPUT);
     digitalWrite(pin, 0);
 }
 
-bool Relay::get_state() {
+bool DigitalIO::get_state() {
     return state;
 }
 
-void Relay::set_state(const bool flag) {
+void DigitalIO::set_state(const bool flag) {
     state = flag ? 1 : 0;
     digitalWrite(pin, state);
 }
 
-uint8_t Relay::get_id() const {
+uint8_t DigitalIO::get_id() const {
     return pin;
 }
 
-DEVICE_TYPE Relay::get_type() const {
-    return RELAY;
+DEVICE_TYPE DigitalIO::get_type() const {
+    return DIGITAL_IO;
 }
