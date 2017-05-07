@@ -12,7 +12,7 @@ public:
 };
 
 typedef enum {
-    ANY, RELAY
+    ANY, DIGITAL_IO
 } DEVICE_TYPE;
 
 class Device {
