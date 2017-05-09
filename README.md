@@ -39,6 +39,10 @@ IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/marksza
 | 5     | wake up from deep-sleep                                       |
 | 6     | external system reset                                         |
 
-#### [EspExceptionDecoder](https://github.com/me-no-dev/EspExceptionDecoder)
+#### [ESP exception decoder](https://github.com/me-no-dev/EspExceptionDecoder)
 
 ```java -jar ./EspStackTraceDecoder.jar ~/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-addr2line ./firmware.elf ./stacktrace.txt```
+
+#### ESP erase flash
+
+```esptool.py --port <serial-port-of-ESP8266> erase_flash```
