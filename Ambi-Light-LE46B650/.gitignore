@@ -1,6 +1,0 @@
-.pioenvs
-.piolibdeps
-CMakeListsPrivate.txt
-/.idea/
-.clang_complete
-.gcc-flags.json
