@@ -30,7 +30,12 @@ extern "C" {
 
 typedef std::function<String(String)> RestServiceFunction;
 typedef enum {
-    ALL, HTML, CALLBACKS_WIFI, CALLBACKS_SYSTEM, LOGGING, RELAYS
+    ALL = 0xFFFFFFFF,
+    HTML = 1,
+    CALLBACKS_WIFI = 2,
+    CALLBACKS_SYSTEM = 4,
+    LOGGING = 8,
+    RELAYS = 16
 } REST_INIT;
 
 class RestService : public Service {
