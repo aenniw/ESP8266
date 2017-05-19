@@ -1,0 +1,1 @@
+../../../IOTbase/resources/js/common.js

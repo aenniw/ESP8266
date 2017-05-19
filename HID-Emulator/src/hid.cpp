@@ -1,38 +1,46 @@
 #include <Arduino.h>
-#include <Wire.h>
+#include <vector>
 
-#define WIFI_SSID "****"
-#define WIFI_PASS "****"
-#define I2C_ADDRESS   0x48              // 7 bit I2C address
+#include <commons.h>
+#include <file_system.h>
+#include <service_rest.h>
+#include <service_ota.h>
+
+std::vector<Service *> services;
 
 void ICACHE_FLASH_ATTR setup() {
     Serial.begin(115200);
-    Wire.begin(D2, D1);
-    delay(100);
-    Serial.write("Ready\n");
-}
-
-void i2c_write(const char *data) {
-    Wire.beginTransmission(I2C_ADDRESS);
-    Wire.write(data);
-    if (Wire.endTransmission()) {
-        Serial.write("I2C transmission error.\n");
-        return;
+#ifdef __DEBUG__
+    Log::init();
+#endif
+    if (!SPIFFS.begin()) {
+#ifdef __DEBUG__
+        Log::println("SPIFFS failed to initialize flash corrupted?");
+#endif
     }
-    // AT response
-    /*Wire.requestFrom(I2C_ADDRESS, 1, 1);
-    Serial.print("Resp: ");
-    while (Wire.available()) {
-        Serial.write((char) (48 + Wire.read()));
+    {   // Services setup
+        char *admin_acc = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-acc"}),
+                *admin_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-pass"});
+#ifdef __DEBUG__
+        services.push_back(Log::getInstance());
+#endif
+        services.push_back(OtaService::get_instance(admin_pass));
+        services.push_back(
+                RestService::initialize(new RestService(admin_acc, admin_pass, 80),
+                                        CALLBACKS_SYSTEM | CALLBACKS_WIFI | HTML));
+#ifdef __DEBUG__
+        Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);
+#endif
+        checked_free(admin_acc);
+        checked_free(admin_pass);
     }
-    Serial.println();*/
+    wifi_config_reset();
+    delay(500);
 }
 
 void loop() {
-    if (Serial.available()) {
-        String data = Serial.readStringUntil('\n');
-        i2c_write(data.c_str());
-        Serial.println("Send");
-    }
+    for (std::vector<Service *>::iterator i = services.begin();
+         i != services.end(); i++)
+        (*i)->cycle_routine();
     yield(); // WATCHDOG/WIFI feed
 }
