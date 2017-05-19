@@ -6,3 +6,4 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(IOTbase)
 add_subdirectory(Ambi-Light-LE46B650)
+add_subdirectory(HID-Emulator)
