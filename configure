@@ -3,9 +3,8 @@
 ## Builds CMake structure with platformio for Clion
 for PROJECT in $(ls -d ${1:-.}/*/platformio.ini); do
     cd ${PROJECT%*/*}
-    test -f ./CMakeLists.txt && mv ./CMakeLists.txt ./CMakeLists_backup.txt
     platformio init --ide clion
     rm ./.travis.yml ./lib/readme.txt ./.gitignore
-    test -f ./CMakeLists_backup.txt && rm ./CMakeLists.txt && mv ./CMakeLists_backup.txt ./CMakeLists.txt
+    git checkout ./CMakeLists.txt
     cd ..
 done
