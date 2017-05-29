@@ -6,3 +6,4 @@ CMakeListsPrivate.txt
 .idea/
 /cmake-build-debug/
 /IOTbase/data/*
+/HID-Emulator/data/*

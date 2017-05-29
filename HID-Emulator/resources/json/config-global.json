@@ -1,1 +1,10 @@
-../../../IOTbase/resources/json/config-global.json
+{
+  "rest-acc": "admin",
+  "rest-pass": "admin",
+  "default-config": {
+    "wifi-mode": 2,
+    "wifi-ap-ssid": "HID-Emulator",
+    "wifi-ap-pass": "",
+    "config-restored": 0
+  }
+}
