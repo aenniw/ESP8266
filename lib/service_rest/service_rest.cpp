@@ -142,48 +142,21 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
 
 void RestService::cycle_routine() { web_server->handleClient(); }
 
-RestService *RestService::initialize(RestService *web_service,
-                                     REST_INIT scope) {
-    if ((scope & HTML) == HTML) {
-        web_service->add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX
-        ".gz",
-                true);
-        web_service->add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML,
-                                      HTML_ADMINISTRATION
-        ".gz", true);
-        web_service->add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML,
-                                      HTML_STATUS
-        ".gz", true);
-        web_service->add_handler_file(HTML_WIFI, HTTP_ANY, RESP_HTML,
-                                      HTML_WIFI
-        ".gz", true);
-        web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG
-        ".gz",
-                true);
-        // JAVASCRIPT
-        web_service->add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG
-        ".gz",
-                true);
-        web_service->add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION
-        ".gz",
-                true);
-        web_service->add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS
-        ".gz",
-                true);
-        web_service->add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS,
-                                      JS_COMMON
-        ".gz");
-        // CSS
-        web_service->add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS,
-                                      CSS_COMMON
-        ".gz");
-        web_service->add_handler_file(CSS_INDEX, HTTP_ANY, RESP_CSS,
-                                      CSS_INDEX
-        ".gz");
-        web_service->add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS,
-                                      CSS_LOGIN
-        ".gz");
-        // JSON
+RestService *RestService::initialize(RestService *web_service, REST_INIT scope) {
+    if ((scope & HTML_ADMIN_FILES) == HTML_ADMIN_FILES) {
+        web_service->add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML,HTML_ADMINISTRATION".gz", true);
+        web_service->add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION".gz", true);
+    }
+    if ((scope & HTML_STATUS_FILES) == HTML_STATUS_FILES) {
+        web_service->add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS".gz", true);
+        web_service->add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS".gz", true);
+    }
+    if ((scope & HTML_COMMON_FILES) == HTML_COMMON_FILES) {
+        web_service->add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX".gz", true);
+        web_service->add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON".gz");
+        web_service->add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON".gz");
+        web_service->add_handler_file(CSS_INDEX, HTTP_ANY, RESP_CSS, CSS_INDEX".gz");
+        web_service->add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS, CSS_LOGIN".gz");
         web_service->add_handler_file("/get-config-global", HTTP_ANY, RESP_JSON, CONFIG_GLOBAL_JSON, true);
     }
     if ((scope & CALLBACKS_SYSTEM) == CALLBACKS_SYSTEM) {
@@ -356,11 +329,8 @@ RestService *RestService::initialize(RestService *web_service,
                                  true);
     }
     if ((scope & RELAYS) == RELAYS) {
-        web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY
-        ".gz", true);
-        web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY
-        ".gz", true);
-
+        web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY".gz", true);
+        web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY".gz", true);
         web_service->add_handler("/set-relay-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
@@ -428,6 +398,8 @@ RestService *RestService::initialize(RestService *web_service,
         }, true);
     }
     if ((scope & LOGGING) == LOGGING) {
+        web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG".gz", true);
+        web_service->add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG".gz", true);
         WiFi.onStationModeGotIP([](WiFiEventStationModeGotIP e) {
             Log::println("Got IP:%s", e.ip.toString().c_str());
         });
