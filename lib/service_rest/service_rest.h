@@ -31,11 +31,15 @@ extern "C" {
 typedef std::function<String(String)> RestServiceFunction;
 typedef enum {
     ALL = 0xFFFFFFFF,
-    HTML = 1,
-    CALLBACKS_WIFI = 2,
-    CALLBACKS_SYSTEM = 4,
-    LOGGING = 8,
-    RELAYS = 16
+    CALLBACKS_WIFI = 0x1,
+    CALLBACKS_SYSTEM = 0x2,
+    LOGGING = 0x4,
+    RELAYS = 0x8,
+    HTML_COMMON_FILES = 0x10,
+    HTML_ADMIN_FILES = 0x20,
+    HTML_STATUS_FILES = 0x40,
+    // 0x80 available
+    HTML_ALL_FILES = 0xF0
 } REST_INIT;
 
 class RestService : public Service {
@@ -70,10 +74,8 @@ public:
 
     virtual ~RestService() {
         delete web_server;
-        if (acc != NULL)
-            free(acc);
-        if (passwd != NULL)
-            free(passwd);
+        checked_free(acc);
+        checked_free(passwd);
     }
 };
 

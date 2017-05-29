@@ -7,6 +7,7 @@
 #include <Hash.h>
 #include <commons.h>
 
+// TODO: add auth option
 class Log : public Service {
 private:
     static WebSocketsServer webSocket;
