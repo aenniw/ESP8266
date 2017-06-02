@@ -46,3 +46,23 @@ IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/marksza
 #### ESP erase flash
 
 ```esptool.py --port <serial-port-of-ESP8266> erase_flash```
+
+## Setup environment
+```
+sudo pip install platformio
+```
+
+## Build
+```
+for PROJECT in ./*/platformio.ini; do
+    cd ${PROJECT%*/*} && platformio run && cd ../;
+done
+```
+
+## SubProjects
+[Ambi-Light-SamyGO](Ambi-Light-LE46B650/README.md) |
+[HID-Emulator](HID-Emulator/README.md) |
+[Template](IOTbase/README.md)
+
+#### References
+How to setup [ESP8266-01 I2C](http://www.forward.com.au/pfod/ESP8266/GPIOpins/ESP8266_01_pin_magic.html)
