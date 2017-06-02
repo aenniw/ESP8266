@@ -1,15 +1,17 @@
 # HID-Emulator
 
-Projects is part of [Ambi-Light](https://github.com/aenniw/SamyGo/tree/master/Ambi-Light) project.
+Projects is part of [Digispark HID-Emulator](https://github.com/aenniw/ATTINY85/tree/master/HID-Emulator) project.
 
 #### Used pin-outs
 
 | Wemos D1  | ESP-8266 | Led Strip | Function                      |
 |:---------:|:--------:|:---------:|:-----------------------------:|
-| RX        | RXD      | DATA      | RXD                           |
-| G         | GND      | GND       | Ground                        |
-| 5V / 3V3  | - / 3.3V | +V        | Power                         |
+| TX        | TXD      | 1         | TXD                           |
+| RX        | RXD      | 3         | RXD                           |
+| G         | GND      | -         | Ground                        |
+| 5V / 3V3  | - / 3.3V | -         | Power                         |
 
-#### References
-
-How to setup [ESP8266-01 I2C](http://www.forward.com.au/pfod/ESP8266/GPIOpins/ESP8266_01_pin_magic.html)
+#### Keyboard layout
+```
+    N/A
+```
