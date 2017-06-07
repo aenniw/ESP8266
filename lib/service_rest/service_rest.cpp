@@ -328,10 +328,10 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
                                  },
                                  true);
     }
-    if ((scope & RELAYS) == RELAYS) {
+    if ((scope & HTML_DIGITAL_IO) == HTML_DIGITAL_IO) {
         web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY".gz", true);
         web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY".gz", true);
-        web_service->add_handler("/set-relay-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
+        web_service->add_handler("/set-d-io-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
             if (!json.success())
@@ -380,7 +380,7 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
             }
             return resp + "]}";
         }, true);
-        web_service->add_handler("/devices-get-relays", HTTP_GET, RESP_JSON, [](String arg) -> String {
+        web_service->add_handler("/devices-get-d-io", HTTP_GET, RESP_JSON, [](String arg) -> String {
             std::list < Device * > devices;
             Devices::get_devices(DIGITAL_IO, &devices);
             String resp = "{ \"devices\" : [";

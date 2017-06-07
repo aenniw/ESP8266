@@ -1,11 +1,11 @@
 <fieldset>
-    <legend>Relay service</legend>
+    <legend>Digital-IO service</legend>
     <table>
         <tbody>
         <tr>
             <td>
-                <input type="button" onclick='addRelay(getS("available-relay-pins").value)' value="Add Relay">
-                <select id="available-relay-pins">
+                <input type="button" onclick='addDigitalIO(getS("available-d-io-pins").value)' value="Add Digital-IO">
+                <select id="available-d-io-pins">
                     <!-- Generated HTML code will be inserted here -->
                 </select>
                 <input type="button" onclick="getAvailablePins()" value="Refresh pins">
@@ -15,8 +15,8 @@
     </table>
 </fieldset>
 <fieldset>
-    <legend>Active relays</legend>
+    <legend>Assigned Digital-IOs</legend>
     <table>
-        <tbody id="relays"><!-- Generated HTML code will be inserted here --></tbody>
+        <tbody id="d-ios"><!-- Generated HTML code will be inserted here --></tbody>
     </table>
 </fieldset>
