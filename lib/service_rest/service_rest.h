@@ -34,12 +34,12 @@ typedef enum {
     CALLBACKS_WIFI = 0x1,
     CALLBACKS_SYSTEM = 0x2,
     LOGGING = 0x4,
-    RELAYS = 0x8,
+    HTML_DIGITAL_IO = 0x8,
     HTML_COMMON_FILES = 0x10,
     HTML_ADMIN_FILES = 0x20,
     HTML_STATUS_FILES = 0x40,
     // 0x80 available
-    HTML_ALL_FILES = 0xF0
+    HTML_ALL_FILES = 0xF8
 } REST_INIT;
 
 class RestService : public Service {
