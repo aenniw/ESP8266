@@ -1,16 +1,5 @@
 #include <file_system.h>
 
-String ICACHE_FLASH_ATTR get_file_content(const char *file_name) {
-    File file = SPIFFS.open(file_name, "r");
-    if (!file) {
-        Serial.println("Failed to open file");
-        return "";
-    }
-    String data = file.readString();
-    file.close();
-    return data;
-}
-
 void set_wifi_config_reset(const bool flag) {
     ConfigJSON::set<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"}, !flag);
 }
@@ -36,6 +25,8 @@ const bool ICACHE_FLASH_ATTR wifi_config_reset() {
             case WIFI_STA:
                 WiFi.begin(wifi_sta_ssid, wifi_sta_pass);
                 break;
+            default:
+                break;
         }
         // Toggle reset flag
         set_wifi_config_reset(false);
@@ -49,8 +40,8 @@ const bool ICACHE_FLASH_ATTR wifi_config_reset() {
     return false;
 }
 
-char * ICACHE_FLASH_ATTR ConfigJSON::get_string(JsonObject &json, std::initializer_list<const char *> *keys,
-                                    std::initializer_list<const char *>::const_iterator i) {
+char *ICACHE_FLASH_ATTR ConfigJSON::get_string(JsonObject &json, std::initializer_list<const char *> *keys,
+                                               std::initializer_list<const char *>::const_iterator i) {
     if (!json.containsKey(*i)) {
         return NULL;
     } else if (keys->end() == i + 1) {
@@ -82,5 +73,33 @@ char *ConfigJSON::getString(const char *file, std::initializer_list<const char *
         return NULL;
     } else {
         return get_string(json, &keys, keys.begin());
+    }
+}
+
+void ConfigJSON::del(const char *file, std::initializer_list<const char *> keys) {
+    File configFile = SPIFFS.open(file, "r");
+    if (!configFile) return;
+    std::unique_ptr<char[]> buf(new char[configFile.size()]);
+    configFile.readBytes(buf.get(), configFile.size());
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    configFile.close();
+    configFile = SPIFFS.open(file, "w");
+    if (!configFile) return;
+    del_default(json, &keys, keys.begin());
+    json.printTo(configFile);
+    configFile.close();
+}
+
+void ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char *> *keys,
+                             std::initializer_list<const char *>::const_iterator i) {
+    if (keys->end() == i + 1) {
+        json.remove(*i);
+    } else {
+        if (!json.containsKey(*i)) {
+            json.createNestedObject(*i);
+        } else {
+            del_default(json[*i].as<JsonObject>(), keys, i + 1);
+        }
     }
 }
