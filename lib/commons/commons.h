@@ -20,6 +20,10 @@ public:
     virtual uint8_t get_id() const;
 
     virtual DEVICE_TYPE get_type() const;
+
+    virtual void clean(); // FIXME: remove and use only destructor
+
+    //virtual ~Device() {};
 };
 
 #endif //COMMONS_H

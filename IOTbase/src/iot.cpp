@@ -25,6 +25,7 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_pass);
     }
     wifi_config_reset();
+    Devices::parse_devices(CONFIG_IO_JSON, DIGITAL_IO);
     delay(500);
 }
 

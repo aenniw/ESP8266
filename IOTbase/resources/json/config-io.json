@@ -1,0 +1,10 @@
+{
+  "digital-io": {
+    "2": {
+      "name": "Build-in LED",
+      "state": false
+    }
+  },
+  "analog-io": {
+  }
+}

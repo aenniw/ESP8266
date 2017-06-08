@@ -24,7 +24,7 @@
 #define JS_STATUS "/js/status.js"
 #define JS_RELAY "/js/svc/d-io.js"
 
-String ICACHE_FLASH_ATTR get_file_content(const char *);
+#define CONFIG_IO_JSON "/json/config-io.json"
 
 class ConfigEEPROM {
     // TODO: implement EEPROM wrapper for wiring complex data structures SEE: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM/examples
@@ -57,6 +57,9 @@ private:
             }
         }
     }
+
+    static void ICACHE_FLASH_ATTR del_default(JsonObject &json, std::initializer_list<const char *> *keys,
+                                              std::initializer_list<const char *>::const_iterator i);
 
     static char *ICACHE_FLASH_ATTR get_string(JsonObject &json, std::initializer_list<const char *> *keys,
                                               std::initializer_list<const char *>::const_iterator i);
@@ -97,6 +100,8 @@ public:
         configFile.close();
         return true;
     }
+
+    static void del(const char *file, std::initializer_list<const char *> keys);
 
     static char *getString(const char *file, std::initializer_list<const char *> keys);
 };
