@@ -140,7 +140,10 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
     });
 }
 
-void RestService::cycle_routine() { web_server->handleClient(); }
+void RestService::cycle_routine() {
+    web_server->handleClient();
+    MDNS.update();
+}
 
 RestService *RestService::initialize(RestService *web_service, REST_INIT scope) {
     if ((scope & HTML_ADMIN_FILES) == HTML_ADMIN_FILES) {
@@ -220,12 +223,14 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
     if ((scope & CALLBACKS_WIFI) == CALLBACKS_WIFI) {
         web_service->add_handler("/get-config-wifi", HTTP_ANY, RESP_JSON,
                                  [](String arg) -> String {
+                                     char *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
                                      String resp = "{\"mode\":";
                                      resp += WiFi.getMode();
                                      resp += ",\"mac\":";
                                      resp += "\"" + WiFi.macAddress() + "\"";
                                      resp += ",\"hostname\":\"";
-                                     resp += WiFi.hostname();
+                                     resp += host_name;
+                                     checked_free(host_name);
                                      return resp + "\"}";
                                  }, true);
         web_service->add_handler("/set-config-wifi", HTTP_POST, RESP_JSON,
@@ -237,7 +242,9 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
                                      const char *hostname =
                                              parseJSON<const char *>(json, "hostname");
                                      if (hostname != NULL) {
+                                         MDNS.setInstanceName(hostname);
                                          WiFi.hostname(hostname);
+                                         ConfigJSON::set<const char *>(CONFIG_GLOBAL_JSON, {"host-name"}, hostname);
                                      }
                                      const int8_t mode = parseJSON<int8_t>(json, "mode", -1);
                                      if (mode != -1) {
@@ -310,6 +317,7 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
                     const char *ssid = parseJSON<const char *>(json, "ssid"),
                             *passphrase = parseJSON<const char *>(json, "pass", NULL);
                     if (ssid != NULL) {
+                        WiFi.softAPdisconnect(true);
                         WiFi.begin(ssid, passphrase);
                     } else
                         return JSON_RESP_NOK;
