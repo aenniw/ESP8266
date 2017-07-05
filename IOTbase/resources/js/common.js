@@ -28,8 +28,16 @@ function loadResource(id, service, loadJs) {
     }
 }
 
+function createFooter(id) {
+    getE(id).innerHTML = "<span>Copyright © " + new Date().getFullYear() + " · All Rights reserved · Version 0.2</span>";
+}
+
 function restart() {
     CORSRequest("POST", "restart").send();
+}
+
+function factoryReset() {
+    CORSRequest("POST", "reset-config").send();
 }
 
 function login() {

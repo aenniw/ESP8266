@@ -32,7 +32,7 @@ span {
     border-radius: 3px 0 0 3px
 }
 
-input[type=text], input[type=number], input[type=password], input[type=datetime-local], select {
+input[type=text], input[type=number], input[type=password], input[type=datetime-local], input[type=checkbox], input[type=range], select {
     background-color: #3b4148;
     color: #a9a9a9
 }
@@ -43,7 +43,7 @@ input[type=checkbox] {
     position: relative
 }
 
-input[type=text], input[type=number], input[type=password] {
+input[type=text], input[type=number], input[type=password], input[type=range] {
     border-radius: 0 3px 3px 0;
     margin-bottom: 1em;
     padding: 0 16px;

@@ -6,10 +6,10 @@ serviceOnLoad.set("svc/d-io", function () {
 function generateDigitalIOHTML(id, state) {
     id = String(id).toLowerCase();
     return '<tr id="d-io-' + id + '">' +
-        '<td width="33%" id="d-io-' + id + '-name">IO PIN ' + String(id).toUpperCase() + '</td>' +
-        '<td id="d-io-' + id + '-state">' + (state ? 'OFF' : 'ON') + '</td>' +
-        '<td><input type="button" onclick="switchDigitalIOState(' + id + ')" value="Switch"></td>' +
-        '<td><input type="button" onclick="removeDigitalIO(' + id + ')" value="Remove"></td>' +
+        '<td width="40%" id="d-io-' + id + '-name">IO PIN ' + String(id).toUpperCase() + '</td>' +
+        '<td width="20%" id="d-io-' + id + '-state">' + (state ? 'OFF' : 'ON') + '</td>' +
+        '<td width="20%" ><input type="button" onclick="switchDigitalIOState(' + id + ')" value="Switch"></td>' +
+        '<td width="20%" ><input type="button" onclick="removeDigitalIO(' + id + ')" value="Remove"></td>' +
         '</tr>';
 }
 
