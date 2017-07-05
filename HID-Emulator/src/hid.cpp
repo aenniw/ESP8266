@@ -6,6 +6,7 @@
 #include <service_rest.h>
 #include <service_ota.h>
 #include <service_hid.h>
+#include <configuration.h>
 
 #define JS_HID "/js/hid.js"
 #define HTML_HID "/html/hid.html"
@@ -31,8 +32,8 @@ void ICACHE_FLASH_ATTR setup() {
         services.push_back(HID::getInstance());
         //services.push_back(HID::getInstance(admin_acc, admin_pass));
         services.push_back(OtaService::get_instance(admin_pass));
-        RestService *rest_service = RestService::initialize(new RestService(admin_acc, admin_pass, 80),
-                                                            (REST_INIT) (CALLBACKS_SYSTEM | CALLBACKS_WIFI |
+        RestService *rest_service = init_rest(new RestService(admin_acc, admin_pass, 80),
+                                              (REST_INIT) (CALLBACKS_SYSTEM | CALLBACKS_WIFI |
                                                                          #ifdef __DEBUG__
                                                                          LOGGING |
                                                                          #endif
