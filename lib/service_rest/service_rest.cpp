@@ -81,7 +81,9 @@ uint32_t RestService::generate_login_id() {
 }
 
 void RestService::on_invalid_credentials() {
-    File file = SPIFFS.open(HTML_LOGIN".gz", "r");
+    File
+    file = SPIFFS.open(HTML_LOGIN
+    ".gz", "r");
     if (file) {
         web_server->streamFile(file, RESP_HTML);
         file.close();
@@ -147,19 +149,28 @@ void RestService::cycle_routine() {
 
 RestService *RestService::initialize(RestService *web_service, REST_INIT scope) {
     if ((scope & HTML_ADMIN_FILES) == HTML_ADMIN_FILES) {
-        web_service->add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML,HTML_ADMINISTRATION".gz", true);
-        web_service->add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION".gz", true);
+        web_service->add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML, HTML_ADMINISTRATION
+        ".gz", true);
+        web_service->add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION
+        ".gz", true);
     }
     if ((scope & HTML_STATUS_FILES) == HTML_STATUS_FILES) {
-        web_service->add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS".gz", true);
-        web_service->add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS".gz", true);
+        web_service->add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS
+        ".gz", true);
+        web_service->add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS
+        ".gz", true);
     }
     if ((scope & HTML_COMMON_FILES) == HTML_COMMON_FILES) {
-        web_service->add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX".gz", true);
-        web_service->add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON".gz");
-        web_service->add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON".gz");
-        web_service->add_handler_file(CSS_INDEX, HTTP_ANY, RESP_CSS, CSS_INDEX".gz");
-        web_service->add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS, CSS_LOGIN".gz");
+        web_service->add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX
+        ".gz", true);
+        web_service->add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON
+        ".gz");
+        web_service->add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON
+        ".gz");
+        web_service->add_handler_file(CSS_INDEX, HTTP_ANY, RESP_CSS, CSS_INDEX
+        ".gz");
+        web_service->add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS, CSS_LOGIN
+        ".gz");
         web_service->add_handler_file("/get-config-global", HTTP_ANY, RESP_JSON, CONFIG_GLOBAL_JSON, true);
     }
     if ((scope & CALLBACKS_SYSTEM) == CALLBACKS_SYSTEM) {
@@ -216,6 +227,12 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
         web_service->add_handler("/restart", HTTP_POST, RESP_JSON,
                                  [](String arg) -> String {
                                      ESP.restart();
+                                     return JSON_RESP_OK;
+                                 },
+                                 true);
+        web_service->add_handler("/reset-config", HTTP_POST, RESP_JSON,
+                                 [](String arg) -> String {
+                                     set_wifi_config_reset(true);
                                      return JSON_RESP_OK;
                                  },
                                  true);
@@ -337,8 +354,10 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
                                  true);
     }
     if ((scope & HTML_DIGITAL_IO) == HTML_DIGITAL_IO) {
-        web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY".gz", true);
-        web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY".gz", true);
+        web_service->add_handler_file(HTML_RELAY, HTTP_ANY, RESP_HTML, HTML_RELAY
+        ".gz", true);
+        web_service->add_handler_file(JS_RELAY, HTTP_ANY, RESP_JS, JS_RELAY
+        ".gz", true);
         web_service->add_handler("/set-d-io-state", HTTP_POST, RESP_JSON, [](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
@@ -405,9 +424,17 @@ RestService *RestService::initialize(RestService *web_service, REST_INIT scope) 
             return resp + "]}";
         }, true);
     }
+    if ((scope & HTML_LED_STRIP_FILES) == HTML_LED_STRIP_FILES) {
+        web_service->add_handler_file(HTML_STRIP, HTTP_ANY, RESP_HTML, HTML_STRIP
+        ".gz", true);
+        web_service->add_handler_file(JS_STRIP, HTTP_ANY, RESP_JS, JS_STRIP
+        ".gz", true);
+    }
     if ((scope & LOGGING) == LOGGING) {
-        web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG".gz", true);
-        web_service->add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG".gz", true);
+        web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG
+        ".gz", true);
+        web_service->add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG
+        ".gz", true);
         WiFi.onStationModeGotIP([](WiFiEventStationModeGotIP e) {
             Log::println("Got IP:%s", e.ip.toString().c_str());
         });

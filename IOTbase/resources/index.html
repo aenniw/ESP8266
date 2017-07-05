@@ -1,12 +1,18 @@
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="css/common_style.css">
     <link rel="stylesheet" href="css/index_style.css">
+    <!-- link rel="stylesheet" media="only screen and (max-width: 480px), only screen and (max-device-width: 480px)"
+          href="css/common_style_m.css"/-->
+    <!-- link rel="stylesheet" media="only screen and (max-width: 480px), only screen and (max-device-width: 480px)"
+          href="css/index_style_m.css"/-->
     <script language="JavaScript" type="text/javascript" src=js/common.js></script>
-    <title>ESP8266 IOT-Node</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP8266 Web-UI</title>
 </head>
-<body onload="loadResource('content','status',true)">
+<body onload="  createFooter('footer');
+                loadResource('content','status',true);">
 <div id="header">
     <input type="button" onclick="loadResource('content','status',true)" value="Home">
     <input type="button" onclick="loadResource('content','administration',true)" value="Administration">
@@ -14,17 +20,13 @@
         <button>Services</button>
         <div class="drop-down-content">
             <input type="button" onclick="loadResource('content','svc/d-io',true)" value="Digital IO">
-            <!-- input type="button" onclick="loadResource('content','service-b')" value="Service B" -->
+            <input type="button" onclick="loadResource('content','svc/l-strip',true)" value="Led strip">
         </div>
     </div>
     <input type="button" onclick="loadResource('content','log',true)" value="Logs">
     <input type="button" onclick="logout()" value="Logout">
 </div>
-
-<div id="content"></div>
-
-<div id="footer">
-    <span>Copyright © 2017 · All Rights reserved · Version 0.2</span>
-</div>
+<div id="content"><!-- Generated HTML code will be inserted here --></div>
+<div id="footer"><!-- Generated HTML code will be inserted here --></div>
 </body>
 </html>

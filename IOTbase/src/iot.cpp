@@ -15,14 +15,19 @@ void ICACHE_FLASH_ATTR setup() {
     }
     {   // Services setup
         char *admin_acc = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-acc"}),
-                *admin_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-pass"});
+                *admin_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-pass"}),
+                *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
         services.push_back(Log::getInstance());
         services.push_back(OtaService::get_instance(admin_pass));
         services.push_back(
                 RestService::initialize(new RestService(admin_acc, admin_pass, 80), ALL));
         Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);
+        if (MDNS.begin(host_name)) {
+            Log::println("Hostname: [%s]", host_name);
+        }
         checked_free(admin_acc);
         checked_free(admin_pass);
+        checked_free(host_name);
     }
     wifi_config_reset();
     Devices::parse_devices(CONFIG_IO_JSON, DIGITAL_IO);

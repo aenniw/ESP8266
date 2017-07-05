@@ -38,7 +38,7 @@ typedef enum {
     HTML_COMMON_FILES = 0x10,
     HTML_ADMIN_FILES = 0x20,
     HTML_STATUS_FILES = 0x40,
-    // 0x80 available
+    HTML_LED_STRIP_FILES = 0x80,
     HTML_ALL_FILES = 0xF8
 } REST_INIT;
 

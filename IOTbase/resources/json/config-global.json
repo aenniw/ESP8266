@@ -1,6 +1,7 @@
 {
   "rest-acc": "admin",
   "rest-pass": "admin",
+  "host-name": "iot-esp8266",
   "default-config": {
     "wifi-mode": 2,
     "wifi-ap-ssid": "IOT-base",

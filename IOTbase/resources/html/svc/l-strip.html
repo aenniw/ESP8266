@@ -1,0 +1,74 @@
+<fieldset>
+    <legend>Led-Strip service</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td width="33%">Strip type:</td>
+            <td>
+                <select id="ls-type">
+                    <option value="0">NeoGrbFeature</option>
+                </select>
+            </td>
+            <td>
+                <select id="ls-mode">
+                    <option value="0">Uart800kps</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Pin-out:</td>
+            <td>
+                <select id="ls-pins">
+                    <!-- Generated HTML code will be inserted here -->
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Strip length:</td>
+            <td>
+                <input id="ls-length" type="number" value="1" min="1"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <input type="button" onclick="setLsConfig()" value="Set configuration" style="width: 100%">
+</fieldset>
+<fieldset>
+    <legend>Configuration</legend>
+    <table>
+        <tbody>
+        <tr>
+            <td width="33%">Type</td>
+            <td>
+                <select id="ls-animation-type" onchange="refreshLsElemLayout();updateLsMode();">
+                    <option value="0">Color</option>
+                    <option value="1">Rainbow</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td id="color/speed-label" width="33%">
+            <td>
+                <input id="ls-color" type="color" value="#FFFFFF" onchange="setLsColor()"
+                       style="position: absolute"/>
+                <input id="ls-speed" type="range" step="1" min="1" max="255" onchange="setLsSpeed()"
+                       style="position: absolute; left: auto"/>
+                <!-- Fix of layout -->
+                <input style="position:relative;visibility: hidden">
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Brightness</td>
+            <td>
+                <input id="ls-brightness" type="range" step="1" min="0" max="255" onchange="setLsBrightness()">
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">Ambi-light support</td>
+            <td>
+                <input id="ls-ambi-light" type="checkbox" onchange=""/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</fieldset>
