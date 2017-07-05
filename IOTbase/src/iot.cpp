@@ -5,6 +5,7 @@
 #include <file_system.h>
 #include <service_rest.h>
 #include <service_ota.h>
+#include <configuration.h>
 
 std::vector<Service *> services;
 
@@ -19,8 +20,7 @@ void ICACHE_FLASH_ATTR setup() {
                 *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
         services.push_back(Log::getInstance());
         services.push_back(OtaService::get_instance(admin_pass));
-        services.push_back(
-                RestService::initialize(new RestService(admin_acc, admin_pass, 80), ALL));
+        services.push_back(init_rest(new RestService(admin_acc, admin_pass, 80), ALL));
         Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);
         if (MDNS.begin(host_name)) {
             Log::println("Hostname: [%s]", host_name);

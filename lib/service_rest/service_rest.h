@@ -1,7 +1,6 @@
 #ifndef REST_SERVICE_H_
 #define REST_SERVICE_H_
 
-#include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -29,18 +28,6 @@ extern "C" {
 #define RESP_CSS "text/css"
 
 typedef std::function<String(String)> RestServiceFunction;
-typedef enum {
-    ALL = 0xFFFFFFFF,
-    CALLBACKS_WIFI = 0x1,
-    CALLBACKS_SYSTEM = 0x2,
-    LOGGING = 0x4,
-    HTML_DIGITAL_IO = 0x8,
-    HTML_COMMON_FILES = 0x10,
-    HTML_ADMIN_FILES = 0x20,
-    HTML_STATUS_FILES = 0x40,
-    HTML_LED_STRIP_FILES = 0x80,
-    HTML_ALL_FILES = 0xF8
-} REST_INIT;
 
 class RestService : public Service {
 protected:
@@ -69,8 +56,6 @@ public:
                           const bool authentication = 0);
 
     void cycle_routine();
-
-    static RestService *initialize(RestService *, REST_INIT);
 
     virtual ~RestService() {
         delete web_server;
