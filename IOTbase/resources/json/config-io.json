@@ -1,6 +1,6 @@
 {
   "digital-io": {
-    "2": {
+    "5": {
       "name": "Build-in LED",
       "state": false
     }
