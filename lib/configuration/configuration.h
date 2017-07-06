@@ -2,6 +2,7 @@
 #define ESP8266_PROJECTS_ROOT_CONFIGURATION_H
 
 #include <service_rest.h>
+#include <service_led_strip.h>
 #include <file_system.h>
 #include <ArduinoJson.h>
 
@@ -19,5 +20,7 @@ typedef enum {
 } REST_INIT;
 
 RestService *init_rest(RestService *, REST_INIT);
+
+RestService *init_rest(RestService *web_service, LedStripService *led_service, REST_INIT scope);
 
 #endif //ESP8266_PROJECTS_ROOT_CONFIGURATION_H

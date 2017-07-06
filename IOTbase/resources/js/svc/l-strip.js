@@ -1,10 +1,34 @@
 serviceOnLoad.set("svc/l-strip", function () {
     getLsConfig();
-    refreshLsElemLayout();
 });
 
-function getLsConfig() {
+function decimalToHex(d, padding) {
+    var hex = Number(d).toString(16).toUpperCase();
+    while (hex.length < padding) {
+        hex = "0" + hex;
+    }
+    return hex;
+}
 
+function hexToBrightness(hex) {
+    var bigint = parseInt(hex, 16);
+    return Math.max((bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255);
+}
+
+function getLsConfig() {
+    var req = CORSRequest("GET", "led-strip/get-config");
+    req.onreadystatechange = function () {
+        if (req.readyState == 4 && req.status == 200) {
+            var resp = JSON.parse(req.responseText);
+            set("ls-length", resp["length"]);
+            set("ls-color", "#" + decimalToHex(resp["color"], 6));
+            set("ls-speed", resp["speed"]);
+            set("ls-brightness", resp["brightness"]);
+            set("ls-animation-type", resp["animation-type"]);
+        }
+        refreshLsElemLayout();
+    };
+    req.send();
 }
 
 function setLsConfig() {
@@ -21,19 +45,32 @@ function refreshLsElemLayout() {
         getE("ls-speed").style.visibility = "visible";
         getE("color/speed-label").innerHTML = "Speed:";
     }
+    var mode = getS("ls-mode").value;
+    if (mode.indexOf("DMA") >= 0) {
+        getE("ls-pin-out").innerHTML = "RDX0/GPIO3";
+    } else if (mode.indexOf("UART") >= 0) {
+        getE("ls-pin-out").innerHTML = "TXD1/GPIO2";
+    }
 }
 
-function updateLsMode() {
-
+function updateLsAnimType() {
+    CORSRequest("POST", "led-strip/set-mode")
+        .send("{ \"mode\" : " + getS("ls-animation-type").value + "}");
 }
 
 function setLsColor() {
-
+    var color = "0x" + get("ls-color").substring(1);
+    CORSRequest("POST", "led-strip/set-color")
+        .send("{ \"color\" : " + parseInt(color, 16) + "}");
+    // update brightness value
+    set("ls-brightness", hexToBrightness(color));
 }
 function setLsSpeed() {
-
+    CORSRequest("POST", "led-strip/set-speed")
+        .send("{ \"speed\" : " + get("ls-speed") + "}");
 }
 
 function setLsBrightness() {
-
+    CORSRequest("POST", "led-strip/set-brightness")
+        .send("{ \"brightness\" : " + get("ls-brightness") + "}");
 }

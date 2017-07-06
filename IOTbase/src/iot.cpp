@@ -21,8 +21,9 @@ void ICACHE_FLASH_ATTR setup() {
                 *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
         services.push_back(Log::getInstance());
         services.push_back(OtaService::get_instance(admin_pass));
-        services.push_back(init_rest(new RestService(admin_acc, admin_pass, 80), ALL));
-        services.push_back(new LedStripService(0));
+        LedStripService *led_strip = new LedStripService(1);
+        services.push_back(init_rest(new RestService(admin_acc, admin_pass, 80), led_strip, ALL));
+        services.push_back((Service *) led_strip);
         Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);
         if (MDNS.begin(host_name)) {
             Log::println("Hostname: [%s]", host_name);
@@ -38,7 +39,8 @@ void ICACHE_FLASH_ATTR setup() {
 
 void loop() {
     for (std::vector<Service *>::iterator i = services.begin();
-         i != services.end(); i++)
+         i != services.end(); i++) {
         (*i)->cycle_routine();
-    yield(); // WATCHDOG/WIFI feed
+        yield(); // WATCHDOG/WIFI feed
+    }
 }

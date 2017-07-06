@@ -285,12 +285,6 @@ RestService *init_rest(RestService *web_service, REST_INIT scope) {
             return resp + "]}";
         }, true);
     }
-    if ((scope & HTML_LED_STRIP_FILES) == HTML_LED_STRIP_FILES) {
-        web_service->add_handler_file(HTML_STRIP, HTTP_ANY, RESP_HTML, HTML_STRIP
-                ".gz", true);
-        web_service->add_handler_file(JS_STRIP, HTTP_ANY, RESP_JS, JS_STRIP
-                ".gz", true);
-    }
     if ((scope & LOGGING) == LOGGING) {
         web_service->add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG
                 ".gz", true);
@@ -314,4 +308,77 @@ RestService *init_rest(RestService *web_service, REST_INIT scope) {
         });
     }
     return web_service;
+}
+
+RestService *init_rest(RestService *web_service, LedStripService *led_service, REST_INIT scope) {
+    if ((scope & HTML_LED_STRIP_FILES) == HTML_LED_STRIP_FILES) {
+        web_service->add_handler_file(HTML_STRIP, HTTP_ANY, RESP_HTML, HTML_STRIP
+        ".gz", true);
+        web_service->add_handler_file(JS_STRIP, HTTP_ANY, RESP_JS, JS_STRIP
+        ".gz", true);
+        web_service->add_handler("/led-strip/get-config", HTTP_GET, RESP_JSON, [led_service](String arg) -> String {
+            String resp = "{ \"animation-type\" :";
+            resp += led_service->get_mode();
+            resp += ", \"length\" :";
+            resp += led_service->get_len();
+            resp += ", \"color\" :";
+            resp += led_service->get_color();
+            resp += ", \"brightness\" :";
+            resp += led_service->get_brightness();
+            resp += ", \"speed\" :";
+            resp += led_service->get_delay();
+            return resp + "}";
+        }, true);
+        web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [](String arg) -> String {
+            // TODO:
+            return JSON_RESP_OK;
+        }, true);
+        web_service->add_handler("/led-strip/set-mode", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
+            StaticJsonBuffer<100> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            const int16_t mode = parseJSON<int8_t>(json, "mode", -1);
+            if (mode >= 0) {
+                led_service->set_mode((LED_STRIP_MODE) mode);
+                return JSON_RESP_OK;
+            }
+            return JSON_RESP_NOK;
+        }, true);
+        web_service->add_handler("/led-strip/set-speed", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
+            StaticJsonBuffer<100> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            const int32_t delay = parseJSON<int32_t>(json, "speed", -1);
+            if (delay >= 0) {
+                led_service->set_delay((uint16_t) delay);
+                return JSON_RESP_OK;
+            }
+            return JSON_RESP_NOK;
+        }, true);
+        web_service->add_handler("/led-strip/set-color", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
+            StaticJsonBuffer<100> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            const uint32_t color = parseJSON<uint32_t>(json, "color", 0);
+            led_service->set_color((uint8_t)((0x00FF0000 & color) >> 16), (uint8_t)((0x0000FF00 & color) >> 8),
+                                   (uint8_t)(0x000000FF & color));
+            return JSON_RESP_OK;
+        }, true);
+        web_service->add_handler("/led-strip/set-brightness", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
+            StaticJsonBuffer<100> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            const int8_t brightness = parseJSON<int8_t>(json, "brightness", -1);
+            if (brightness >= 0) {
+                led_service->set_brightness((uint8_t) brightness);
+                return JSON_RESP_OK;
+            }
+            return JSON_RESP_NOK;
+        }, true);
+    }
+    return init_rest(web_service, scope);
 }
