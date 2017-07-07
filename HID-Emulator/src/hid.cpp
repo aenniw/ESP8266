@@ -2,10 +2,11 @@
 #include <vector>
 
 #include <commons.h>
+#include <service_log.h>
 #include <file_system.h>
-#include <service_rest_robust.h>
 #include <service_ota.h>
 #include <service_hid.h>
+#include <service_rest_robust.h>
 
 #define JS_HID "/js/hid.js"
 #define HTML_HID "/html/hid.html"
