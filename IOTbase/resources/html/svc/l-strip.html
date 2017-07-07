@@ -6,8 +6,8 @@
             <td width="33%">Strip type:</td>
             <td>
                 <select id="ls-type">
-                    <option value="GRB">Grb</option>
-                    <option value="GRBW">Grbw</option>
+                    <option value="0">Grb</option>
+                    <option value="1">Grbw</option>
                 </select>
             </td>
         </tr>
@@ -15,10 +15,8 @@
             <td width="33%">Strip transfer type:</td>
             <td>
                 <select id="ls-mode" onchange="refreshLsElemLayout()">
-                    <option value="DMA-800">Dma800Kbps</option>
-                    <option value="DMA-800">Dma400Kbps</option>
-                    <option value="UART-800">Uart800kps</option>
-                    <option value="UART-400">Uart400kps</option>
+                    <option value="0">Dma800Kbps</option>
+                    <option value="2">Uart800kps</option>
                 </select>
             </td>
         </tr>
@@ -29,12 +27,13 @@
         <tr>
             <td width="33%">Strip length:</td>
             <td>
-                <input id="ls-length" type="number" value="1" min="1"/>
+                <input id="ls-length" type="number" value="1" min="1" max="65535"/>
             </td>
         </tr>
         </tbody>
     </table>
-    <input type="button" onclick="setLsConfig()" value="Set configuration" style="width: 100%">
+    <input type="button" onclick="restart()" value="Reboot" style="float: left;width: 50%">
+    <input type="button" onclick="setLsConfig()" value="Set configuration" style="width: 50%">
 </fieldset>
 <fieldset>
     <legend>Configuration</legend>

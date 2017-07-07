@@ -21,7 +21,7 @@ void ICACHE_FLASH_ATTR setup() {
                 *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
         services.push_back(Log::getInstance());
         services.push_back(OtaService::get_instance(admin_pass));
-        LedStripService *led_strip = new LedStripService(1);
+        LedStripService *led_strip = new PersistentLedStripService();
         services.push_back(init_rest(new RestService(admin_acc, admin_pass, 80), led_strip, ALL));
         services.push_back((Service *) led_strip);
         Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);

@@ -27,6 +27,7 @@
 #define JS_STRIP "/js/svc/l-strip.js"
 
 #define CONFIG_IO_JSON "/json/config-io.json"
+#define CONFIG_LS_JSON "/json/config-ls.json"
 
 class ConfigEEPROM {
     // TODO: implement EEPROM wrapper for wiring complex data structures SEE: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM/examples

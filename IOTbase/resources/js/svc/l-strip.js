@@ -25,6 +25,8 @@ function getLsConfig() {
             set("ls-speed", resp["speed"]);
             set("ls-brightness", resp["brightness"]);
             set("ls-animation-type", resp["animation-type"]);
+            set("ls-mode", resp["mode"]);
+            set("ls-type", resp["type"]);
         }
         refreshLsElemLayout();
     };
@@ -32,7 +34,10 @@ function getLsConfig() {
 }
 
 function setLsConfig() {
-
+    CORSRequest("POST", "led-strip/set-config")
+        .send("{ \"mode\" : " + getS("ls-mode").value + "," +
+            " \"type\" : " + getS("ls-type").value + "," +
+            " \"length\" : " + get("ls-length") + "}");
 }
 
 function refreshLsElemLayout() {
@@ -45,7 +50,7 @@ function refreshLsElemLayout() {
         getE("ls-speed").style.visibility = "visible";
         getE("color/speed-label").innerHTML = "Speed:";
     }
-    var mode = getS("ls-mode").value;
+    var mode = getS("ls-mode").innerHTML.toUpperCase();
     if (mode.indexOf("DMA") >= 0) {
         getE("ls-pin-out").innerHTML = "RDX0/GPIO3";
     } else if (mode.indexOf("UART") >= 0) {
