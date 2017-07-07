@@ -6,7 +6,7 @@
 #include <map>
 #include <commons.h>
 #include <functional>
-#include <logger.h>
+#include <service_log.h>
 
 typedef std::function<void(void)> IRServiceFunction;
 
