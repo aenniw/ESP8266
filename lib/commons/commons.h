@@ -8,8 +8,6 @@
 
 void *checked_free(void *ptr);
 
-void *checked_delete(void *ptr);
-
 class Service {
 public:
     virtual void cycle_routine() = 0;
