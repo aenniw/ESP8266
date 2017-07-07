@@ -23,4 +23,13 @@ RestService *init_rest(RestService *, REST_INIT);
 
 RestService *init_rest(RestService *web_service, LedStripService *led_service, REST_INIT scope);
 
+class PersistentLedStripService : public LedStripService {
+public:
+    PersistentLedStripService() : LedStripService((LED_STRIP_TYPE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"type"}),
+                                                  (LED_STRIP_TRANSFER_MODE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON,
+                                                                                                     {"transfer-mode"}),
+                                                  ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"length"})) {
+    }
+};
+
 #endif //ESP8266_PROJECTS_ROOT_CONFIGURATION_H

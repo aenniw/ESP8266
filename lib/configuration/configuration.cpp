@@ -327,11 +327,27 @@ RestService *init_rest(RestService *web_service, LedStripService *led_service, R
             resp += led_service->get_brightness();
             resp += ", \"speed\" :";
             resp += led_service->get_delay();
+            resp += ", \"mode\" :";
+            resp += led_service->get_transfer_mode();
+            resp += ", \"type\" :";
+            resp += led_service->get_type();
             return resp + "}";
         }, true);
-        web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [](String arg) -> String {
-            // TODO:
-            return JSON_RESP_OK;
+        web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
+            StaticJsonBuffer<150> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            const int32_t len = parseJSON<int8_t>(json, "length", -1);
+            const int8_t type = parseJSON<int8_t>(json, "type", -1);
+            const int8_t mode = parseJSON<int8_t>(json, "mode", -1);
+            if (len > 0 && type >= 0 && mode >= 0) {
+                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"length"}, len);
+                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"type"}, type);
+                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"transfer-mode"}, mode);
+                return JSON_RESP_OK;
+            }
+            return JSON_RESP_NOK;
         }, true);
         web_service->add_handler("/led-strip/set-mode", HTTP_POST, RESP_JSON, [led_service](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
@@ -340,7 +356,7 @@ RestService *init_rest(RestService *web_service, LedStripService *led_service, R
                 return JSON_RESP_NOK;
             const int16_t mode = parseJSON<int8_t>(json, "mode", -1);
             if (mode >= 0) {
-                led_service->set_mode((LED_STRIP_MODE) mode);
+                led_service->set_mode((LED_STRIP_ANIM_MODE) mode);
                 return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
