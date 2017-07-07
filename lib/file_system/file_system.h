@@ -1,33 +1,13 @@
 #ifndef WEMOS_D1_FILESYSTEM_H_
 #define WEMOS_D1_FILESYSTEM_H_
 
-#include <logger.h>
+#include <FS.h>
 #include <ArduinoJson.h>
 #include <initializer_list>
-#include <FS.h>
-#include <EEPROM.h>
-
-#define CONFIG_GLOBAL_JSON "/json/config-global.json"
-#define HTML_INDEX "/index.html"
-#define HTML_LOGIN "/login.html"
-#define HTML_ADMINISTRATION "/html/administration.html"
-#define HTML_STATUS "/html/status.html"
-#define HTML_WIFI "/html/wifi.html"
-#define HTML_LOG "/html/log.html"
-#define HTML_RELAY "/html/svc/d-io.html"
-#define HTML_STRIP "/html/svc/l-strip.html"
-#define CSS_COMMON "/css/common_style.css"
-#define CSS_INDEX "/css/index_style.css"
-#define CSS_LOGIN "/css/login_style.css"
-#define JS_COMMON "/js/common.js"
-#define JS_LOG "/js/log.js"
-#define JS_ADMINISTRATION "/js/administration.js"
-#define JS_STATUS "/js/status.js"
-#define JS_RELAY "/js/svc/d-io.js"
-#define JS_STRIP "/js/svc/l-strip.js"
+#include <service_log.h>
+//#include <EEPROM.h>
 
 #define CONFIG_IO_JSON "/json/config-io.json"
-#define CONFIG_LS_JSON "/json/config-ls.json"
 
 class ConfigEEPROM {
     // TODO: implement EEPROM wrapper for wiring complex data structures SEE: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM/examples

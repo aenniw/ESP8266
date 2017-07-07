@@ -3,7 +3,7 @@
 
 #include <ArduinoOTA.h>
 #include <commons.h>
-#include <logger.h>
+#include <service_log.h>
 
 class OtaService : public Service {
 private:

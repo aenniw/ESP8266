@@ -3,10 +3,9 @@
 
 #include <commons.h>
 #include <file_system.h>
-#include <service_rest.h>
+#include <service_rest_robust.h>
 #include <service_ota.h>
 #include <service_hid.h>
-#include <configuration.h>
 
 #define JS_HID "/js/hid.js"
 #define HTML_HID "/html/hid.html"
@@ -32,13 +31,9 @@ void ICACHE_FLASH_ATTR setup() {
         services.push_back(HID::getInstance());
         //services.push_back(HID::getInstance(admin_acc, admin_pass));
         services.push_back(OtaService::get_instance(admin_pass));
-        RestService *rest_service = init_rest(new RestService(admin_acc, admin_pass, 80),
-                                              (REST_INIT) (CALLBACKS_SYSTEM | CALLBACKS_WIFI |
-                                                                         #ifdef __DEBUG__
-                                                                         LOGGING |
-                                                                         #endif
-                                                                         HTML_COMMON_FILES | HTML_ADMIN_FILES |
-                                                                         HTML_STATUS_FILES));
+        RestService *rest_service = new RestServiceRobust(admin_acc, admin_pass, 80,
+                                                          (REST_INIT) (CALLBACKS_SYSTEM | CALLBACKS_WIFI |
+                                                                       HTML_ALL_FILES));
         rest_service->add_handler_file(HTML_HID, HTTP_ANY, RESP_HTML, HTML_HID
                 ".gz", true);
         rest_service->add_handler_file(JS_HID, HTTP_ANY, RESP_JS, JS_HID

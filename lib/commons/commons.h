@@ -4,13 +4,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define CONFIG_GLOBAL_JSON      "/json/config-global.json"
+
 void *checked_free(void *ptr);
 
 void *checked_delete(void *ptr);
 
 class Service {
 public:
-    virtual void cycle_routine();
+    virtual void cycle_routine() = 0;
 };
 
 typedef enum {
@@ -19,11 +21,11 @@ typedef enum {
 
 class Device {
 public:
-    virtual uint8_t get_id() const;
+    virtual uint8_t get_id() const = 0;
 
-    virtual DEVICE_TYPE get_type() const;
+    virtual DEVICE_TYPE get_type() const = 0;
 
-    virtual void clean(); // FIXME: remove and use only destructor
+    virtual void clean() = 0; // FIXME: remove and use only destructor
 
     //virtual ~Device() {};
 };

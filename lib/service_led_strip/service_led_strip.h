@@ -7,13 +7,13 @@
 
 class NeoPixelBusInterface {
 public:
-    virtual void set_all_pixels(const HsbColor);
+    virtual void set_all_pixels(const HsbColor) = 0;
 
-    virtual void set_pixel(const uint16_t, const HsbColor);
+    virtual void set_pixel(const uint16_t, const HsbColor) = 0;
 
-    virtual void refresh();
+    virtual void refresh() = 0;
 
-    virtual uint16_t get_len() const;
+    virtual uint16_t get_len() const = 0;
 };
 
 template<typename TYPE, typename MODE>
@@ -67,6 +67,7 @@ protected:
     void animation_1(const AnimationParam &param);
 
     void set_config(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);
+
 public:
     LedStripService(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);
 

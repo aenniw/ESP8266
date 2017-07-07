@@ -7,7 +7,7 @@
 #include <file_system.h>
 #include <commons.h>
 #include <devices.h>
-#include <logger.h>
+#include <service_log.h>
 
 extern "C" {
 #include <user_interface.h>
@@ -29,6 +29,8 @@ extern "C" {
 
 typedef std::function<String(String)> RestServiceFunction;
 
+#define HTML_LOGIN              "/login.html"
+
 class RestService : public Service {
 protected:
     ESP8266WebServer *web_server = NULL;
@@ -45,8 +47,6 @@ private:
     uint32_t generate_login_id();
 
 public:
-    RestService() : RestService(NULL, NULL, 80) {}
-
     RestService(const char *, const char *, const uint16_t);
 
     void add_handler(const char *, HTTPMethod, const char *, RestServiceFunction,
