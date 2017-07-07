@@ -49,13 +49,13 @@ LedStripService::LedStripService(const LED_STRIP_TYPE type, const LED_STRIP_TRAN
 }
 
 LedStripService::~LedStripService() {
-    checked_delete(animator);
+    delete animator;
 }
 
 void LedStripService::set_config(const LED_STRIP_TYPE type_, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
     t_mode = mode;
     type = type_;
-    checked_delete(led_strip);
+    if (led_strip != NULL)delete led_strip;
     switch (type) {
         case GRB:
             switch (t_mode) {
