@@ -66,7 +66,7 @@ protected:
 
     void animation_1(const AnimationParam &param);
 
-    void set_config(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);
+    void set_color(const uint32_t);
 
 public:
     LedStripService(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);

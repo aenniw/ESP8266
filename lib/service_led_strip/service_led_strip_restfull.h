@@ -9,10 +9,9 @@
 
 #define HTML_STRIP "/html/svc/l-strip.html"
 #define JS_STRIP "/js/svc/l-strip.js"
+#define CONFIG_LS_JSON "/json/config-ls.json"
 
 class RestFullLedStripService : public LedStripService {
-protected:
-    const char *CONFIG_LS_JSON = "/json/config-ls.json";
 public:
     RestFullLedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE m, const uint16_t l,
                             RestService *web_service)
@@ -63,6 +62,7 @@ public:
                 return JSON_RESP_NOK;
             const int16_t mode = parseJSON<int8_t>(json, "mode", -1);
             if (mode >= 0) {
+                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"mode"}, (uint8_t) mode);
                 set_mode((LED_STRIP_ANIM_MODE) mode);
                 return JSON_RESP_OK;
             }
@@ -86,8 +86,8 @@ public:
             if (!json.success())
                 return JSON_RESP_NOK;
             const uint32_t color = parseJSON<uint32_t>(json, "color", 0);
-            set_color((uint8_t) ((0x00FF0000 & color) >> 16), (uint8_t) ((0x0000FF00 & color) >> 8),
-                      (uint8_t) (0x000000FF & color));
+            set_color(color);
+            ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, color);
             return JSON_RESP_OK;
         }, true);
         web_service->add_handler("/led-strip/set-brightness", HTTP_POST, RESP_JSON,
@@ -99,6 +99,7 @@ public:
                                      const int8_t brightness = parseJSON<int8_t>(json, "brightness", -1);
                                      if (brightness >= 0) {
                                          set_brightness((uint8_t) brightness);
+                                         ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, get_color());
                                          return JSON_RESP_OK;
                                      }
                                      return JSON_RESP_NOK;
