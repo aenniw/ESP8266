@@ -42,20 +42,10 @@ void LedStripService::animation_1(const AnimationParam &param) {
     }
 }
 
-LedStripService::LedStripService(const LED_STRIP_TYPE type, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
+LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
     animator = new NeoPixelAnimator(ANIMATION_END, 10);
-    set_config(type, mode, len);
-    set_color(0, 0, 0);
-}
-
-LedStripService::~LedStripService() {
-    delete animator;
-}
-
-void LedStripService::set_config(const LED_STRIP_TYPE type_, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
     t_mode = mode;
-    type = type_;
-    if (led_strip != NULL)delete led_strip;
+    type = t;
     switch (type) {
         case GRB:
             switch (t_mode) {
@@ -76,6 +66,17 @@ void LedStripService::set_config(const LED_STRIP_TYPE type_, const LED_STRIP_TRA
                     return;
             }
     }
+    set_color(0, 0, 0);
+}
+
+LedStripService::~LedStripService() {
+    delete animator;
+}
+
+
+void LedStripService::set_color(const uint32_t color) {
+    set_color((uint8_t)((0x00FF0000 & color) >> 16), (uint8_t)((0x0000FF00 & color) >> 8),
+              (uint8_t)(0x000000FF & color));
 }
 
 void LedStripService::set_color(const uint8_t r, const uint8_t g, const uint8_t b) {
