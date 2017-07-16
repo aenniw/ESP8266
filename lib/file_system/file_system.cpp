@@ -103,3 +103,22 @@ void ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char 
         }
     }
 }
+
+bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite) {
+    if (!overwrite && SPIFFS.exists(dst_name)) return false;
+    File dst = SPIFFS.open(dst_name, "w");
+    if (!dst) return false;
+    File src = SPIFFS.open(src_name, "r");
+    if (!src) {
+        dst.close();
+        return false;
+    }
+    while (src.available()) {
+        dst.write((uint8_t) src.read());
+    }
+    src.close();
+    dst.flush();
+    dst.close();
+    Log::println("File %s copied to %s", src_name, dst_name);
+    return true;
+}

@@ -6,6 +6,9 @@
 
 #define CONFIG_GLOBAL_JSON      "/json/config-global.json"
 
+#define MIN(a,b) ((a<b)?a:b)
+#define MAX(a,b) ((a>b)?a:b)
+
 void *checked_free(void *ptr);
 
 class Service {
