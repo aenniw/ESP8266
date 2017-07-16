@@ -1,5 +1,28 @@
 #include "service_rest.h"
 
+static bool strmatch(const char *s, const char *p, const int n, const int m) {
+    if (m - (p[m - 1] == '?' ? 1 : 0) > n) return false;
+    if (m <= 0) return n <= 0;
+    bool wc = false;
+    int j = 0;
+    for (int i = 0; i < n; i++) {
+        if (i > 0) {
+            if (p[j] == '/') return strmatch(s + i, p + j, n - i, m - j);
+            if (s[i] == '/') {
+                return strmatch(s + i, p + j + (p[j] == '?' ? 0 : 1),
+                                n - i, m - j - (p[j] == '?' ? 0 : 1));
+            }
+        }
+        if (p[i] == '+') wc = true;
+        if (wc) continue;
+        if (s[i] != p[j] && p[j] != '?') return false;
+        if (s[i] != '/' && p[j] == '?') return false;
+        if (j < m) j++;
+    }
+    return true;
+}
+
+
 RestService::RestService(const char *user, const char *pass,
                          const uint16_t port) {
     if (user != NULL && pass != NULL && strlen(user) > 0 && strlen(pass) > 0) {
@@ -107,10 +130,56 @@ void RestService::add_handler(const char *uri, HTTPMethod method,
         if (authentication && !valid_credentials())
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
-            web_server->send(200, resp_type, handler(web_server->arg("plain")));
+            String resp = handler(web_server->arg("plain"));
+            web_server->send(200, resp_type, resp);
         } else
             on_not_found();
     });
+}
+
+void RestService::add_handler_stream(const char *uri, HTTPMethod method,
+                                     const char *resp_type, FStream *st,
+                                     const bool authentication) {
+    web_server->on(uri, [=]() {
+        Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (method == HTTP_ANY || method == web_server->method()) {
+            web_server->streamFile(*st, resp_type);
+            st->rewind();
+        } else
+            on_not_found();
+    });
+}
+
+void
+RestService::add_handler_wc(const char *uri, HTTPMethod method, const char *resp_type, WcRestServiceFunction handler,
+                            const bool authentication) {
+    web_server->addHandler(new WcRequestHandler([=]() {
+        Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (method == HTTP_ANY || method == web_server->method()) {
+            String args = web_server->arg("plain");
+            String resp = handler(args, web_server->uri());
+            web_server->send(200, resp_type, resp);
+        } else
+            on_not_found();
+    }, uri, method));
+}
+
+void RestService::add_handler_wc_stream(const char *uri, HTTPMethod method, const char *resp_type, FStream *fs,
+                                        const bool authentication) {
+    web_server->addHandler(new WcRequestHandler([=]() {
+        Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (method == HTTP_ANY || method == web_server->method()) {
+            web_server->streamFile(*fs, resp_type);
+            fs->rewind();
+        } else
+            on_not_found();
+    }, uri, method));
 }
 
 void RestService::add_handler_file(const char *uri, HTTPMethod method,
@@ -134,7 +203,71 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
     });
 }
 
+void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
+                                      const char *resp_type, const char *file_name,
+                                      const bool authentication) {
+    web_server->addHandler(new WcRequestHandler([=]() {
+        Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (method == HTTP_ANY || method == web_server->method()) {
+            File file = SPIFFS.open(file_name, "r");
+            if (file) {
+                web_server->streamFile(file, resp_type);
+                file.close();
+            } else {
+                Log::println("File %s cannot be opened.", file_name);
+                on_not_found();
+            }
+        } else
+            on_not_found();
+    }, uri, method));
+}
+
+void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
+                                      const char *resp_type, WcUriTranslator t,
+                                      const bool authentication) {
+    web_server->addHandler(new WcRequestHandler([=]() {
+        Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (method == HTTP_ANY || method == web_server->method()) {
+            String file_name = t(web_server->uri());
+            File file = SPIFFS.open(file_name, "r");
+            if (file) {
+                web_server->streamFile(file, resp_type);
+                file.close();
+            } else {
+                Log::println("File %s cannot be opened.", file_name.c_str());
+                on_not_found();
+            }
+        } else
+            on_not_found();
+    }, uri, method));
+}
+
 void RestService::cycle_routine() {
     web_server->handleClient();
     MDNS.update();
+}
+
+WcRequestHandler::WcRequestHandler(const ESP8266WebServer::THandlerFunction fn, const String &u, const HTTPMethod m) {
+    handler = fn;
+    method = m;
+    uri = new char[(uri_l = u.length()) + 1];
+    strcpy(uri, u.c_str());
+}
+
+bool WcRequestHandler::canHandle(HTTPMethod m, String uri_) {
+    if (method != HTTP_ANY && method != m) {
+        return false;
+    }
+    return strmatch(uri_.c_str(), uri, uri_.length(), uri_l);
+}
+
+bool WcRequestHandler::handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) {
+    if (!canHandle(requestMethod, requestUri))
+        return false;
+    handler();
+    return true;
 }

@@ -4,10 +4,10 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <file_system.h>
 #include <commons.h>
 #include <devices.h>
 #include <service_log.h>
+#include <file_streams.h>
 
 extern "C" {
 #include <user_interface.h>
@@ -28,8 +28,34 @@ extern "C" {
 #define RESP_CSS "text/css"
 
 typedef std::function<String(String)> RestServiceFunction;
+typedef std::function<String(String, String)> WcRestServiceFunction;
+
+typedef std::function<String(String)> WcUriTranslator;
+static WcUriTranslator identity = [](String uri) -> String { return uri; };
 
 #define HTML_LOGIN              "/login.html"
+
+class WcRequestHandler : public RequestHandler {
+private:
+    ESP8266WebServer::THandlerFunction handler = NULL;
+    unsigned int uri_l = 0;
+    HTTPMethod method = HTTP_ANY;
+    char *uri = NULL;
+public:
+    WcRequestHandler(const ESP8266WebServer::THandlerFunction, const String &, const HTTPMethod);
+
+    bool canHandle(HTTPMethod method, String uri) override;
+
+    bool handle(ESP8266WebServer &server, HTTPMethod requestMethod, String requestUri) override;
+
+    bool canUpload(String uri) override { return false; }
+
+    void upload(ESP8266WebServer &server, String requestUri, HTTPUpload &upload) override {}
+
+    ~WcRequestHandler() {
+        checked_free(uri);
+    }
+};
 
 class RestService : public Service {
 protected:
@@ -52,8 +78,23 @@ public:
     void add_handler(const char *, HTTPMethod, const char *, RestServiceFunction,
                      const bool authentication = 0);
 
+    void add_handler_stream(const char *, HTTPMethod, const char *, FStream *,
+                            const bool authentication = 0);
+
+    void add_handler_wc(const char *, HTTPMethod, const char *, WcRestServiceFunction,
+                        const bool authentication = 0);
+
+    void add_handler_wc_stream(const char *, HTTPMethod, const char *, FStream *,
+                               const bool authentication = 0);
+
     void add_handler_file(const char *, HTTPMethod, const char *, const char *,
                           const bool authentication = 0);
+
+    void add_handler_wc_file(const char *, HTTPMethod, const char *, const char *,
+                             const bool authentication = 0);
+
+    void add_handler_wc_file(const char *, HTTPMethod, const char *, WcUriTranslator t = identity,
+                             const bool authentication = 0);
 
     void cycle_routine();
 
