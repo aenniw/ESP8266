@@ -66,7 +66,7 @@ protected:
 
     void animation_1(const AnimationParam &param);
 
-    void set_color(const uint32_t);
+    virtual void set_color(const uint32_t);
 
 public:
     LedStripService(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);
@@ -81,7 +81,7 @@ public:
 
     uint32_t get_color() const;
 
-    void set_brightness(const uint8_t);
+    virtual void set_brightness(const uint8_t);
 
     uint8_t get_brightness() const;
 
@@ -91,7 +91,7 @@ public:
 
     uint16_t get_delay() const { return animator->getTimeScale(); }
 
-    void set_mode(const LED_STRIP_ANIM_MODE);
+    virtual void set_mode(const LED_STRIP_ANIM_MODE);
 
     LED_STRIP_ANIM_MODE get_mode() const { return mode; }
 
