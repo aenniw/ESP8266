@@ -9,7 +9,6 @@
 
 #define HTML_STRIP "/html/svc/l-strip.html"
 #define JS_STRIP "/js/svc/l-strip.js"
-#define CONFIG_LS_JSON "/json/config-ls.json"
 
 class RestFullLedStripService : public LedStripService {
 public:
@@ -39,22 +38,6 @@ public:
             resp += get_type();
             return resp + "}";
         }, true);
-        web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [this](String arg) -> String {
-            StaticJsonBuffer<150> jsonBuffer;
-            JsonObject &json = jsonBuffer.parseObject(arg);
-            if (!json.success())
-                return JSON_RESP_NOK;
-            const int32_t len = parseJSON<int8_t>(json, "length", -1);
-            const int8_t type = parseJSON<int8_t>(json, "type", -1);
-            const int8_t mode = parseJSON<int8_t>(json, "mode", -1);
-            if (len > 0 && type >= 0 && mode >= 0) {
-                ConfigJSON::set<uint16_t>(CONFIG_LS_JSON, {"length"}, (uint16_t) len);
-                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"type"}, (uint8_t) type);
-                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"transfer-mode"}, (uint8_t) mode);
-                return JSON_RESP_OK;
-            }
-            return JSON_RESP_NOK;
-        }, true);
         web_service->add_handler("/led-strip/set-mode", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
@@ -62,7 +45,6 @@ public:
                 return JSON_RESP_NOK;
             const int16_t mode = parseJSON<int8_t>(json, "mode", -1);
             if (mode >= 0) {
-                ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"mode"}, (uint8_t) mode);
                 set_mode((LED_STRIP_ANIM_MODE) mode);
                 return JSON_RESP_OK;
             }
@@ -87,7 +69,6 @@ public:
                 return JSON_RESP_NOK;
             const uint32_t color = parseJSON<uint32_t>(json, "color", 0);
             set_color(color);
-            ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, color);
             return JSON_RESP_OK;
         }, true);
         web_service->add_handler("/led-strip/set-brightness", HTTP_POST, RESP_JSON,
@@ -99,7 +80,6 @@ public:
                                      const int8_t brightness = parseJSON<int8_t>(json, "brightness", -1);
                                      if (brightness >= 0) {
                                          set_brightness((uint8_t) brightness);
-                                         ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, get_color());
                                          return JSON_RESP_OK;
                                      }
                                      return JSON_RESP_NOK;
