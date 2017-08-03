@@ -81,7 +81,15 @@ public:
 
     uint32_t get_color() const;
 
+    void set_hue(const uint16_t h);
+
+    void set_saturation(const uint8_t s);
+
     virtual void set_brightness(const uint8_t);
+
+    uint16_t get_hue() const;
+
+    uint8_t get_saturation() const;
 
     uint8_t get_brightness() const;
 

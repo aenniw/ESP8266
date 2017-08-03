@@ -93,13 +93,31 @@ uint32_t LedStripService::get_color() const {
     return (uint32_t)((0x00FF0000 & rgb.R << 16) | (0x0000FF00 & rgb.G << 8) | rgb.B);
 }
 
+void LedStripService::set_hue(const uint16_t h) {
+    color = HsbColor((h % 65535) / (float) 100, color.S, color.B);
+    led_strip->set_all_pixels(color);
+}
+
+void LedStripService::set_saturation(const uint8_t s) {
+    color = HsbColor(color.H, (s % 101) / (float) 100, color.B);
+    led_strip->set_all_pixels(color);
+}
+
 void LedStripService::set_brightness(const uint8_t b) {
     color = HsbColor(color.H, color.S, (b % 101) / (float) 100);
     led_strip->set_all_pixels(color);
 }
 
+uint16_t LedStripService::get_hue() const {
+    return (uint8_t) (color.H * 100);
+}
+
+uint8_t LedStripService::get_saturation() const {
+    return (uint8_t) (color.S * 100);
+}
+
 uint8_t LedStripService::get_brightness() const {
-    return (uint8_t)(color.B * 100);
+    return (uint8_t) (color.B * 100);
 }
 
 void LedStripService::set_delay(const uint16_t d) {

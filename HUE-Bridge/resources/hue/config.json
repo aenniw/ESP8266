@@ -1,0 +1,25 @@
+{
+  "name": "hue emulator",
+  "swversion": "81012917",
+  "bridgeid": "",
+  "portalservices": false,
+  "linkbutton": true,
+  "mac": "",
+  "dhcp": true,
+  "ipaddress": "",
+  "netmask": "",
+  "gateway": "",
+  "apiversion": "1.3.0",
+  "timezone": "Europe/London",
+  "whitelist": {
+    "api": {
+      "name": "clientname#devicename"
+    }
+  },
+  "swupdate": {
+    "text": "",
+    "notify": false,
+    "updatestate": 0,
+    "url": ""
+  }
+}

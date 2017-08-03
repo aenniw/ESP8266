@@ -7,4 +7,5 @@ CMakeListsPrivate.txt
 /cmake-build-debug/
 /IOTbase/data/*
 /HID-Emulator/data/*
+/HUE-Bridge/data/*
 /lib/readme.txt

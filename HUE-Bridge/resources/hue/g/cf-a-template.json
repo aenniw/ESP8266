@@ -1,0 +1,16 @@
+{
+  "action": {
+    "on": false,
+    "hue": 0,
+    "effect": "none",
+    "bri": 0,
+    "sat": 0,
+    "ct": 0,
+    "xy": [
+      0,
+      0
+    ]
+  },
+  "lights": [
+  ]
+}
