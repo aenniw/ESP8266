@@ -5,16 +5,13 @@
 #include <commons.h>
 #include <commons_json.h>
 #include <service_rest.h>
-#include <hue_commons.h>
 #include <hue_light.h>
 #include <hue_group.h>
 #include <hue_scene.h>
-
-#define HUE_API_VERSION "1.3.0"
+#include <hue_config_streams.h>
 
 class HueBridge : public Service {
 private:
-    static const char *_ssdp_response_template, *_ssdp_notify_template;
     HueLight *lights[MAX_HUE_LIGHTS] = {NULL};
     HueGroup *groups[MAX_HUE_GROUPS] = {NULL};
     HueScene *scenes[MAX_HUE_SCENES] = {NULL};
@@ -30,6 +27,7 @@ private:
 
     void initialize_scenes(RestService *web_service);
 
+protected:
     HueLight *get_light(const uint8_t i) const;
 
     HueGroup *get_group(const uint8_t i) const;
@@ -48,17 +46,17 @@ public:
 
     int8_t add_light(LedStripService *);
 
-    bool delete_light(const uint8_t);
-
     int8_t add_group(const char *n, const char *t);
-
-    bool delete_group(const uint8_t);
 
     int8_t add_scene(const char *n);
 
+    bool delete_light(const uint8_t);
+
+    bool delete_group(const uint8_t);
+
     bool delete_scene(const uint8_t);
 
-    void cycle_routine() { reindex_all(); }
+    void cycle_routine();
 
     ~HueBridge();
 };

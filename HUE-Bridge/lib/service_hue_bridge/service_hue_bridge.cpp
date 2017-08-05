@@ -1,17 +1,32 @@
 #include "service_hue_bridge.h"
 
-static const char *config_file_name = "/hue/config.json";
+static const char *SSDP_RESPONSE_TEMPLATE =
+        "HTTP/1.1 200 OK\r\n"
+                "EXT:\r\n"
+                "CACHE-CONTROL: max-age=%u\r\n" // SSDP_INTERVAL
+                "LOCATION: http://%s:%u/%s\r\n" // WiFi.localIP(), _port, _schemaURL
+                "SERVER: Arduino/1.0 UPNP/1.1 %s/%s\r\n" // _modelName, _modelNumber
+                "hue-bridgeid: %s\r\n"
+                "ST: %s\r\n"  // _deviceType
+                "USN: uuid:%s\r\n" // _uuid
+                "\r\n";
 
-static uint8_t parse_id(const String &uri, uint8_t o = 0) {
-    uint8_t offset = 0;
-    for (; offset < uri.length() && o > 0; offset++) {
-        if (uri.charAt(offset) == '/') o--;
-    }
-    uint8_t id = strtol(uri.c_str() + offset, NULL, 10);
-    return id;
-}
+static const char *SSDP_NOTIFY_TEMPLATE =
+        "NOTIFY * HTTP/1.1\r\n"
+                "HOST: 239.255.255.250:1900\r\n"
+                "NTS: ssdp:alive\r\n"
+                "CACHE-CONTROL: max-age=%u\r\n" // SSDP_INTERVAL
+                "LOCATION: http://%s:%u/%s\r\n" // WiFi.localIP(), _port, _schemaURL
+                "SERVER: Arduino/1.0 UPNP/1.1 %s/%s\r\n" // _modelName, _modelNumber
+                "hue-bridgeid: %s\r\n"
+                "NT: %s\r\n"  // _deviceType
+                "USN: uuid:%s\r\n" // _uuid
+                "\r\n";
+static const char *CONFIG_FILE_NAME = "/hue/config.json";
 
-static WcUriTranslator objects_translator = [](String uri) -> String {
+static uint8_t parse_id(const String &uri, uint8_t o = 0);
+
+static const WcUriTranslator OBJECTS_TRANSLATOR = [](String uri) -> String {
     const uint8_t id = parse_id(uri, 4);
     if (uri.indexOf("lights") >= 0) {
         return get_file_index_info(HUE_LIGHT, id, false)->name;
@@ -22,6 +37,15 @@ static WcUriTranslator objects_translator = [](String uri) -> String {
     }
     return "";
 };
+
+static uint8_t parse_id(const String &uri, uint8_t o) {
+    uint8_t offset = 0;
+    for (; offset < uri.length() && o > 0; offset++) {
+        if (uri.charAt(offset) == '/') o--;
+    }
+    uint8_t id = (uint8_t) strtol(uri.c_str() + offset, NULL, 10);
+    return id;
+}
 
 static String success(const String value) {
     String msg = "{ \"success\": { \"";
@@ -63,67 +87,16 @@ static String emptyJSON(String nop, String nop_) {
     return "{}";
 }
 
-const char *HueBridge::_ssdp_response_template =
-        "HTTP/1.1 200 OK\r\n"
-                "EXT:\r\n"
-                "CACHE-CONTROL: max-age=%u\r\n" // SSDP_INTERVAL
-                "LOCATION: http://%s:%u/%s\r\n" // WiFi.localIP(), _port, _schemaURL
-                "SERVER: Arduino/1.0 UPNP/1.1 %s/%s\r\n" // _modelName, _modelNumber
-                "hue-bridgeid: %s\r\n"
-                "ST: %s\r\n"  // _deviceType
-                "USN: uuid:%s\r\n" // _uuid
-                "\r\n";
-
-const char *HueBridge::_ssdp_notify_template =
-        "NOTIFY * HTTP/1.1\r\n"
-                "HOST: 239.255.255.250:1900\r\n"
-                "NTS: ssdp:alive\r\n"
-                "CACHE-CONTROL: max-age=%u\r\n" // SSDP_INTERVAL
-                "LOCATION: http://%s:%u/%s\r\n" // WiFi.localIP(), _port, _schemaURL
-                "SERVER: Arduino/1.0 UPNP/1.1 %s/%s\r\n" // _modelName, _modelNumber
-                "hue-bridgeid: %s\r\n"
-                "NT: %s\r\n"  // _deviceType
-                "USN: uuid:%s\r\n" // _uuid
-                "\r\n";
-
-static void set_string(const char *file_name, const char *param_start, const char *param_end, const char *value) {
-    if (file_name == NULL || param_start == NULL || param_end == NULL || value == NULL) return;
-    File file = SPIFFS.open(file_name, "r");
-    if (!file) return;
-    size_t pos_start = 0, pos_end = 0, buff_len = file.size();
-    uint8_t buffer[buff_len];
-    if (file.find(param_start, strlen(param_start))) {
-        pos_start = file.position();
-    }
-    if (file.find(param_end, strlen(param_end))) {
-        pos_end = file.position();
-    }
-    Log::println("Start at %d end at %d", pos_start, pos_end);
-    if (pos_start == 0 || pos_end == 0) {
-        file.close();
-        return;
-    }
-    file.seek(0, SeekSet);
-    file.read(buffer, file.size());
-    file.close();
-    file = SPIFFS.open(file_name, "w");
-    file.write(buffer, pos_start);
-    file.write((uint8_t *) value, strlen(value));
-    file.write(buffer + pos_end - strlen(param_end), buff_len - pos_end + strlen(param_end));
-    file.flush();
-    file.close();
-}
-
 HueBridge::HueBridge(RestService *web_service) {
     bridgeIDString = WiFi.macAddress();
     bridgeIDString.replace(":", "");
     bridgeIDString = bridgeIDString.substring(0, 6) + "FFFE" + bridgeIDString.substring(6);
 
-    ConfigJSON::set<String>(config_file_name, {"bridgeid"}, bridgeIDString);
-    ConfigJSON::set<String>(config_file_name, {"mac"}, WiFi.macAddress());
-    ConfigJSON::set<String>(config_file_name, {"ipaddress"}, WiFi.localIP().toString());
-    ConfigJSON::set<String>(config_file_name, {"netmask"}, WiFi.subnetMask().toString());
-    ConfigJSON::set<String>(config_file_name, {"gateway"}, WiFi.gatewayIP().toString());
+    ConfigJSON::set<String>(CONFIG_FILE_NAME, {"bridgeid"}, bridgeIDString);
+    ConfigJSON::set<String>(CONFIG_FILE_NAME, {"mac"}, WiFi.macAddress());
+    ConfigJSON::set<String>(CONFIG_FILE_NAME, {"ipaddress"}, WiFi.localIP().toString());
+    ConfigJSON::set<String>(CONFIG_FILE_NAME, {"netmask"}, WiFi.subnetMask().toString());
+    ConfigJSON::set<String>(CONFIG_FILE_NAME, {"gateway"}, WiFi.gatewayIP().toString());
 
     String udn = "uuid:2f402f80-da50-11e1-9b23-";
     udn += WiFi.macAddress();
@@ -175,6 +148,7 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         JsonArray &array = json["xy"].as<JsonArray>();
         lights[light_id]->set_color_cie(array[0].as<float>(), array[1].as<float>());
     } else if (ct >= 0) {
+        // TODO
         //lights[light_id]->set_ct((uint8_t) ct);
     } else {
         if (bri >= 0) {
@@ -188,6 +162,7 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         }
     }
     if (transit_time >= 0) {
+        // TODO
         //lights[light_id]->set_transition(transit_time);
     }
     HueObjectType type = path.startsWith("/lights") ? HUE_LIGHT : (path.startsWith("/groups") ? HUE_GROUP : HUE_SCENE);
@@ -243,14 +218,13 @@ void HueBridge::initialize_SSDP() {
                                       char *modelNumber, char *uuid, char *deviceType,
                                       uint32_t ip, uint16_t port, char *schemaURL) {
         if (isNotify) {
-            return snprintf(buffer, buff_len, _ssdp_notify_template, interval, WiFi.localIP().toString().c_str(), port,
+            return snprintf(buffer, buff_len, SSDP_NOTIFY_TEMPLATE, interval, WiFi.localIP().toString().c_str(), port,
                             schemaURL, modelName, modelNumber, bridgeIDString.c_str(), deviceType, uuid);
         } else {
-            return snprintf(buffer, buff_len, _ssdp_response_template, interval, WiFi.localIP().toString().c_str(),
+            return snprintf(buffer, buff_len, SSDP_RESPONSE_TEMPLATE, interval, WiFi.localIP().toString().c_str(),
                             port, schemaURL, modelName, modelNumber, bridgeIDString.c_str(), deviceType, uuid);
         }
     });
-    Log::println("Hue-SSDP Started");
 }
 
 void HueBridge::initialize_config(RestService *web_service) {
@@ -261,7 +235,6 @@ void HueBridge::initialize_config(RestService *web_service) {
         return "[ { \"success\": {} }]";
     });
     web_service->add_handler_file("/api/config", HTTP_GET, RESP_TEXT, "/hue/config.json", false);
-    // TODO replace by file streaming
     web_service->add_handler_wc_stream("/api/+?", HTTP_GET, RESP_TEXT,
                                        new HueObjectsConfigStream(new HueObjectConfigStream(HUE_LIGHT),
                                                                   new HueObjectConfigStream(HUE_GROUP),
@@ -278,7 +251,6 @@ void HueBridge::initialize_config(RestService *web_service) {
 }
 
 void HueBridge::initialize_lights(RestService *web_service) {
-    // TODO replace by file streaming
     web_service->add_handler_wc("/api/+/lights/new?", HTTP_GET, RESP_TEXT, [this](String arg, String uri) -> String {
         return "{\"lastscan\": \"2000-10-29T12:00:00\" }";
     });
@@ -286,7 +258,7 @@ void HueBridge::initialize_lights(RestService *web_service) {
         return "[" + success("/lights", "Searching for new devices") + "]";
     });
     web_service->add_handler_wc_stream("/api/+/lights?", HTTP_GET, RESP_TEXT, new HueObjectConfigStream(HUE_LIGHT));
-    web_service->add_handler_wc_file("/api/+/lights/+?", HTTP_GET, RESP_JSON, objects_translator, false);
+    web_service->add_handler_wc_file("/api/+/lights/+?", HTTP_GET, RESP_JSON, OBJECTS_TRANSLATOR, false);
     web_service->add_handler_wc("/api/+/lights/+?", HTTP_PUT, RESP_TEXT, [this](String arg, String uri) -> String {
         StaticJsonBuffer<100> jsonBuffer;
         JsonObject &json = jsonBuffer.parseObject(arg);
@@ -335,7 +307,7 @@ void HueBridge::initialize_groups(RestService *web_service) {
         }
         return error(0, "/groups", "Insufficient arguments.");
     });
-    web_service->add_handler_wc_file("/api/+/groups/+?", HTTP_GET, RESP_JSON, objects_translator, false);
+    web_service->add_handler_wc_file("/api/+/groups/+?", HTTP_GET, RESP_JSON, OBJECTS_TRANSLATOR, false);
     web_service->add_handler_wc("/api/+/groups/+?", HTTP_PUT, RESP_TEXT, [this](String arg, String uri) -> String {
         return update_hue_groups(arg, uri, "/groups/*", (HueLightGroup **) groups, MAX_HUE_GROUPS);
     });
@@ -383,7 +355,7 @@ void HueBridge::initialize_scenes(RestService *web_service) {
         }
         return error(0, "/scenes", "Insufficient arguments.");
     });
-    web_service->add_handler_wc_file("/api/+/scenes/+?", HTTP_GET, RESP_JSON, objects_translator, false);
+    web_service->add_handler_wc_file("/api/+/scenes/+?", HTTP_GET, RESP_JSON, OBJECTS_TRANSLATOR, false);
     web_service->add_handler_wc("/api/+/scenes/+?", HTTP_PUT, RESP_TEXT, [this](String arg, String uri) -> String {
         return update_hue_groups(arg, uri, "/scenes/*", (HueLightGroup **) scenes, MAX_HUE_SCENES);
         //if (json.containsKey("storelightstate") && json["storelightstate"].is<bool>()) {
@@ -398,8 +370,6 @@ void HueBridge::initialize_scenes(RestService *web_service) {
         }
         return error(0, "/scenes/*", "Scene not present.");
     });
-    // FIXME: supported from API 1.11
-    // web_service->add_handler_wc("/api/+/scenes/+/lightstates/+?", HTTP_PUT, RESP_TEXT, emptyJSON);
     web_service->add_handler_wc("/api/+/scenes/+/lights/+/state?", HTTP_PUT, RESP_TEXT,
                                 [this](String a, String u) -> String {
                                     return update_hue_lights(a, u, "/scenes/*/lights/*/states", (HueLight **) scenes,
@@ -462,6 +432,10 @@ bool HueBridge::delete_scene(const uint8_t id) {
     delete scenes[id];
     scenes[id] = NULL;
     return true;
+}
+
+void HueBridge::cycle_routine() {
+    reindex_all();
 }
 
 HueBridge::~HueBridge() {
