@@ -1,7 +1,7 @@
 #ifndef ESP8266_PROJECTS_ROOT_HUE_SCENE_H
 #define ESP8266_PROJECTS_ROOT_HUE_SCENE_H
 
-#include <hue_group.h>
+#include <hue_commons.h>
 
 class HueScene : public HueLightGroup {
 private:
@@ -15,10 +15,6 @@ public:
     void set_transition(const uint16_t);
 
     void set_name(const char *n) override;
-
-    String get_config() const override;
-
-    String get_config_complex() const override;
 
     ~HueScene();
 };

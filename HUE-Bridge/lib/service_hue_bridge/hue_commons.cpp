@@ -17,7 +17,6 @@ void reindex_all() {
                     info->size = file.size();
                     info->refresh = false;
                     file.close();
-                    Log::println("Reindexed %s", info->name);
                 }
                 yield();
             }
@@ -51,150 +50,151 @@ char *generate_name(const char *prefix, uint8_t i, const char *suffix) {
     return dest;
 }
 
-HueObjectConfigStream::HueObjectConfigStream(const HueObjectType t,const bool c) {
-    type = t;
-    switch (type) {
-        case HUE_LIGHT:
-            files_len = MAX_HUE_LIGHTS;
-            break;
-        case HUE_GROUP:
-            files_len = MAX_HUE_GROUPS;
-            break;
-        case HUE_SCENE:
-            files_len = MAX_HUE_SCENES;
-            break;
+
+void set_string(const char *file_name, const char *param_start, const char *param_end, const char *value) {
+    if (file_name == NULL || param_start == NULL || param_end == NULL || value == NULL) return;
+    File file = SPIFFS.open(file_name, "r");
+    if (!file) return;
+    size_t pos_start = 0, pos_end = 0, buff_len = file.size();
+    uint8_t buffer[buff_len];
+    if (file.find(param_start, strlen(param_start))) {
+        pos_start = file.position();
     }
-    complex = c;
+    if (file.find(param_end, strlen(param_end))) {
+        pos_end = file.position();
+    }
+    if (pos_start == 0 || pos_end == 0) {
+        file.close();
+        return;
+    }
+    file.seek(0, SeekSet);
+    file.read(buffer, file.size());
+    file.close();
+    file = SPIFFS.open(file_name, "w");
+    file.write(buffer, pos_start);
+    file.write((uint8_t *) value, strlen(value));
+    file.write(buffer + pos_end - strlen(param_end), buff_len - pos_end + strlen(param_end));
+    file.flush();
+    file.close();
 }
 
-int HueObjectConfigStream::read(byte *buf, uint16_t nbyte) {
-    if (nbyte == 0 || available() == 0) return 0;
-    int rd = 0, cp = 0;
-    if (p == 0) buf[rd++] = '{';
-    for (uint8_t i = 0; i < files_len && rd < nbyte; i++) {
-        yield(); // WATCHDOG/WIFI feed
-        FileIndex *info = get_file_index_info(type, i, complex);
-        if (info->size == 0) continue;
-        if (p > cp + info->size) {
-            cp += info->size;
-        } else {
-            String index = (i == 0 ? "\"" : ",\"");
-            index += i;
-            index += "\":";
+HueLight::HueLight(const char *n) {
+    set_name(n);
+}
 
-            uint32_t rel_pos = p - cp;
-            if (rel_pos < index.length()) {
-                unsigned int can_read = (unsigned int) nbyte - rd,
-                        readed = index.length() > can_read ? can_read : index.length();
-                index.getBytes(buf + rd, can_read);
-                rd += readed;
-                rel_pos -= readed;
-            } else {
-                rel_pos -= index.length();
-            }
-            File f = SPIFFS.open(info->name, "r");
-            if (!f) continue;
+void HueLight::set_name(const char *n) {
+    if (n == NULL) return;
+    checked_free(name);
+    name = (char *) malloc(sizeof(char) * (strlen(n) + 1));
+    strcpy(name, n);
+    ConfigJSON::set<const char *>(config, {"name"}, name);
+}
 
-            f.seek(rel_pos, SeekSet);
-            rd += f.read(buf + rd, (size_t)(nbyte - rd));
-            f.close();
+const char *HueLight::get_name() const {
+    return name == NULL ? "" : name;
+}
+
+void HueLight::set_color_cie(const float x, const float y) {
+    cie_x = x;
+    cie_y = y;
+    float z = 1.0 - x - y;
+    float Y = get_brightness() / 254.0;
+    float X = (Y / y) * x;
+    float Z = (Y / y) * z;
+
+    //Convert to RGB using Wide RGB D65 conversion
+    float red = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
+    float green = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
+    float blue = X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+
+    //If red, green or blue is larger than 1.0 set it back to the maximum of 1.0
+    if (red > blue && red > green && red > 1.0) {
+        green = green / red;
+        blue = blue / red;
+        red = 1.0;
+    } else if (green > blue && green > red && green > 1.0) {
+        red = red / green;
+        blue = blue / green;
+        green = 1.0;
+    } else if (blue > red && blue > green && blue > 1.0) {
+        red = red / blue;
+        green = green / blue;
+        blue = 1.0;
+    }
+
+    //Reverse gamma correction
+    red = red <= 0.0031308 ? 12.92 * red : (1.0 + 0.055) * pow(red, (1.0 / 2.4)) - 0.055;
+    green = green <= 0.0031308 ? 12.92 * green : (1.0 + 0.055) * pow(green, (1.0 / 2.4)) - 0.055;
+    blue = blue <= 0.0031308 ? 12.92 * blue : (1.0 + 0.055) * pow(blue, (1.0 / 2.4)) - 0.055;
+
+    set_color_rgb((uint8_t) (red * 255), (uint8_t) (green * 255), (uint8_t) (blue * 255));
+}
+
+HueLight::~HueLight() {
+    checked_free(name);
+}
+
+uint16_t HueLightGroup::get_hue() const { return hue; }
+
+uint8_t HueLightGroup::get_saturation() const { return sat; }
+
+uint8_t HueLightGroup::get_brightness() const { return bri; }
+
+String HueLightGroup::get_state() const {
+    if (state) return "true";
+    return "false";
+}
+
+void HueLightGroup::for_each_light(LightCallback callback) {
+    for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
+        if (lights[i] != NULL) {
+            callback(lights[i]);
         }
     }
-    if (available() - rd == 1) {
-        buf[rd++] = '}';
+}
+
+bool HueLightGroup::add_light(const uint8_t i, HueLight *l) {
+    if (i > MAX_HUE_LIGHTS || l == NULL)
+        return false;
+    lights[i] = l;
+    String index(i);
+    ConfigJSON::add_to_array<const char *>(config, {"lights"}, index.c_str());
+    ConfigJSON::add_to_array<const char *>(config_all, {"lights"}, index.c_str());
+    return true;
+}
+
+void HueLightGroup::clear_lights() {
+    for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
+        lights[i] = NULL;
     }
-    //while (rd < nbyte) {
-    //    buf[rd++] = '\0';
-    //}
-    p += rd;
-    return rd;
+    ConfigJSON::clear_array(config, {"lights"});
+    ConfigJSON::clear_array(config_all, {"lights"});
 }
 
-int HueObjectConfigStream::available() const {
-    return (int) ((_size - p) > 0 ? _size - p : 0);
+void HueLightGroup::set_color_cie(const float x, const float y) {
+    for_each_light([=](HueLight *l) { l->set_color_cie(x, y); });
 }
 
-uint32_t HueObjectConfigStream::size() const {
-    uint32_t *size = (uint32_t * )(&_size);
-    *size = 2; // {}
-    for (uint8_t i = 0; i < files_len; ++i) {
-        FileIndex *info = get_file_index_info(type, i, complex);
-        if (info->size == 0) continue;
-        *size += (_size == 2 ? 3 : 4); // ,"": /"":
-        *size += (i < 10 ? 1 : (i < 100 ? 2 : 3)); // i size
-        *size += info->size;
-    }
-    Log::println("Size %d/", _size);
-    return _size;
+void HueLightGroup::set_color_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
+    for_each_light([=](HueLight *l) { l->set_color_rgb(r, g, b); });
 }
 
-const char *HueObjectConfigStream::name() const { return ""; }
-
-void HueObjectConfigStream::rewind() { p = 0; }
-
-HueObjectConfigStream::~HueObjectConfigStream() {}
-
-HueObjectsConfigStream::HueObjectsConfigStream(HueObjectConfigStream *l, HueObjectConfigStream *g,
-                                               HueObjectConfigStream *s) {
-    streams[HUE_LIGHT] = l;
-    streams[HUE_GROUP] = g;
-    streams[HUE_SCENE] = s;
-    streams[3] = new MultiFileStream({"/hue/config.json"});
+void HueLightGroup::set_state(const bool s) {
+    state = s;
+    for_each_light([=](HueLight *l) { l->set_state(s); });
 }
 
-int HueObjectsConfigStream::read(uint8_t i, byte *buf, uint16_t nbyte) {
-    if (nbyte == 0) return 0;
-    uint16_t to_read = (uint16_t)(templates[i].length() - templates_proceed[i]);
-    to_read = to_read < nbyte ? to_read : nbyte;
-    if (to_read) {
-        for (int o = 0; o < to_read; o++) {
-            buf[o] = (byte)templates[i].charAt(o);
-        }
-    }
-    templates_proceed[i] += to_read;
-    return to_read;
+void HueLightGroup::set_hue(const uint16_t h) {
+    hue = h;
+    for_each_light([=](HueLight *l) { l->set_hue(h); });
 }
 
-int HueObjectsConfigStream::read(byte *buf, uint16_t nbyte) {
-    if (nbyte == 0 || available() == 0) return 0;
-    int rd = 0;
-    for (uint8_t i = 0; i < stream_len; i++) {
-        rd += read(i, buf + rd, (uint16_t)(nbyte - rd));
-        rd += streams[i]->read(buf + rd, (uint16_t)(nbyte - rd));
-    }
-    rd += read(4, buf + rd, (uint16_t)(nbyte - rd));
-    p += rd;
-    if (rd < nbyte) {
-        Log::println("Size mismatch by %d", nbyte - rd);
-        Log::println("Size %d/%d", p, size());
-    }
-    return rd;
+void HueLightGroup::set_brightness(const uint8_t b) {
+    bri = b;
+    for_each_light([=](HueLight *l) { l->set_brightness(b); });
 }
 
-uint32_t HueObjectsConfigStream::size() const {
-    uint32_t *size = (uint32_t * )(&_size);
-    *size = 0;
-    for (uint8_t i = 0; i < template_len; i++) {
-        *size += templates[i].length();
-    }
-    for (uint8_t i = 0; i < stream_len; i++)
-        *size += streams[i]->size();
-    Log::println("Size %d", _size);
-    return _size;
+void HueLightGroup::set_saturation(const uint8_t s) {
+    sat = s;
+    for_each_light([=](HueLight *l) { l->set_saturation(s); });
 }
-
-int HueObjectsConfigStream::available() const {
-    return (int) ((_size - p) > 0 ? _size - p : 0);
-}
-
-const char *HueObjectsConfigStream::name() const { return ""; }
-
-void HueObjectsConfigStream::rewind() {
-    p = 0;
-    for (uint8_t i = 0; i < stream_len; i++)
-        streams[i]->rewind();
-    for (uint8_t i = 0; i < template_len; i++)
-        templates_proceed[i] = 0;
-}
-
-HueObjectsConfigStream::~HueObjectsConfigStream() {}
