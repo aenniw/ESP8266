@@ -24,12 +24,12 @@ void ICACHE_FLASH_ATTR setup() {
     services.push_back(Log::getInstance());
 
     auto *restService = new RestService(nullptr, nullptr, 80);
-    //auto *ledstrip = new LedStripService(GRB, UART800, 1);
+    auto *ledstrip = new LedStripService(GRB, UART800, 1);
     auto *hueBridge = new HueBridge(restService);
-    //hueBridge->add_light(ledstrip);
+    hueBridge->add_light(ledstrip);
 
     services.push_back((Service *) restService);
-    //services.push_back((Service *) ledstrip);
+    services.push_back((Service *) ledstrip);
     services.push_back((Service *) hueBridge);
     Log::println("\nStaring.");
 }

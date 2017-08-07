@@ -105,6 +105,7 @@ void ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char 
 }
 
 bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite) {
+    Log::println("File %s copy to %s", src_name, dst_name);
     if (!overwrite && SPIFFS.exists(dst_name)) return false;
     File dst = SPIFFS.open(dst_name, "w");
     if (!dst) return false;

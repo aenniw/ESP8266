@@ -9,9 +9,15 @@ private:
     HueObjectType type;
     uint32_t p = 0, files_len = 0, _size = 0;
     bool complex = false;
+    uint16_t templates_proceed[MAX_HUE_LIGHTS] = {0};
+    uint16_t files_proceed[MAX_HUE_LIGHTS] = {0};
 
 public:
     HueObjectConfigStream(const HueObjectType, const bool= false);
+
+    int read(uint8_t i, byte *buf, uint16_t nbyte);
+
+    int read_f(uint8_t i, byte *buf, uint16_t nbyte);
 
     virtual int read(byte *buf, uint16_t nbyte) override;
 

@@ -147,6 +147,6 @@ public:
     static char *ICACHE_FLASH_ATTR getString(const char *file, std::initializer_list<const char *> keys);
 };
 
-bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite = false);
+bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite = true);
 
 #endif /* WEMOS_D1_FILESYSTEM_H_ */

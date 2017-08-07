@@ -16,6 +16,33 @@ HueObjectConfigStream::HueObjectConfigStream(const HueObjectType t, const bool c
     complex = c;
 }
 
+int HueObjectConfigStream::read(uint8_t i, byte *buf, uint16_t nbyte) {
+    if (nbyte == 0) return 0;
+    String index = (i == 0 ? "\"" : ",\"");
+    index += i;
+    index += "\":";
+    uint16_t to_read = (uint16_t)(index.length() - templates_proceed[i]);
+    to_read = to_read < nbyte ? to_read : nbyte;
+    for (int o = 0; o < to_read; o++) {
+        buf[o] = (byte) index.charAt(o);
+    }
+    templates_proceed[i] += to_read;
+    return to_read;
+}
+
+int HueObjectConfigStream::read_f(uint8_t i, byte *buf, uint16_t nbyte) {
+    if (nbyte == 0) return 0;
+    FileIndex *info = get_file_index_info(type, i, complex);
+    int rd = 0;
+    File f = SPIFFS.open(info->name, "r");
+    if (!f) return 0;
+    f.seek(files_proceed[i], SeekSet);
+    rd = f.read(buf, nbyte);
+    f.close();
+    files_proceed[i] += rd;
+    return rd;
+}
+
 int HueObjectConfigStream::read(byte *buf, uint16_t nbyte) {
     if (nbyte == 0 || available() == 0) return 0;
     int rd = 0, cp = 0;
@@ -24,37 +51,12 @@ int HueObjectConfigStream::read(byte *buf, uint16_t nbyte) {
         yield(); // WATCHDOG/WIFI feed
         FileIndex *info = get_file_index_info(type, i, complex);
         if (info->size == 0) continue;
-        if (p > cp + info->size) {
-            cp += info->size;
-        } else {
-            String index = (i == 0 ? "\"" : ",\"");
-            index += i;
-            index += "\":";
-
-            uint32_t rel_pos = p - cp;
-            if (rel_pos < index.length()) {
-                unsigned int can_read = (unsigned int) nbyte - rd,
-                        readed = index.length() > can_read ? can_read : index.length();
-                index.getBytes(buf + rd, can_read);
-                rd += readed;
-                rel_pos -= readed;
-            } else {
-                rel_pos -= index.length();
-            }
-            File f = SPIFFS.open(info->name, "r");
-            if (!f) continue;
-
-            f.seek(rel_pos, SeekSet);
-            rd += f.read(buf + rd, (size_t) (nbyte - rd));
-            f.close();
-        }
+        rd += read(i, buf + rd, (uint16_t)(nbyte - rd));
+        rd += read_f(i, buf + rd, (uint16_t)(nbyte - rd));
     }
     if (available() - rd == 1) {
         buf[rd++] = '}';
     }
-    //while (rd < nbyte) {
-    //    buf[rd++] = '\0';
-    //}
     p += rd;
     return rd;
 }
@@ -78,7 +80,13 @@ uint32_t HueObjectConfigStream::size() const {
 
 const char *HueObjectConfigStream::name() const { return ""; }
 
-void HueObjectConfigStream::rewind() { p = 0; }
+void HueObjectConfigStream::rewind() {
+    p = 0;
+    for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++)
+        templates_proceed[i] = 0;
+    for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++)
+        files_proceed[i] = 0;
+}
 
 HueObjectConfigStream::~HueObjectConfigStream() {}
 
@@ -94,10 +102,8 @@ int HueObjectsConfigStream::read(uint8_t i, byte *buf, uint16_t nbyte) {
     if (nbyte == 0) return 0;
     uint16_t to_read = (uint16_t) (templates[i].length() - templates_proceed[i]);
     to_read = to_read < nbyte ? to_read : nbyte;
-    if (to_read) {
-        for (int o = 0; o < to_read; o++) {
-            buf[o] = (byte) templates[i].charAt(o);
-        }
+    for (int o = 0; o < to_read; o++) {
+        buf[o] = (byte) templates[i].charAt(o);
     }
     templates_proceed[i] += to_read;
     return to_read;
