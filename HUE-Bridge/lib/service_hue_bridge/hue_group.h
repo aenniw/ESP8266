@@ -20,6 +20,8 @@ public:
 
     void set_color_cie(float x, float y) override;
 
+    void set_color_ct(const uint32_t ct) override;
+
     void set_state(const bool) override;
 
     void set_hue(const uint16_t) override;

@@ -148,8 +148,8 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         JsonArray &array = json["xy"].as<JsonArray>();
         lights[light_id]->set_color_cie(array[0].as<float>(), array[1].as<float>());
     } else if (ct >= 0) {
-        // TODO
-        //lights[light_id]->set_ct((uint8_t) ct);
+        // Conversion from mct to ct
+        lights[light_id]->set_color_ct((uint32_t)(1000000 / ct));
     } else {
         if (bri >= 0) {
             lights[light_id]->set_brightness((uint8_t) bri);
