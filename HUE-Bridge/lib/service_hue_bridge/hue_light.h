@@ -23,6 +23,8 @@ public:
 
     void set_color_rgb(const uint8_t r, const uint8_t g, const uint8_t b);
 
+    void set_color_ct(const uint32_t ct) override;
+
     void set_state(const bool s) override;
 
     void set_hue(const uint16_t h) override;

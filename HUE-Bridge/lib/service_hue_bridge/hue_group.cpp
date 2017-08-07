@@ -47,9 +47,16 @@ void HueGroup::set_color_cie(float x, float y) {
     mark_for_reindex();
 }
 
+void HueGroup::set_color_ct(const uint32_t ct) {
+    HueLightGroup::set_color_ct(ct);
+    ConfigJSON::set<uint32_t>(cfa->name, {"action", "ct"}, ct);
+    mark_for_reindex();
+}
+
 void HueGroup::set_hue(const uint16_t h) {
     HueLightGroup::set_hue(h);
     ConfigJSON::set<uint16_t>(cfa->name, {"action", "hue"}, h);
+    mark_for_reindex();
 }
 
 void HueGroup::set_brightness(const uint8_t b) {

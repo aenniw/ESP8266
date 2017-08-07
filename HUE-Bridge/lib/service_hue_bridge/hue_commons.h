@@ -35,6 +35,7 @@ class HueLight : public ConfigObject {
 protected:
     char *name = NULL;
     float cie_x = 0.5, cie_y = 0.5;
+    uint8_t r = 0, g = 0, b = 0;
 
     virtual uint16_t get_hue() const = 0;
 
@@ -53,11 +54,13 @@ public:
 
     virtual void set_color_cie(const float x, const float y);
 
+    virtual void set_color_ct(const uint32_t ct);
+
+    virtual void set_color_rgb(const uint8_t, const uint8_t, const uint8_t);
+
     virtual void set_hue(const uint16_t)=0;
 
     virtual void set_state(const bool)=0;
-
-    virtual void set_color_rgb(const uint8_t, const uint8_t, const uint8_t)=0;
 
     virtual void set_brightness(const uint8_t)=0;
 
@@ -95,6 +98,8 @@ public:
     virtual void set_color_cie(const float x, const float y);
 
     void set_color_rgb(const uint8_t, const uint8_t, const uint8_t);
+
+    void set_color_ct(const uint32_t ct);
 
     void set_state(const bool) override;
 
