@@ -5,7 +5,6 @@
 
 class HueGroup : public HueLightGroup {
 private:
-    bool global = false;
     char *type = NULL;
 protected:
     void set_type(const char *);

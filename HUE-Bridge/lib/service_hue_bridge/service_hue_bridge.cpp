@@ -108,7 +108,7 @@ HueBridge::HueBridge(RestService *web_service) {
     set_string("/hue/description.xml", "<URLBase>", "</URLBase>", ipString.c_str());
 
     // the default group 0 is never listed
-    groups[0] = new HueGroup(lights);
+    groups[0] = new HueGroup("All lights", "other", 0);
     initialize_config(web_service);
     initialize_lights(web_service);
     initialize_groups(web_service);
@@ -165,9 +165,7 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         // TODO
         //lights[light_id]->set_transition(transit_time);
     }
-    HueObjectType type = path.startsWith("/lights") ? HUE_LIGHT : (path.startsWith("/groups") ? HUE_GROUP : HUE_SCENE);
-    get_file_index_info(type, light_id, false)->refresh = true;
-    get_file_index_info(type, light_id, true)->refresh = true;
+    lights[light_id]->mark_for_reindex();
     return "Updated.";
 }
 
@@ -194,9 +192,7 @@ HueBridge::update_hue_groups(const String &arg, const String &uri, const String 
             }
         }
     }
-    HueObjectType type = path.startsWith("/lights") ? HUE_LIGHT : (path.startsWith("/groups") ? HUE_GROUP : HUE_SCENE);
-    get_file_index_info(type, id, false)->refresh = true;
-    get_file_index_info(type, id, true)->refresh = true;
+    lightGroups[id]->mark_for_reindex();
     return "Updated.";
 }
 
@@ -324,6 +320,10 @@ void HueBridge::initialize_groups(RestService *web_service) {
 }
 
 void HueBridge::initialize_scenes(RestService *web_service) {
+    web_service->add_handler("/reindex", HTTP_ANY, RESP_JSON, [](String a) -> String {
+        force_reindex();
+        return JSON_RESP_OK;
+    });
     web_service->add_handler_wc_stream("/api/+/scenes?", HTTP_GET, RESP_TEXT, new HueObjectConfigStream(HUE_SCENE));
     web_service->add_handler_wc("/api/+/scenes?", HTTP_POST, RESP_TEXT, [this](String arg, String uri) -> String {
         StaticJsonBuffer<1024> jsonBuffer;
@@ -396,6 +396,7 @@ int8_t HueBridge::add_light(LedStripService *l) {
     const int16_t i = get_free_index((ConfigObject **) lights, MAX_HUE_LIGHTS);
     if (l == NULL || i < 0) return -1;
     lights[i] = new LedLight(l, "Hue Light", (uint8_t) i);
+    groups[0]->add_light((uint8_t) i, lights[i]);
     return (int8_t) i;
 }
 

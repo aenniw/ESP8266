@@ -8,6 +8,7 @@
 
 #define MIN(a,b) ((a<b)?a:b)
 #define MAX(a,b) ((a>b)?a:b)
+#define ABS(a) (((a)>=0)?(a):-(a))
 
 void *checked_free(void *ptr);
 

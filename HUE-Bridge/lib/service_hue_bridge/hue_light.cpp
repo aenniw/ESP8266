@@ -3,14 +3,15 @@
 static const char *TEMPLATE_CONFIG_LIGHT = "/hue/l/cf-template.json";
 
 LedLight::LedLight(LedStripService *l, const char *n, const uint8_t index) : HueLight(n) {
-    config = get_file_index_info(HUE_LIGHT, index, false)->name;
-    config_all = config;
-    copy_file(TEMPLATE_CONFIG_LIGHT, config);
+    cf = get_file_index_info(HUE_LIGHT, index, false);
+    cfa = cf;
+    copy_file(TEMPLATE_CONFIG_LIGHT, cf->name);
     String unique_id = "AA:BB:CC:DD:EE:FF:00:11-";
     unique_id += index;
-    ConfigJSON::set<const char *>(config, {"name"}, name);
-    ConfigJSON::set<const char *>(config, {"uniqueid"}, unique_id.c_str());
+    ConfigJSON::set<const char *>(cf->name, {"name"}, name);
+    ConfigJSON::set<const char *>(cf->name, {"uniqueid"}, unique_id.c_str());
     ls = l;
+    mark_for_reindex();
 }
 
 uint16_t LedLight::get_hue() const {
@@ -33,9 +34,10 @@ uint8_t LedLight::get_brightness() const {
 
 void LedLight::set_color_cie(float x, float y) {
     HueLight::set_color_cie(x, y);
-    ConfigJSON::clear_array(config, {"state", "xy"});
-    ConfigJSON::add_to_array<float>(config, {"state", "xy"}, x);
-    ConfigJSON::add_to_array<float>(config, {"state", "xy"}, y);
+    ConfigJSON::clear_array(cf->name, {"state", "xy"});
+    ConfigJSON::add_to_array<float>(cf->name, {"state", "xy"}, x);
+    ConfigJSON::add_to_array<float>(cf->name, {"state", "xy"}, y);
+    mark_for_reindex();
 }
 
 void LedLight::set_color_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
@@ -47,20 +49,24 @@ void LedLight::set_state(const bool s) {
     if (s)
         ls->set_color(255, 255, 255);
     else ls->set_color(0, 0, 0);
-    ConfigJSON::set<bool>(config, {"state", "on"}, s);
+    ConfigJSON::set<bool>(cf->name, {"state", "on"}, s);
+    mark_for_reindex();
 }
 
 void LedLight::set_hue(const uint16_t h) {
     ls->set_hue(h);
-    ConfigJSON::set<uint16_t>(config, {"state", "hue"}, h);
+    ConfigJSON::set<uint16_t>(cf->name, {"state", "hue"}, h);
+    mark_for_reindex();
 }
 
 void LedLight::set_brightness(const uint8_t b) {
     ls->set_brightness(b);
-    ConfigJSON::set<uint8_t>(config, {"state", "bri"}, b);
+    ConfigJSON::set<uint8_t>(cf->name, {"state", "bri"}, b);
+    mark_for_reindex();
 }
 
 void LedLight::set_saturation(const uint8_t s) {
     ls->set_saturation(s);
-    ConfigJSON::set<uint8_t>(config, {"state", "sat"}, s);
+    ConfigJSON::set<uint8_t>(cf->name, {"state", "sat"}, s);
+    mark_for_reindex();
 }

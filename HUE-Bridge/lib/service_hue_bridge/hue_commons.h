@@ -19,7 +19,16 @@ typedef enum {
 
 class ConfigObject {
 protected:
-    const char *config = NULL, *config_all = NULL;
+    FileIndex *cf = NULL, *cfa = NULL;
+public:
+    void mark_for_reindex() {
+        if (cf != NULL) {
+            cf->refresh = true;
+        }
+        if (cfa != NULL) {
+            cfa->refresh = true;
+        }
+    }
 };
 
 class HueLight : public ConfigObject {
@@ -97,6 +106,7 @@ public:
 };
 
 void reindex_all();
+void force_reindex();
 
 char *generate_name(const char *prefix, uint8_t i, const char *suffix);
 

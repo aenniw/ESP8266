@@ -37,10 +37,14 @@ void ICACHE_FLASH_ATTR setup() {
     delay(500);
 }
 
+unsigned int i = 0;
+
 void loop() {
-    for (std::vector<Service *>::iterator i = services.begin();
-         i != services.end(); i++) {
-        (*i)->cycle_routine();
+    for (auto &service : services) {
+        service->cycle_routine();
         yield(); // WATCHDOG/WIFI feed
+    }
+    if ((i++ % 1600) == 0) {
+        Log::println("Free: %d\t%d", ESP.getFreeHeap(), ESP.getFreeSketchSpace());
     }
 }

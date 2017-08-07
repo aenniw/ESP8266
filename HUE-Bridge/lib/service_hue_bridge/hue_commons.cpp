@@ -24,6 +24,20 @@ void reindex_all() {
     }
 }
 
+void force_reindex() {
+    for (uint8_t t = 0; t < 3; t++) {
+        for (uint8_t c = 0; c < 2; c++) {
+            for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
+                FileIndex *info = get_file_index_info((HueObjectType) t, i, c);
+                if (info != NULL) {
+                    info->refresh = true;
+                }
+                yield();
+            }
+        }
+    }
+}
+
 FileIndex *get_file_index_info(const HueObjectType t, const uint8_t i, const bool c) {
     if (info[t][c][i] == NULL) {
         info[t][c][i] = new FileIndex;
@@ -87,7 +101,9 @@ void HueLight::set_name(const char *n) {
     checked_free(name);
     name = (char *) malloc(sizeof(char) * (strlen(n) + 1));
     strcpy(name, n);
-    ConfigJSON::set<const char *>(config, {"name"}, name);
+    if (cf != NULL)
+        ConfigJSON::set<const char *>(cf->name, {"name"}, name);
+    mark_for_reindex();
 }
 
 const char *HueLight::get_name() const {
@@ -158,8 +174,9 @@ bool HueLightGroup::add_light(const uint8_t i, HueLight *l) {
         return false;
     lights[i] = l;
     String index(i);
-    ConfigJSON::add_to_array<const char *>(config, {"lights"}, index.c_str());
-    ConfigJSON::add_to_array<const char *>(config_all, {"lights"}, index.c_str());
+    ConfigJSON::add_to_array<const char *>(cf->name, {"lights"}, index.c_str());
+    ConfigJSON::add_to_array<const char *>(cfa->name, {"lights"}, index.c_str());
+    mark_for_reindex();
     return true;
 }
 
@@ -167,8 +184,9 @@ void HueLightGroup::clear_lights() {
     for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
         lights[i] = NULL;
     }
-    ConfigJSON::clear_array(config, {"lights"});
-    ConfigJSON::clear_array(config_all, {"lights"});
+    ConfigJSON::clear_array(cf->name, {"lights"});
+    ConfigJSON::clear_array(cfa->name, {"lights"});
+    mark_for_reindex();
 }
 
 void HueLightGroup::set_color_cie(const float x, const float y) {
