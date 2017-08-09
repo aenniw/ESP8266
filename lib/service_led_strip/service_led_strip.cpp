@@ -28,7 +28,7 @@ void LedStripService::animation_0(const AnimationParam &param) {
         led_strip->set_pixel(i, wheel((uint8_t)(i + step), color.B));
     }
     if (param.state == AnimationState_Completed) {
-        //animator->RestartAnimation(ANIMATION_INDEX);
+        animator->RestartAnimation(ANIMATION_INDEX);
     }
 }
 
@@ -38,12 +38,12 @@ void LedStripService::animation_1(const AnimationParam &param) {
         led_strip->set_pixel(i, wheel((uint8_t)((i * 256 / get_len()) + step), color.B));
     }
     if (param.state == AnimationState_Completed) {
-        //animator->RestartAnimation(ANIMATION_INDEX);
+        animator->RestartAnimation(ANIMATION_INDEX);
     }
 }
 
 LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
-    //animator = new NeoPixelAnimator(ANIMATION_END, 10);
+    animator = new NeoPixelAnimator(1, 10);
     t_mode = mode;
     type = t;
     switch (type) {
@@ -70,7 +70,7 @@ LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFE
 }
 
 LedStripService::~LedStripService() {
-    //delete animator;
+    delete animator;
 }
 
 
@@ -82,7 +82,7 @@ void LedStripService::set_color(const uint32_t color) {
 void LedStripService::set_color(const uint8_t r, const uint8_t g, const uint8_t b) {
     color = HsbColor(RgbColor(r, g, b));
     if (SINGLE_COLOR != mode) {
-        //animator->StopAll();
+        animator->StopAll();
         mode = SINGLE_COLOR;
     }
     led_strip->set_all_pixels(color);
@@ -121,31 +121,31 @@ uint8_t LedStripService::get_brightness() const {
 }
 
 void LedStripService::set_delay(const uint16_t d) {
-    //animator->setTimeScale(d);
+    animator->setTimeScale(d);
 }
 
 void LedStripService::set_mode(const LED_STRIP_ANIM_MODE m) {
-    //animator->StopAll();
+    animator->StopAll();
     switch ((mode = m)) {
         case SINGLE_COLOR:
             led_strip->set_all_pixels(color);
             return;
         case ANIMATION_0:
-            /*animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END, [this](const AnimationParam &param) {
+            animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END, [this](const AnimationParam &param) {
                 animation_0(param);
-            });*/
+            });
             break;
         case ANIMATION_1:
-            /*animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END, [this](const AnimationParam &param) {
+            animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END, [this](const AnimationParam &param) {
                 animation_1(param);
-            });*/
+            });
             break;
     }
 }
 
 void LedStripService::cycle_routine() {
     // Call at least every 10ms
-    /*if (animator != NULL && animator->IsAnimating())
-        animator->UpdateAnimations();*/
+    if (animator != NULL && animator->IsAnimating())
+        animator->UpdateAnimations();
     led_strip->refresh();
 }
