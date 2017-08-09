@@ -59,6 +59,29 @@ static void ICACHE_FLASH_ATTR _add_to_array(JsonObject &json, std::initializer_l
 
 
 template<typename T>
+static T *ICACHE_FLASH_ATTR _get_array(JsonObject &json, std::initializer_list<const char *> *keys,
+                                       std::initializer_list<const char *>::const_iterator i) {
+    if (keys->end() == i + 1) {
+        if (!json[*i].is<JsonArray>()) {
+            return NULL;
+        }
+        JsonArray &json_array = json[*i].as<JsonArray>();
+        T *array = new T[json_array.size()];
+        for (uint16_t o = 0; o < json_array.size(); o++) {
+            array[o] = json_array.get<T>(o);
+        }
+        return array;
+    } else {
+        if (!json.containsKey(*i)) {
+            return NULL;
+        } else {
+            _get_array<T>(json[*i].as<JsonObject>(), keys, i + 1);
+        }
+    }
+}
+
+
+template<typename T>
 static T ICACHE_FLASH_ATTR _get(const char *file, std::initializer_list<const char *> keys) {
     File configFile = SPIFFS.open(file, "r");
     if (!configFile) {
@@ -111,6 +134,24 @@ static bool ICACHE_FLASH_ATTR _add_to_array(const char *file, std::initializer_l
     return true;
 }
 
+
+template<typename T>
+static T *ICACHE_FLASH_ATTR _get_array(const char *file, std::initializer_list<const char *> keys) {
+    File configFile = SPIFFS.open(file, "r");
+    if (!configFile) return NULL;
+    std::unique_ptr<char[]> buf(new char[configFile.size()]);
+    configFile.readBytes(buf.get(), configFile.size());
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    configFile.close();
+    configFile = SPIFFS.open(file, "w");
+    if (!configFile) return NULL;
+    T *array = _get_array<T>(json, &keys, keys.begin());
+    json.printTo(configFile);
+    configFile.close();
+    return array;
+}
+
 class ConfigJSON {
 private:
     static void ICACHE_FLASH_ATTR del_default(JsonObject &json, std::initializer_list<const char *> *keys,
@@ -118,6 +159,12 @@ private:
 
     static char *ICACHE_FLASH_ATTR get_string(JsonObject &json, std::initializer_list<const char *> *keys,
                                               std::initializer_list<const char *>::const_iterator i);
+
+    static char **ICACHE_FLASH_ATTR get_string_array(JsonObject &json, std::initializer_list<const char *> *keys,
+                                                     std::initializer_list<const char *>::const_iterator i);
+
+    static uint32_t ICACHE_FLASH_ATTR get_array_len(JsonObject &json, std::initializer_list<const char *> *keys,
+                                                    std::initializer_list<const char *>::const_iterator i);
 
 public:
     template<typename T>
@@ -136,6 +183,12 @@ public:
         return _add_to_array<T>(file, keys, value);
     }
 
+    template<typename T>
+    static T *ICACHE_FLASH_ATTR
+    get_array(const char *file, std::initializer_list<const char *> keys) {
+        return _get_array<T>(file, keys);
+    }
+
     static bool ICACHE_FLASH_ATTR
     clear_array(const char *file, std::initializer_list<const char *> keys) {
         StaticJsonBuffer<10> buffer;
@@ -145,8 +198,12 @@ public:
     static void ICACHE_FLASH_ATTR del(const char *file, std::initializer_list<const char *> keys);
 
     static char *ICACHE_FLASH_ATTR getString(const char *file, std::initializer_list<const char *> keys);
+
+    static char **ICACHE_FLASH_ATTR get_string_array(const char *file, std::initializer_list<const char *> keys);
+
+    static uint32_t ICACHE_FLASH_ATTR get_array_len(const char *file, std::initializer_list<const char *> keys);
 };
 
-bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite = true);
+bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite = false);
 
 #endif /* WEMOS_D1_FILESYSTEM_H_ */

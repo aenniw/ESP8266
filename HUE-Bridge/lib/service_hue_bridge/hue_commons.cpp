@@ -1,11 +1,26 @@
 #include "hue_commons.h"
 
-static FileIndex *info[3][2][MAX_HUE_LIGHTS] = {NULL};
+static const uint16_t info_len = MAX(MAX_HUE_LIGHTS, MAX(MAX_HUE_GROUPS, MAX_HUE_SCENES));
+static FileIndex *info[3][2][info_len] = {NULL};
+
+static char *generate_name(const char *prefix, uint8_t i, const char *suffix) {
+    const uint8_t prefix_len = (uint8_t) strlen(prefix),
+            suffix_len = (uint8_t) strlen(suffix),
+            total_len = (uint8_t)(prefix_len + suffix_len + 5);
+    char index[4] = {'\0'};
+    itoa(i, index, 10);
+
+    char *dest = (char *) malloc(sizeof(char) * total_len);
+    strcpy(dest, prefix);
+    strcpy(dest + prefix_len, index);
+    strcpy(dest + prefix_len + strlen(index), suffix);
+    return dest;
+}
 
 void reindex_all() {
     for (uint8_t t = 0; t < 3; t++) {
         for (uint8_t c = 0; c < 2; c++) {
-            for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
+            for (uint8_t i = 0; i < info_len; i++) {
                 FileIndex *info = get_file_index_info((HueObjectType) t, i, c);
                 if (info != NULL && info->refresh) {
                     if (!SPIFFS.exists(info->name)) {
@@ -24,20 +39,6 @@ void reindex_all() {
     }
 }
 
-void force_reindex() {
-    for (uint8_t t = 0; t < 3; t++) {
-        for (uint8_t c = 0; c < 2; c++) {
-            for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
-                FileIndex *info = get_file_index_info((HueObjectType) t, i, c);
-                if (info != NULL) {
-                    info->refresh = true;
-                }
-                yield();
-            }
-        }
-    }
-}
-
 FileIndex *get_file_index_info(const HueObjectType t, const uint8_t i, const bool c) {
     if (info[t][c][i] == NULL) {
         info[t][c][i] = new FileIndex;
@@ -49,21 +50,6 @@ FileIndex *get_file_index_info(const HueObjectType t, const uint8_t i, const boo
     }
     return info[t][c][i];
 }
-
-char *generate_name(const char *prefix, uint8_t i, const char *suffix) {
-    const uint8_t prefix_len = (uint8_t) strlen(prefix),
-            suffix_len = (uint8_t) strlen(suffix),
-            total_len = (uint8_t)(prefix_len + suffix_len + 5);
-    char index[4] = {'\0'};
-    itoa(i, index, 10);
-
-    char *dest = (char *) malloc(sizeof(char) * total_len);
-    strcpy(dest, prefix);
-    strcpy(dest + prefix_len, index);
-    strcpy(dest + prefix_len + strlen(index), suffix);
-    return dest;
-}
-
 
 void set_string(const char *file_name, const char *param_start, const char *param_end, const char *value) {
     if (file_name == NULL || param_start == NULL || param_end == NULL || value == NULL) return;
@@ -92,27 +78,23 @@ void set_string(const char *file_name, const char *param_start, const char *para
     file.close();
 }
 
-HueLight::HueLight(const char *n) {
+HueLight::HueLight(const char *n, FileIndex *f_index, const char *f_template)
+        : HueLight(n, f_index, f_index,
+                   f_template, f_template) {}
+
+HueLight::HueLight(const char *n, FileIndex *f_info, FileIndex *f_info_all,
+                   const char *f_template, const char *f_template_all)
+        : ConfigObject(f_info, f_info_all, f_template, f_template_all) {
     set_name(n);
 }
 
 void HueLight::set_name(const char *n) {
     if (n == NULL) return;
-    checked_free(name);
-    name = (char *) malloc(sizeof(char) * (strlen(n) + 1));
-    strcpy(name, n);
-    if (cf != NULL)
-        ConfigJSON::set<const char *>(cf->name, {"name"}, name);
+    ConfigJSON::set<const char *>(cf->name, {"name"}, n);
     mark_for_reindex();
 }
 
-const char *HueLight::get_name() const {
-    return name == NULL ? "" : name;
-}
-
 void HueLight::set_color_cie(const float x, const float y) {
-    cie_x = x;
-    cie_y = y;
     float z = (float) (1.0 - x - y);
     float Y = (float) (get_brightness() / 254.0);
     float X = (Y / y) * x;
@@ -190,33 +172,38 @@ void HueLight::set_color_rgb(const uint8_t _r, const uint8_t _g, const uint8_t _
     b = _b;
 };
 
-HueLight::~HueLight() {
-    checked_free(name);
-}
 
-uint16_t HueLightGroup::get_hue() const { return hue; }
+HueLightGroup::HueLightGroup(const char *n, FileIndex *f_info, FileIndex *f_info_all, const char *f_template,
+                             const char *f_template_all)
+        : HueLight(n, f_info, f_info_all, f_template, f_template_all) {
+    const uint32_t lights_len = ConfigJSON::get_array_len(cf->name, {"lights"});
+    if (lights_len) {
+        char **lights_ids = ConfigJSON::get_string_array(cf->name, {"lights"});
+        if (lights_ids) {
+            for (uint32_t i = 0; i < lights_len; i++) {
+                uint32_t id = (uint32_t) strtol(lights_ids[i], NULL, 10);
+                if (id < MAX_HUE_LIGHTS) lights[id] = true;
+                checked_free(lights_ids[i]);
+            }
+        }
+        checked_free(lights_ids);
+    }
 
-uint8_t HueLightGroup::get_saturation() const { return sat; }
-
-uint8_t HueLightGroup::get_brightness() const { return bri; }
-
-String HueLightGroup::get_state() const {
-    if (state) return "true";
-    return "false";
 }
 
 void HueLightGroup::for_each_light(LightCallback callback) {
+    if (bridge_lights == NULL) return;
     for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
-        if (lights[i] != NULL) {
-            callback(lights[i]);
+        if (lights && bridge_lights[i] != NULL) {
+            callback(bridge_lights[i]);
         }
     }
 }
 
-bool HueLightGroup::add_light(const uint8_t i, HueLight *l) {
-    if (i > MAX_HUE_LIGHTS || l == NULL)
+bool HueLightGroup::add_light(const uint8_t i) {
+    if (i > MAX_HUE_LIGHTS || lights[i])
         return false;
-    lights[i] = l;
+    lights[i] = true;
     String index(i);
     ConfigJSON::add_to_array<const char *>(cf->name, {"lights"}, index.c_str());
     ConfigJSON::add_to_array<const char *>(cfa->name, {"lights"}, index.c_str());
@@ -226,11 +213,15 @@ bool HueLightGroup::add_light(const uint8_t i, HueLight *l) {
 
 void HueLightGroup::clear_lights() {
     for (uint8_t i = 0; i < MAX_HUE_LIGHTS; i++) {
-        lights[i] = NULL;
+        lights[i] = false;
     }
     ConfigJSON::clear_array(cf->name, {"lights"});
     ConfigJSON::clear_array(cfa->name, {"lights"});
     mark_for_reindex();
+}
+
+void HueLightGroup::set_bridge_lights(HueLight **all_lights) {
+    bridge_lights = all_lights;
 }
 
 void HueLightGroup::set_color_cie(const float x, const float y) {
@@ -246,21 +237,17 @@ void HueLightGroup::set_color_ct(const uint32_t ct) {
 }
 
 void HueLightGroup::set_state(const bool s) {
-    state = s;
     for_each_light([=](HueLight *l) { l->set_state(s); });
 }
 
 void HueLightGroup::set_hue(const uint16_t h) {
-    hue = h;
     for_each_light([=](HueLight *l) { l->set_hue(h); });
 }
 
 void HueLightGroup::set_brightness(const uint8_t b) {
-    bri = b;
     for_each_light([=](HueLight *l) { l->set_brightness(b); });
 }
 
 void HueLightGroup::set_saturation(const uint8_t s) {
-    sat = s;
     for_each_light([=](HueLight *l) { l->set_saturation(s); });
 }

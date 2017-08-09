@@ -27,6 +27,10 @@ private:
 
     void initialize_scenes(RestService *web_service);
 
+    void restore_groups();
+
+    void restore_scenes();
+
 protected:
     HueLight *get_light(const uint8_t i) const;
 

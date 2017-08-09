@@ -40,6 +40,43 @@ const bool ICACHE_FLASH_ATTR wifi_config_reset() {
     return false;
 }
 
+char** ICACHE_FLASH_ATTR ConfigJSON::get_string_array(JsonObject &json, std::initializer_list<const char *> *keys,
+                                    std::initializer_list<const char *>::const_iterator i) {
+    if (!json.containsKey(*i)) {
+        return NULL;
+    } else if (keys->end() == i + 1) {
+        if (json[*i].is<JsonArray>() && json[*i].as<JsonArray>().size()) {
+            JsonArray &json_array = json[*i].as<JsonArray>();
+            char **array = new char *[json_array.size()];
+            for (uint16_t o = 0; o < json_array.size(); o++) {
+                const char *stack = json_array.get<const char *>(o);
+                array[o] = (char *) malloc(sizeof(char) * (strlen(stack) + 1));
+                strcpy(array[o], stack);
+            }
+            return array;
+        } else {
+            return NULL;
+        }
+    } else {
+        return get_string_array(json[*i].as<JsonObject>(), keys, i + 1);
+    }
+}
+
+uint32_t ICACHE_FLASH_ATTR ConfigJSON::get_array_len(JsonObject &json, std::initializer_list<const char *> *keys,
+                                   std::initializer_list<const char *>::const_iterator i) {
+    if (!json.containsKey(*i)) {
+        return 0;
+    } else if (keys->end() == i + 1) {
+        if (json[*i].is<JsonArray>()) {
+            return json[*i].as<JsonArray>().size();
+        } else {
+            return 0;
+        }
+    } else {
+        return get_array_len(json[*i].as<JsonObject>(), keys, i + 1);
+    }
+}
+
 char *ICACHE_FLASH_ATTR ConfigJSON::get_string(JsonObject &json, std::initializer_list<const char *> *keys,
                                                std::initializer_list<const char *>::const_iterator i) {
     if (!json.containsKey(*i)) {
@@ -58,7 +95,7 @@ char *ICACHE_FLASH_ATTR ConfigJSON::get_string(JsonObject &json, std::initialize
     }
 }
 
-char *ConfigJSON::getString(const char *file, std::initializer_list<const char *> keys) {
+char *ICACHE_FLASH_ATTR ConfigJSON::getString(const char *file, std::initializer_list<const char *> keys) {
     File configFile = SPIFFS.open(file, "r");
     if (!configFile) {
         Log::println("No file");
@@ -76,7 +113,43 @@ char *ConfigJSON::getString(const char *file, std::initializer_list<const char *
     }
 }
 
-void ConfigJSON::del(const char *file, std::initializer_list<const char *> keys) {
+uint32_t ICACHE_FLASH_ATTR ConfigJSON::get_array_len(const char *file, std::initializer_list<const char *> keys) {
+    File configFile = SPIFFS.open(file, "r");
+    if (!configFile) {
+        Log::println("No file");
+        return 0;
+    }
+    std::unique_ptr<char[]> buf(new char[configFile.size()]);
+    configFile.readBytes(buf.get(), configFile.size());
+    configFile.close();
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    if (!json.success()) {
+        return 0;
+    } else {
+        return get_array_len(json, &keys, keys.begin());
+    }
+}
+
+char** ICACHE_FLASH_ATTR ConfigJSON::get_string_array(const char *file, std::initializer_list<const char *> keys) {
+    File configFile = SPIFFS.open(file, "r");
+    if (!configFile) {
+        Log::println("No file");
+        return NULL;
+    }
+    std::unique_ptr<char[]> buf(new char[configFile.size()]);
+    configFile.readBytes(buf.get(), configFile.size());
+    configFile.close();
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    if (!json.success()) {
+        return NULL;
+    } else {
+        return get_string_array(json, &keys, keys.begin());
+    }
+}
+
+void ICACHE_FLASH_ATTR ConfigJSON::del(const char *file, std::initializer_list<const char *> keys) {
     File configFile = SPIFFS.open(file, "r");
     if (!configFile) return;
     std::unique_ptr<char[]> buf(new char[configFile.size()]);
@@ -91,7 +164,7 @@ void ConfigJSON::del(const char *file, std::initializer_list<const char *> keys)
     configFile.close();
 }
 
-void ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char *> *keys,
+void ICACHE_FLASH_ATTR ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char *> *keys,
                              std::initializer_list<const char *>::const_iterator i) {
     if (keys->end() == i + 1) {
         json.remove(*i);
@@ -105,7 +178,6 @@ void ConfigJSON::del_default(JsonObject &json, std::initializer_list<const char 
 }
 
 bool ICACHE_FLASH_ATTR copy_file(const char *src_name, const char *dst_name, const bool overwrite) {
-    Log::println("File %s copy to %s", src_name, dst_name);
     if (!overwrite && SPIFFS.exists(dst_name)) return false;
     File dst = SPIFFS.open(dst_name, "w");
     if (!dst) return false;

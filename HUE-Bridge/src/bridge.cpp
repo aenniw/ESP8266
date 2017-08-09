@@ -13,6 +13,11 @@ std::vector<Service *> services;
 
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
+
+    auto *ledstrip = new LedStripService(GRB, UART800, 1);
+    ledstrip->set_brightness(0);
+    ledstrip->cycle_routine();
+
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     Log::println("\nConnecting to wifi ");
@@ -21,27 +26,22 @@ void ICACHE_FLASH_ATTR setup() {
         delay(500);
         Log::print(".");
     }
-    services.push_back(Log::getInstance());
+    Log::println(".");
 
     auto *restService = new RestService(nullptr, nullptr, 80);
-    auto *ledstrip = new LedStripService(GRB, UART800, 1);
     auto *hueBridge = new HueBridge(restService);
     hueBridge->add_light(ledstrip);
 
+    services.push_back(Log::getInstance());
     services.push_back((Service *) restService);
     services.push_back((Service *) ledstrip);
     services.push_back((Service *) hueBridge);
-    Log::println("\nStaring.");
+    Log::println("Staring.");
 }
-
-unsigned int i = 0;
 
 void loop() {
     for (auto &service : services) {
         service->cycle_routine();
         yield(); // WATCHDOG/WIFI feed
-    }
-    if ((i++ % 1600) == 0) {
-        Log::println("Free: %d\t%d", ESP.getFreeHeap(), ESP.getFreeSketchSpace());
     }
 }
