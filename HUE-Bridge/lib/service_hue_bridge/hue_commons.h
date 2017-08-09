@@ -8,7 +8,7 @@
 #define MAX_HUE_SCENES MAX_HUE_GROUPS
 
 typedef struct {
-    const char *name;
+    const char *name = NULL;
     uint32_t size = 0;
     bool refresh = false;
 } FileIndex;
@@ -21,6 +21,13 @@ class ConfigObject {
 protected:
     FileIndex *cf = NULL, *cfa = NULL;
 public:
+    ConfigObject(FileIndex *_cf, FileIndex *_cfa, const char *f_template, const char *f_template_all) {
+        cf = _cf;
+        cfa = _cfa;
+        copy_file(f_template, cf->name);
+        copy_file(f_template_all, cfa->name);
+    }
+
     void mark_for_reindex() {
         if (cf != NULL) {
             cf->refresh = true;
@@ -29,34 +36,37 @@ public:
             cfa->refresh = true;
         }
     }
+
+    virtual ~ConfigObject() {
+        if (cf != NULL && cf->size != 0) {
+            SPIFFS.remove(cf->name);
+            cf->size = 0;
+        }
+        if (cfa != NULL && cfa->size != 0) {
+            SPIFFS.remove(cfa->name);
+            cfa->size = 0;
+        }
+    }
 };
 
 class HueLight : public ConfigObject {
 protected:
-    char *name = NULL;
-    float cie_x = 0.5, cie_y = 0.5;
     uint8_t r = 0, g = 0, b = 0;
 
-    virtual uint16_t get_hue() const = 0;
-
-    virtual uint8_t get_saturation() const =0;
-
-    virtual String get_state() const = 0;
-
-    virtual uint8_t get_brightness() const =0;
-
+    virtual uint8_t get_brightness() const { return 255; };
 public:
-    HueLight(const char *n = "Hue Light");
+    HueLight(const char *n, FileIndex *f_info, const char *f_template);
 
-    virtual void set_name(const char *n);
-
-    const char *get_name() const;
+    HueLight(const char *n, FileIndex *f_info, FileIndex *f_info_all, const char *f_template,
+             const char *f_template_all);
 
     virtual void set_color_cie(const float x, const float y);
 
     virtual void set_color_ct(const uint32_t ct);
 
     virtual void set_color_rgb(const uint8_t, const uint8_t, const uint8_t);
+
+    virtual void set_name(const char *n);
 
     virtual void set_hue(const uint16_t)=0;
 
@@ -66,54 +76,44 @@ public:
 
     virtual void set_saturation(const uint8_t)=0;
 
-    virtual ~HueLight();
+    //virtual void set_transition(const uint16_t)=0;
 };
 
 class HueLightGroup : public HueLight {
 protected:
-    bool state = false;
-    uint16_t hue = 0, ct = 500;
-    uint8_t sat = 0, bri = 0;
-    HueLight **lights = NULL;
+    HueLight **bridge_lights = NULL;
+    bool lights[MAX_HUE_LIGHTS] = {false};
 
     typedef std::function<void(HueLight *)> LightCallback;
-
-    uint16_t get_hue() const override;
-
-    uint8_t get_saturation() const override;
-
-    uint8_t get_brightness() const override;
-
-    String get_state() const override;
 
     void for_each_light(LightCallback);
 
 public:
-    HueLightGroup(const char *n) : HueLight(n) {}
+    HueLightGroup(const char *n, FileIndex *f_info, FileIndex *f_info_all, const char *f_template,
+                  const char *f_template_all);
 
-    virtual bool add_light(const uint8_t, HueLight *);
+    void set_bridge_lights(HueLight **all_lights);
+
+    virtual bool add_light(const uint8_t);
 
     virtual void clear_lights();
 
     virtual void set_color_cie(const float x, const float y);
 
-    void set_color_rgb(const uint8_t, const uint8_t, const uint8_t);
+    virtual void set_color_rgb(const uint8_t, const uint8_t, const uint8_t);
 
-    void set_color_ct(const uint32_t ct);
+    virtual void set_color_ct(const uint32_t ct);
 
-    void set_state(const bool) override;
+    virtual void set_state(const bool) override;
 
-    void set_hue(const uint16_t) override;
+    virtual void set_hue(const uint16_t) override;
 
-    void set_brightness(const uint8_t) override;
+    virtual void set_brightness(const uint8_t) override;
 
-    void set_saturation(const uint8_t) override;
+    virtual void set_saturation(const uint8_t) override;
 };
 
 void reindex_all();
-void force_reindex();
-
-char *generate_name(const char *prefix, uint8_t i, const char *suffix);
 
 FileIndex *get_file_index_info(const HueObjectType t, const uint8_t i, const bool complex = false);
 

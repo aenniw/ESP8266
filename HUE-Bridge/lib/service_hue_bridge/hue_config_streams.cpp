@@ -45,7 +45,7 @@ int HueObjectConfigStream::read_f(uint8_t i, byte *buf, uint16_t nbyte) {
 
 int HueObjectConfigStream::read(byte *buf, uint16_t nbyte) {
     if (nbyte == 0 || available() == 0) return 0;
-    int rd = 0, cp = 0;
+    int rd = 0;
     if (p == 0) buf[rd++] = '{';
     for (uint8_t i = 0; i < files_len && rd < nbyte; i++) {
         yield(); // WATCHDOG/WIFI feed

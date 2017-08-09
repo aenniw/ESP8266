@@ -87,6 +87,28 @@ static String emptyJSON(String nop, String nop_) {
     return "{}";
 }
 
+void HueBridge::restore_groups() {
+    for (uint8_t i = 1; i < MAX_HUE_GROUPS; i++) {
+        FileIndex *info = get_file_index_info(HUE_GROUP, i, false);
+        if (info == NULL || !SPIFFS.exists(info->name)) continue;
+        char *name = ConfigJSON::getString(info->name, {"name"});
+        groups[i] = new HueGroup(name, "Restored Group", i);
+        groups[i]->set_bridge_lights(lights);
+        checked_free(name);
+    }
+}
+
+void HueBridge::restore_scenes() {
+    for (uint8_t i = 0; i < MAX_HUE_SCENES; i++) {
+        FileIndex *info = get_file_index_info(HUE_SCENE, i, false);
+        if (info == NULL || !SPIFFS.exists(info->name)) continue;
+        char *name = ConfigJSON::getString(info->name, {"name"});
+        scenes[i] = new HueScene(name, i);
+        scenes[i]->set_bridge_lights(lights);
+        checked_free(name);
+    }
+}
+
 HueBridge::HueBridge(RestService *web_service) {
     bridgeIDString = WiFi.macAddress();
     bridgeIDString.replace(":", "");
@@ -109,11 +131,16 @@ HueBridge::HueBridge(RestService *web_service) {
 
     // the default group 0 is never listed
     groups[0] = new HueGroup("All lights", "other", 0);
+    groups[0]->set_bridge_lights(lights);
     initialize_config(web_service);
     initialize_lights(web_service);
     initialize_groups(web_service);
     initialize_scenes(web_service);
     initialize_SSDP();
+
+    restore_groups();
+    restore_scenes();
+
     cycle_routine(); // reindex files
 }
 
@@ -165,7 +192,6 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         // TODO
         //lights[light_id]->set_transition(transit_time);
     }
-    lights[light_id]->mark_for_reindex();
     return "Updated.";
 }
 
@@ -187,12 +213,12 @@ HueBridge::update_hue_groups(const String &arg, const String &uri, const String 
         JsonArray &array = json["lights"].as<JsonArray>();
         for (JsonArray::iterator it = array.begin(); it != array.end(); ++it) {
             const uint8_t light_id = it->as<uint8_t>();
-            if (!lightGroups[id]->add_light(light_id, get_light(light_id))) {
+            if (lights[light_id] == NULL) {
                 return error(7, path, "Specified light does not exist.");
             }
+            lightGroups[id]->add_light(light_id);
         }
     }
-    lightGroups[id]->mark_for_reindex();
     return "Updated.";
 }
 
@@ -226,7 +252,7 @@ void HueBridge::initialize_SSDP() {
 void HueBridge::initialize_config(RestService *web_service) {
     web_service->add_handler_file("/description.xml", HTTP_GET, RESP_TEXT, "/hue/description.xml", false);
     web_service->add_handler_wc_file("/api/+/config?", HTTP_GET, RESP_TEXT, "/hue/config.json", false);
-    // TODO: implement
+    // TODO: implement?
     web_service->add_handler_wc("/api/+/config?", HTTP_PUT, RESP_TEXT, [this](String arg, String uri) -> String {
         return "[ { \"success\": {} }]";
     });
@@ -266,7 +292,7 @@ void HueBridge::initialize_lights(RestService *web_service) {
         const char *name = parseJSON<const char *>(json, "name", NULL);
         if (name != NULL) {
             light->set_name(name);
-            return "[" + success("/lights/*", light->get_name()) + "]";
+            return "[" + success("/lights/*", name) + "]";
         }
         return "[]";
     });
@@ -294,10 +320,11 @@ void HueBridge::initialize_groups(RestService *web_service) {
             HueGroup *group = get_group((uint8_t) group_id);
             for (JsonArray::iterator it = array.begin(); it != array.end(); ++it) {
                 const uint8_t light_id = it->as<uint8_t>();
-                if (!group->add_light(light_id, get_light(light_id))) {
+                if (lights[light_id] == NULL) {
                     delete_group((uint8_t) group_id);
                     return error(7, "/groups", "Specified light does not exist.");
                 }
+                group->add_light(light_id);
             }
             return "[" + success_int("id", group_id) + "]";
         }
@@ -320,10 +347,6 @@ void HueBridge::initialize_groups(RestService *web_service) {
 }
 
 void HueBridge::initialize_scenes(RestService *web_service) {
-    web_service->add_handler("/reindex", HTTP_ANY, RESP_JSON, [](String a) -> String {
-        force_reindex();
-        return JSON_RESP_OK;
-    });
     web_service->add_handler_wc_stream("/api/+/scenes?", HTTP_GET, RESP_TEXT, new HueObjectConfigStream(HUE_SCENE));
     web_service->add_handler_wc("/api/+/scenes?", HTTP_POST, RESP_TEXT, [this](String arg, String uri) -> String {
         StaticJsonBuffer<1024> jsonBuffer;
@@ -340,16 +363,14 @@ void HueBridge::initialize_scenes(RestService *web_service) {
             HueScene *scene = get_scene((uint8_t) scene_id);
             for (JsonArray::iterator it = array.begin(); it != array.end(); ++it) {
                 const uint8_t light_id = it->as<uint8_t>();
-                if (!scene->add_light(light_id, get_light(light_id))) {
+                if (lights[light_id] == NULL) {
                     delete_scene((uint8_t) scene_id);
                     return error(7, "/scenes", "Specified light does not exist.");
                 }
+                scene->add_light(light_id);
             }
             if (json.containsKey("recycle") && json["recycle"].is<bool>()) {
                 scene->set_recycle(parseJSON<bool>(json, "recycle"));
-            }
-            if (json.containsKey("transitiontime") && json["transitiontime"].is<bool>()) {
-                scene->set_transition(parseJSON<uint16_t>(json, "recycle"));
             }
             return "[" + success_int("id", scene_id) + "]";
         }
@@ -396,13 +417,13 @@ int8_t HueBridge::add_light(LedStripService *l) {
     const int16_t i = get_free_index((ConfigObject **) lights, MAX_HUE_LIGHTS);
     if (l == NULL || i < 0) return -1;
     lights[i] = new LedLight(l, "Hue Light", (uint8_t) i);
-    groups[0]->add_light((uint8_t) i, lights[i]);
+    groups[0]->add_light((uint8_t) i);
     return (int8_t) i;
 }
 
 bool HueBridge::delete_light(const uint8_t id) {
     if (id >= MAX_HUE_LIGHTS || lights[id] == NULL) return false;
-    // delete lights[id];
+    delete lights[id];
     lights[id] = NULL;
     return true;
 }
@@ -411,6 +432,7 @@ int8_t HueBridge::add_group(const char *n, const char *t) {
     const int16_t i = get_free_index((ConfigObject **) groups, MAX_HUE_GROUPS);
     if (n == NULL || t == NULL || i < 0) return -1;
     groups[i] = new HueGroup(n, t, (uint8_t) i);
+    groups[i]->set_bridge_lights(lights);
     return (int8_t) i;
 }
 
@@ -425,6 +447,7 @@ int8_t HueBridge::add_scene(const char *n) {
     const int16_t i = get_free_index((ConfigObject **) scenes, MAX_HUE_SCENES);
     if (n == NULL || i < 0) return -1;
     scenes[i] = new HueScene(n, (uint8_t) i);
+    scenes[i]->set_bridge_lights(lights);
     return (int8_t) i;
 }
 
