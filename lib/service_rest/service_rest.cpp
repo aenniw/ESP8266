@@ -139,12 +139,14 @@ void RestService::add_handler(const char *uri, HTTPMethod method,
 
 void RestService::add_handler_stream(const char *uri, HTTPMethod method,
                                      const char *resp_type, FStream *st,
-                                     const bool authentication) {
+                                     const bool authentication, const bool caching) {
     web_server->on(uri, [=]() {
         Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
         if (authentication && !valid_credentials())
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
+            if (caching)
+                web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
             web_server->streamFile(*st, resp_type);
             st->rewind();
         } else
@@ -169,12 +171,14 @@ RestService::add_handler_wc(const char *uri, HTTPMethod method, const char *resp
 }
 
 void RestService::add_handler_wc_stream(const char *uri, HTTPMethod method, const char *resp_type, FStream *fs,
-                                        const bool authentication) {
+                                        const bool authentication, const bool caching) {
     web_server->addHandler(new WcRequestHandler([=]() {
         Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
         if (authentication && !valid_credentials())
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
+            if (caching)
+                web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
             web_server->streamFile(*fs, resp_type);
             fs->rewind();
         } else
@@ -184,7 +188,7 @@ void RestService::add_handler_wc_stream(const char *uri, HTTPMethod method, cons
 
 void RestService::add_handler_file(const char *uri, HTTPMethod method,
                                    const char *resp_type, const char *file_name,
-                                   const bool authentication) {
+                                   const bool authentication, const bool caching) {
     web_server->on(uri, [=]() {
         Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
         if (authentication && !valid_credentials())
@@ -192,6 +196,8 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
         if (method == HTTP_ANY || method == web_server->method()) {
             File file = SPIFFS.open(file_name, "r");
             if (file) {
+                if (caching)
+                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -205,7 +211,7 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
 
 void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
                                       const char *resp_type, const char *file_name,
-                                      const bool authentication) {
+                                      const bool authentication, const bool caching) {
     web_server->addHandler(new WcRequestHandler([=]() {
         Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
         if (authentication && !valid_credentials())
@@ -213,6 +219,8 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
         if (method == HTTP_ANY || method == web_server->method()) {
             File file = SPIFFS.open(file_name, "r");
             if (file) {
+                if (caching)
+                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -226,7 +234,7 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
 
 void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
                                       const char *resp_type, WcUriTranslator t,
-                                      const bool authentication) {
+                                      const bool authentication, const bool caching) {
     web_server->addHandler(new WcRequestHandler([=]() {
         Log::println("Recieved on %s %s", authentication ? "Auth" : "NAuth", uri);
         if (authentication && !valid_credentials())
@@ -235,6 +243,8 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
             String file_name = t(web_server->uri());
             File file = SPIFFS.open(file_name, "r");
             if (file) {
+                if (caching)
+                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {

@@ -34,6 +34,7 @@ typedef std::function<String(String)> WcUriTranslator;
 static WcUriTranslator identity = [](String uri) -> String { return uri; };
 
 #define HTML_LOGIN              "/login.html"
+#define CACHE_TTL               "300"
 
 class WcRequestHandler : public RequestHandler {
 private:
@@ -79,22 +80,22 @@ public:
                      const bool authentication = 0);
 
     void add_handler_stream(const char *, HTTPMethod, const char *, FStream *,
-                            const bool authentication = 0);
+                            const bool authentication = 0, const bool caching = 0);
 
     void add_handler_wc(const char *, HTTPMethod, const char *, WcRestServiceFunction,
                         const bool authentication = 0);
 
     void add_handler_wc_stream(const char *, HTTPMethod, const char *, FStream *,
-                               const bool authentication = 0);
+                               const bool authentication = 0, const bool caching = 0);
 
     void add_handler_file(const char *, HTTPMethod, const char *, const char *,
-                          const bool authentication = 0);
+                          const bool authentication = 0, const bool caching = 0);
 
     void add_handler_wc_file(const char *, HTTPMethod, const char *, const char *,
-                             const bool authentication = 0);
+                             const bool authentication = 0, const bool caching = 0);
 
     void add_handler_wc_file(const char *, HTTPMethod, const char *, WcUriTranslator t = identity,
-                             const bool authentication = 0);
+                             const bool authentication = 0, const bool caching = 0);
 
     void cycle_routine();
 
