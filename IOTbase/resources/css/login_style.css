@@ -22,7 +22,7 @@
     height: 50px
 }
 
-#login form input[type=submit] {
+#login form input[type=button] {
     border-radius: 3px;
     height: 50px;
     width: 100%

@@ -172,7 +172,6 @@ void HueLight::set_color_rgb(const uint8_t _r, const uint8_t _g, const uint8_t _
     b = _b;
 };
 
-
 HueLightGroup::HueLightGroup(const char *n, FileIndex *f_info, FileIndex *f_info_all, const char *f_template,
                              const char *f_template_all)
         : HueLight(n, f_info, f_info_all, f_template, f_template_all) {
@@ -250,4 +249,8 @@ void HueLightGroup::set_brightness(const uint8_t b) {
 
 void HueLightGroup::set_saturation(const uint8_t s) {
     for_each_light([=](HueLight *l) { l->set_saturation(s); });
+}
+
+void HueLightGroup::set_transition(const uint16_t t) {
+    for_each_light([=](HueLight *l) { l->set_transition(t); });
 }

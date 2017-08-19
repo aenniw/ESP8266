@@ -61,10 +61,13 @@ private:
     LED_STRIP_TRANSFER_MODE t_mode;
     NeoPixelBusInterface *led_strip = NULL;
     NeoPixelAnimator *animator = NULL;
+    bool animated_color_change = false;
 protected:
     void animation_0(const AnimationParam &param);
 
     void animation_1(const AnimationParam &param);
+
+    void animation_transition(const AnimationParam &param, HsbColor color);
 
     virtual void set_color(const uint32_t);
 
@@ -86,6 +89,8 @@ public:
     void set_saturation(const uint8_t s);
 
     virtual void set_brightness(const uint8_t);
+
+    void set_animated_color_change(const bool);
 
     uint16_t get_hue() const;
 

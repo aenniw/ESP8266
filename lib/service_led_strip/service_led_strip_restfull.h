@@ -57,7 +57,7 @@ public:
                 return JSON_RESP_NOK;
             const int32_t delay = parseJSON<int32_t>(json, "speed", -1);
             if (delay >= 0) {
-                set_delay((uint16_t) delay);
+                set_delay((uint16_t) ((255 - (uint8_t) (delay))));
                 return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
