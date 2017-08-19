@@ -26,6 +26,8 @@ public:
     void set_brightness(const uint8_t b) override;
 
     void set_saturation(const uint8_t s) override;
+
+    virtual void set_transition(const uint16_t) override;
 };
 
 #endif //ESP8266_PROJECTS_ROOT_HUE_LIGHT_H

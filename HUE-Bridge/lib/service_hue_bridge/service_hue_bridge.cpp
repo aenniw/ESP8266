@@ -189,8 +189,7 @@ String HueBridge::update_hue_lights(const String &arg, const String &uri, const 
         }
     }
     if (transit_time >= 0) {
-        // TODO
-        //lights[light_id]->set_transition(transit_time);
+        lights[light_id]->set_transition((uint16_t) transit_time);
     }
     return "Updated.";
 }

@@ -13,8 +13,8 @@ public:
             (LED_STRIP_TRANSFER_MODE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"transfer-mode"}),
             ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"length"}),
             web_service) {
-        set_color((uint32_t) ConfigJSON::get<uint32>(CONFIG_LS_JSON, {"color"}));
-        set_mode((LED_STRIP_ANIM_MODE) ConfigJSON::get<uint8>(CONFIG_LS_JSON, {"mode"}));
+        RestFullLedStripService::set_color(ConfigJSON::get<uint32>(CONFIG_LS_JSON, {"color"}));
+        RestFullLedStripService::set_mode((LED_STRIP_ANIM_MODE) ConfigJSON::get<uint8>(CONFIG_LS_JSON, {"mode"}));
 
         web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<150> jsonBuffer;

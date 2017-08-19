@@ -85,12 +85,12 @@ void RestService::on_not_found() {
 }
 
 uint32_t RestService::generate_login_id() {
-    uint32_t id = ESP.getChipId() + ESP.getVcc();
+    uint32_t id = (ESP.getChipId() + ESP.getCycleCount() + ESP.getFreeHeap()) * analogRead(A0);
     for (int i = strlen(acc); i >= 0; i--) {
-        id += acc[i];
+        id += acc[i] * analogRead(A0);
     }
     for (int i = strlen(passwd); i >= 0; i--) {
-        id += passwd[i];
+        id += passwd[i] * analogRead(A0);
     }
     return id;
 }

@@ -76,7 +76,7 @@ public:
 
     virtual void set_saturation(const uint8_t)=0;
 
-    //virtual void set_transition(const uint16_t)=0;
+    virtual void set_transition(const uint16_t)=0;
 };
 
 class HueLightGroup : public HueLight {
@@ -111,6 +111,8 @@ public:
     virtual void set_brightness(const uint8_t) override;
 
     virtual void set_saturation(const uint8_t) override;
+
+    virtual void set_transition(const uint16_t);
 };
 
 void reindex_all();

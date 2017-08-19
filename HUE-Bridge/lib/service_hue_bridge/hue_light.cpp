@@ -5,6 +5,7 @@ static const char *TEMPLATE_CONFIG_LIGHT = "/hue/l/cf-template.json";
 LedLight::LedLight(LedStripService *l, const char *n, const uint8_t index)
         : HueLight(n, get_file_index_info(HUE_LIGHT, index, false), TEMPLATE_CONFIG_LIGHT) {
     ls = l;
+    ls->set_animated_color_change(true);
     String unique_id = "AA:BB:CC:DD:EE:FF:00:11-";
     unique_id += index;
     ConfigJSON::set<const char *>(cf->name, {"uniqueid"}, unique_id.c_str());
@@ -64,4 +65,8 @@ void LedLight::set_saturation(const uint8_t s) {
     ConfigJSON::set<uint8_t>(cf->name, {"state", "sat"}, s);
     ConfigJSON::set<const char *>(cf->name, {"state", "colormode"}, "hs");
     mark_for_reindex();
+}
+
+void LedLight::set_transition(const uint16_t t) {
+    ls->set_delay(uint16_t(t * 0.25f));
 }

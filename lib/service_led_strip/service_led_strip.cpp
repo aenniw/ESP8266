@@ -42,6 +42,10 @@ void LedStripService::animation_1(const AnimationParam &param) {
     }
 }
 
+void LedStripService::animation_transition(const AnimationParam &param, HsbColor old_color) {
+    led_strip->set_all_pixels(RgbColor::LinearBlend(old_color, color, param.progress));
+}
+
 LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
     animator = new NeoPixelAnimator(1, 10);
     t_mode = mode;
@@ -79,13 +83,26 @@ void LedStripService::set_color(const uint32_t color) {
               (uint8_t)(0x000000FF & color));
 }
 
+void LedStripService::set_animated_color_change(const bool c) {
+    animated_color_change = c;
+}
+
 void LedStripService::set_color(const uint8_t r, const uint8_t g, const uint8_t b) {
-    color = HsbColor(RgbColor(r, g, b));
     if (SINGLE_COLOR != mode) {
         animator->StopAll();
         mode = SINGLE_COLOR;
     }
-    led_strip->set_all_pixels(color);
+    if (animated_color_change) {
+        HsbColor old_color = color;
+        color = HsbColor(RgbColor(r, g, b));
+        animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END,
+                                 [old_color, this](const AnimationParam &param) {
+                                     animation_transition(param, old_color);
+                                 });
+    } else {
+        color = HsbColor(RgbColor(r, g, b));
+        led_strip->set_all_pixels(color);
+    }
 }
 
 uint32_t LedStripService::get_color() const {
