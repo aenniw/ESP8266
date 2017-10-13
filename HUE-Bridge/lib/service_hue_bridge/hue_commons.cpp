@@ -1,6 +1,6 @@
 #include "hue_commons.h"
 
-static const uint16_t info_len = MAX(MAX_HUE_LIGHTS, MAX(MAX_HUE_GROUPS, MAX_HUE_SCENES));
+static const uint16_t info_len = max(MAX_HUE_LIGHTS, max(MAX_HUE_GROUPS, MAX_HUE_SCENES));
 static FileIndex *info[3][2][info_len] = {NULL};
 
 static char *generate_name(const char *prefix, uint8_t i, const char *suffix) {
@@ -253,4 +253,48 @@ void HueLightGroup::set_saturation(const uint8_t s) {
 
 void HueLightGroup::set_transition(const uint16_t t) {
     for_each_light([=](HueLight *l) { l->set_transition(t); });
+}
+
+typedef struct {
+    IPAddress address;
+    String uri;
+    String data;
+} query;
+
+static std::vector<query *> queries;
+
+static String _sendPOST(IPAddress &ipAddress, String uri, String &data) {
+    HTTPClient client;
+    String payload;
+
+    client.begin(ipAddress.toString(), 80, uri);
+    int httpCode = client.POST(data);
+    if (httpCode > 0) {
+        Log::println("[HTTP] GET... code: %d", httpCode);
+
+        if (httpCode == HTTP_CODE_OK) {
+            payload = client.getString();
+            Log::println(payload);
+        }
+    } else {
+        Log::println("[HTTP] GET... failed, error: %s", client.errorToString(httpCode).c_str());
+    }
+    client.end();
+    return payload;
+}
+
+void resend_queries() {
+    for (query *query_:queries) {
+        _sendPOST(query_->address, query_->uri, query_->data);
+        delete query_;
+    }
+    queries.clear();
+}
+
+String sendPOST(IPAddress ipAddress, String uri, String data) {
+    query *query1 = new query();
+    query1->address = ipAddress;
+    query1->uri = uri;
+    query1->data = data;
+    queries.push_back(query1);
 }

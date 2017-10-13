@@ -80,9 +80,11 @@ public:
 
     uint16_t get_len() const { return led_strip->get_len(); }
 
-    void set_color(const uint8_t, const uint8_t, const uint8_t);
+    void set_rgb(const uint8_t, const uint8_t, const uint8_t);
 
-    uint32_t get_color() const;
+    void set_hsb(uint32_t);
+
+    uint32_t get_rgb() const;
 
     void set_hue(const uint16_t h);
 

@@ -2,6 +2,7 @@
 #define ESP8266_PROJECTS_ROOT_HUE_COMMONS_H
 
 #include <file_system.h>
+#include <ESP8266HTTPClient.h>
 
 #define MAX_HUE_LIGHTS 16
 #define MAX_HUE_GROUPS MAX_HUE_LIGHTS
@@ -116,6 +117,9 @@ public:
 };
 
 void reindex_all();
+
+void resend_queries();
+static String sendPOST(IPAddress ipAddress, String uri, String data);
 
 FileIndex *get_file_index_info(const HueObjectType t, const uint8_t i, const bool complex = false);
 

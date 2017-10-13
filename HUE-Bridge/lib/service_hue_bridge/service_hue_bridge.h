@@ -2,12 +2,14 @@
 #define ESP8266_PROJECTS_ROOT_SERVICE_HUE_BRIDGE_H
 
 #include <SSDP.h>
+#include <vector>
 #include <commons.h>
 #include <commons_json.h>
 #include <service_rest.h>
 #include <hue_light.h>
 #include <hue_group.h>
 #include <hue_scene.h>
+#include <remote_hue_light.h>
 #include <hue_config_streams.h>
 
 class HueBridge : public Service {
@@ -16,6 +18,7 @@ private:
     HueGroup *groups[MAX_HUE_GROUPS] = {NULL};
     HueScene *scenes[MAX_HUE_SCENES] = {NULL};
     String bridgeIDString;
+    bool scanning = false;
 
     void initialize_SSDP();
 
@@ -49,6 +52,8 @@ public:
     HueBridge(RestService *web_service);
 
     int8_t add_light(LedStripService *);
+
+    int8_t add_light(IPAddress);
 
     int8_t add_group(const char *n, const char *t);
 

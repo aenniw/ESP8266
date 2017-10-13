@@ -1,14 +1,16 @@
-#ifndef ESP8266_PROJECTS_ROOT_HUE_LIGHT_H
-#define ESP8266_PROJECTS_ROOT_HUE_LIGHT_H
+#ifndef ESP8266_PROJECTS_ROOT_REMOTE_HUE_LIGHT_H
+#define ESP8266_PROJECTS_ROOT_REMOTE_HUE_LIGHT_H
 
 #include <hue_commons.h>
-#include <service_led_strip.h>
+#include <ESP8266HTTPClient.h>
 
-class LedLight : public HueLight {
+class RemoteLedLight : public HueLight {
 private:
-    LedStripService *ls;
+    IPAddress ipAddress;
+    uint16_t hue = 0;
+    uint8_t sat = 0, bri = 0;
 public:
-    LedLight(LedStripService *l, const char *n, const uint8_t index);
+    RemoteLedLight(const IPAddress &, const char *n, const uint8_t index);
 
     void set_color_cie(float x, float y) override;
 
@@ -27,4 +29,4 @@ public:
     virtual void set_transition(const uint16_t) override;
 };
 
-#endif //ESP8266_PROJECTS_ROOT_HUE_LIGHT_H
+#endif //ESP8266_PROJECTS_ROOT_REMOTE_HUE_LIGHT_H

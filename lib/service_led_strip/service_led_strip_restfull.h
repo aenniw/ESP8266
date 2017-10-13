@@ -27,7 +27,7 @@ public:
             resp += ", \"length\" :";
             resp += get_len();
             resp += ", \"color\" :";
-            resp += get_color();
+            resp += get_rgb();
             resp += ", \"brightness\" :";
             resp += get_brightness();
             resp += ", \"speed\" :";
@@ -67,8 +67,11 @@ public:
             JsonObject &json = jsonBuffer.parseObject(arg);
             if (!json.success())
                 return JSON_RESP_NOK;
-            const uint32_t color = parseJSON<uint32_t>(json, "color", 0);
-            set_color(color);
+            const int rgb = parseJSON<int>(json, "rgb", -1),
+                    hsb = parseJSON<int>(json, "hsb", -1);
+            if (rgb >= 0) set_color((uint32_t) rgb);
+            else if (hsb >= 0) set_color((uint32_t) hsb);
+            else return JSON_RESP_NOK;
             return JSON_RESP_OK;
         }, true);
         web_service->add_handler("/led-strip/set-brightness", HTTP_POST, RESP_JSON,

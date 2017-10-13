@@ -273,9 +273,12 @@ void HueBridge::initialize_config(RestService *web_service) {
 
 void HueBridge::initialize_lights(RestService *web_service) {
     web_service->add_handler_wc("/api/+/lights/new?", HTTP_GET, RESP_TEXT, [this](String arg, String uri) -> String {
+
+
         return "{\"lastscan\": \"2000-10-29T12:00:00\" }";
     });
     web_service->add_handler_wc("/api/+/lights?", HTTP_POST, RESP_TEXT, [this](String arg, String uri) -> String {
+        scanning = true;
         return "[" + success("/lights", "Searching for new devices") + "]";
     });
     web_service->add_handler_wc_stream("/api/+/lights?", HTTP_GET, RESP_TEXT, new HueObjectConfigStream(HUE_LIGHT));
@@ -420,6 +423,14 @@ int8_t HueBridge::add_light(LedStripService *l) {
     return (int8_t) i;
 }
 
+int8_t HueBridge::add_light(IPAddress address) {
+    const int16_t i = get_free_index((ConfigObject **) lights, MAX_HUE_LIGHTS);
+    if (i < 0) return -1;
+    lights[i] = new RemoteLedLight(address, "Hue Light", (uint8_t) i);
+    groups[0]->add_light((uint8_t) i);
+    return (int8_t) i;
+}
+
 bool HueBridge::delete_light(const uint8_t id) {
     if (id >= MAX_HUE_LIGHTS || lights[id] == NULL) return false;
     delete lights[id];
@@ -457,8 +468,42 @@ bool HueBridge::delete_scene(const uint8_t id) {
     return true;
 }
 
+
+static String sendGET(IPAddress &ipAddress, String uri) {
+    HTTPClient client;
+    String payload;
+
+    client.begin(ipAddress.toString(), 80, uri);
+    int httpCode = client.GET();
+    if (httpCode > 0) {
+        Log::println("[HTTP] GET... code: %d", httpCode);
+
+        if (httpCode == HTTP_CODE_OK) {
+            payload = client.getString();
+            Log::println(payload);
+        }
+    } else {
+        Log::println("[HTTP] GET... failed, error: %s", client.errorToString(httpCode).c_str());
+    }
+    client.end();
+    return payload;
+}
+
 void HueBridge::cycle_routine() {
+    if (scanning) {
+        scanning = !scanning;
+        const int n = MDNS.queryService("hue", "tcp");
+        for (int i = 0; i < n; i++) {
+            IPAddress address = MDNS.IP(i);
+            String resp = sendGET(address, "/led-strip/get-config");
+            if (resp.length() > 0) {
+                add_light(address);
+            }
+        }
+    }
+    MDNS.update();
     reindex_all();
+    resend_queries();
 }
 
 HueBridge::~HueBridge() {

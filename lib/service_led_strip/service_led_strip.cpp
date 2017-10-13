@@ -70,24 +70,25 @@ LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFE
                     return;
             }
     }
-    set_color(0, 0, 0);
+    set_rgb(0, 0, 0);
 }
 
 LedStripService::~LedStripService() {
     delete animator;
 }
 
-
+//TODO rename to set_rgb
 void LedStripService::set_color(const uint32_t color) {
-    set_color((uint8_t)((0x00FF0000 & color) >> 16), (uint8_t)((0x0000FF00 & color) >> 8),
-              (uint8_t)(0x000000FF & color));
+    set_rgb((uint8_t) ((0x00FF0000 & color) >> 16), (uint8_t) ((0x0000FF00 & color) >> 8),
+            (uint8_t)(0x000000FF & color));
 }
 
 void LedStripService::set_animated_color_change(const bool c) {
     animated_color_change = c;
 }
 
-void LedStripService::set_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+//TODO rename to set_hsb
+void LedStripService::set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
     if (SINGLE_COLOR != mode) {
         animator->StopAll();
         mode = SINGLE_COLOR;
@@ -105,9 +106,17 @@ void LedStripService::set_color(const uint8_t r, const uint8_t g, const uint8_t 
     }
 }
 
-uint32_t LedStripService::get_color() const {
+uint32_t LedStripService::get_rgb() const {
     const RgbColor rgb = RgbColor(color);
     return (uint32_t)((0x00FF0000 & rgb.R << 16) | (0x0000FF00 & rgb.G << 8) | rgb.B);
+}
+
+void LedStripService::set_hsb(uint32_t c) {
+    const uint16_t h = (uint16_t) ((0xFFFF0000 & c) >> 16);
+    const uint8_t s = (uint8_t) ((0x0000FF00 & c) >> 8),
+            b = (uint8_t) (0x000000FF & c);
+    color = HsbColor((h % 65535) / (float) 100, (s % 101) / (float) 100, (b % 101) / (float) 100);
+    led_strip->set_all_pixels(color);
 }
 
 void LedStripService::set_hue(const uint16_t h) {

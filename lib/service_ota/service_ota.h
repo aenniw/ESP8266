@@ -2,6 +2,7 @@
 #define OTA_SERVICE_H_
 
 #include <ArduinoOTA.h>
+#include <ESP8266mDNS.h>
 #include <commons.h>
 #include <service_log.h>
 
