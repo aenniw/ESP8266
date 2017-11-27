@@ -10,6 +10,7 @@
 #define CONFIG_IO_JSON "/json/config-io.json"
 
 void ICACHE_FLASH_ATTR set_wifi_config_reset(const bool);
+bool ICACHE_FLASH_ATTR get_wifi_config_reset();
 
 const bool ICACHE_FLASH_ATTR wifi_config_reset();
 

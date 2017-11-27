@@ -46,6 +46,8 @@
                     <option value="0">Color</option>
                     <option value="1">Rainbow 1</option>
                     <option value="2">Rainbow 2</option>
+                    <option value="3">Switch 1</option>
+                    <option value="4">Switch 2</option>
                 </select>
             </td>
         </tr>
@@ -66,12 +68,19 @@
                 <input id="ls-brightness" type="range" step="1" min="0" max="100" onchange="setLsBrightness()">
             </td>
         </tr>
-        <!--tr>
-            <td width="33%">Ambi-light support</td>
-            <td>
-                <input id="ls-ambi-light" type="checkbox" onchange=""/>
+        <tr>
+            <td width="33%">Color palette</td>
+            <td width="66%">
+                <ul id="ls-palette-colors">
+                    <!-- Generated HTML code will be inserted here -->
+                    <li id="ls-palette-button" class="ls-palette-color" onclick="getE('ls-palette-color').click()">+
+                    </li>
+                </ul>
+                <input id="ls-palette-color" type="color" value="#FFFFFF"
+                       onchange="addColorToPalette(get('ls-palette-color'),true)"
+                       style="display: none"/>
             </td>
-        </tr-->
+        </tr>
         </tbody>
     </table>
 </fieldset>
