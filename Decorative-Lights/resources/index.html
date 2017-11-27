@@ -11,18 +11,11 @@
     <title>ESP8266 Web-UI</title>
 </head>
 <body onload="  createFooter('footer');
-                loadResource('content','svc/l-strip',true);">
+                loadResource('content','status',true);">
 <div id="header">
     <input type="button" onclick="loadResource('content','status',true)" value="Home">
     <input type="button" onclick="loadResource('content','administration',true)" value="Administration">
-    <div class="drop-down">
-        <button>Services</button>
-        <div class="drop-down-content">
-            <input type="button" onclick="loadResource('content','svc/d-io',true)" value="Digital IO">
-            <input type="button" onclick="loadResource('content','svc/l-strip',true)" value="Led strip">
-        </div>
-    </div>
-    <input type="button" onclick="loadResource('content','log',true)" value="Logs">
+    <input type="button" onclick="loadResource('content','svc/l-strip',true)" value="Lights">
     <input type="button" onclick="logout()" value="Logout">
 </div>
 <div id="content"><!-- Generated HTML code will be inserted here --></div>

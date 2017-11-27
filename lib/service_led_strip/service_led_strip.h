@@ -42,7 +42,11 @@ public:
 };
 
 typedef enum {
-    SINGLE_COLOR, ANIMATION_0, ANIMATION_1
+    SINGLE_COLOR, // Self-explanatory
+    ANIMATION_0, //
+    ANIMATION_1, //
+    ANIMATION_2, //
+    ANIMATION_3,  //
 } LED_STRIP_ANIM_MODE;
 
 typedef enum {
@@ -62,14 +66,22 @@ private:
     NeoPixelBusInterface *led_strip = NULL;
     NeoPixelAnimator *animator = NULL;
     bool animated_color_change = false;
+    uint32_t *color_palette = NULL;
+    uint8_t color_palette_len = 0;
 protected:
+    void refresh_animation(const AnimationState state);
+
     void animation_0(const AnimationParam &param);
 
     void animation_1(const AnimationParam &param);
 
+    void animation_2(const AnimationParam &param);
+
+    void animation_3(const AnimationParam &param);
+
     void animation_transition(const AnimationParam &param, HsbColor color);
 
-    virtual void set_color(const uint32_t);
+    void set_color(const HsbColor &new_color);
 
 public:
     LedStripService(const LED_STRIP_TYPE, const LED_STRIP_TRANSFER_MODE, const uint16_t len);
@@ -80,33 +92,51 @@ public:
 
     uint16_t get_len() const { return led_strip->get_len(); }
 
-    void set_color(const uint8_t, const uint8_t, const uint8_t);
+    virtual void set_rgb(const uint32_t);
 
-    uint32_t get_color() const;
+    virtual void set_rgb(const uint8_t, const uint8_t, const uint8_t);
 
+    uint32_t get_rgb() const;
+
+    virtual void set_hsb(const uint32_t);
+
+    virtual void set_hsb(const uint16_t, const uint8_t, const uint8_t);
+
+    uint32_t get_hsb() const;
+
+    [[deprecated]]
     void set_hue(const uint16_t h);
 
+    [[deprecated]]
     void set_saturation(const uint8_t s);
 
+    [[deprecated]]
     virtual void set_brightness(const uint8_t);
 
-    void set_animated_color_change(const bool);
-
+    [[deprecated]]
     uint16_t get_hue() const;
 
+    [[deprecated]]
     uint8_t get_saturation() const;
 
+    [[deprecated]]
     uint8_t get_brightness() const;
 
-    void cycle_routine();
+    virtual void set_delay(const uint16_t);
 
-    void set_delay(const uint16_t);
+    void set_animated_color_change(const bool);
 
     uint16_t get_delay() const { return animator->getTimeScale(); }
 
     virtual void set_mode(const LED_STRIP_ANIM_MODE);
 
     LED_STRIP_ANIM_MODE get_mode() const { return mode; }
+
+    virtual void set_animation_palette_rgb(const uint32_t *, const uint8_t len);
+
+    const uint32_t *get_animation_palette_rgb(uint8_t *len) const;
+
+    void cycle_routine();
 
     ~LedStripService();
 };

@@ -34,6 +34,9 @@ function createFooter(id) {
 
 function restart() {
     CORSRequest("POST", "restart").send();
+    setTimeout(function () {
+        location.reload();
+    }, 400);
 }
 
 function factoryReset() {
@@ -99,4 +102,10 @@ function CORSRequest(method, path) {
         }
     };
     return xhr;
+}
+
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstChild;
 }

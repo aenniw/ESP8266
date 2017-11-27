@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/common_style.css">
+    <link rel="stylesheet" href="css/login_style.css">
     <!-- link rel="stylesheet" media="only screen and (max-width: 480px), only screen and (max-device-width: 480px)"
           href="css/common_style_m.css"/-->
     <!-- link rel="stylesheet" media="only screen and (max-width: 480px), only screen and (max-device-width: 480px)"
@@ -13,17 +15,9 @@
 <body onload="  createFooter('footer');
                 loadResource('content','svc/l-strip',true);">
 <div id="header">
-    <input type="button" onclick="loadResource('content','status',true)" value="Home">
-    <input type="button" onclick="loadResource('content','administration',true)" value="Administration">
-    <div class="drop-down">
-        <button>Services</button>
-        <div class="drop-down-content">
-            <input type="button" onclick="loadResource('content','svc/d-io',true)" value="Digital IO">
-            <input type="button" onclick="loadResource('content','svc/l-strip',true)" value="Led strip">
-        </div>
-    </div>
-    <input type="button" onclick="loadResource('content','log',true)" value="Logs">
-    <input type="button" onclick="logout()" value="Logout">
+    <input type="text" id="user" placeholder="Username">
+    <input type="password" id="pass" placeholder="Password">
+    <input type="button" onclick="login()" value="Login">
 </div>
 <div id="content"><!-- Generated HTML code will be inserted here --></div>
 <div id="footer"><!-- Generated HTML code will be inserted here --></div>

@@ -1,0 +1,11 @@
+{
+  "rest-acc": "admin",
+  "rest-pass": "admin",
+  "host-name": "christmas-light",
+  "default-config": {
+    "wifi-mode": 2,
+    "wifi-ap-ssid": "Christmas-lights",
+    "wifi-ap-pass": "",
+    "config-restored": 0
+  }
+}

@@ -4,8 +4,12 @@ void set_wifi_config_reset(const bool flag) {
     ConfigJSON::set<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"}, !flag);
 }
 
+bool get_wifi_config_reset() {
+    return ConfigJSON::get<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"});
+}
+
 const bool ICACHE_FLASH_ATTR wifi_config_reset() {
-    if (!ConfigJSON::get<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"})) {
+    if (!get_wifi_config_reset()) {
         Log::println("Restore default config");
         const WiFiMode_t wifi_mode = (WiFiMode_t) ConfigJSON::get<int>(CONFIG_GLOBAL_JSON,
                                                                        {"default-config", "wifi-mode"});

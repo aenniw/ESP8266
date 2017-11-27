@@ -1,5 +1,6 @@
 serviceOnLoad.set("svc/l-strip", function () {
     getLsConfig();
+    getColorPalette();
 });
 
 function decimalToHex(d, padding) {
@@ -66,10 +67,11 @@ function updateLsAnimType() {
 function setLsColor() {
     var color = "0x" + get("ls-color").substring(1);
     CORSRequest("POST", "led-strip/set-color")
-        .send("{ \"color\" : " + parseInt(color, 16) + "}");
+        .send("{ \"rgb\" : " + parseInt(color, 16) + "}");
     // update brightness value
     set("ls-brightness", hexToBrightness(color));
 }
+
 function setLsSpeed() {
     CORSRequest("POST", "led-strip/set-speed")
         .send("{ \"speed\" : " + get("ls-speed") + "}");
@@ -78,4 +80,65 @@ function setLsSpeed() {
 function setLsBrightness() {
     CORSRequest("POST", "led-strip/set-brightness")
         .send("{ \"brightness\" : " + get("ls-brightness") + "}");
+}
+
+// ColorPalettes stuff
+
+function getColorPalette() {
+    var req = CORSRequest("GET", "led-strip/get-animation-colors");
+    req.onreadystatechange = function () {
+        if (req.readyState == 4 && req.status == 200) {
+            clearColorsFromPalette();
+            var resp = JSON.parse(req.responseText);
+            for (var i = 0; i < resp["animation-colors"].length; i++) {
+                addColorToPalette("#" + decimalToHex(resp["animation-colors"][i], 6), false)
+            }
+        }
+        refreshLsElemLayout();
+    };
+    req.send();
+}
+
+function setColorPalette() {
+    CORSRequest("POST", "led-strip/set-animation-colors")
+        .send("{ \"animation-colors\" : " + getPaletteColorsJson() + "}");
+}
+
+function clearColorsFromPalette() {
+    var colors = getE("ls-palette-colors").childNodes;
+    while (colors.length > 2) {
+        getE("ls-palette-colors").removeChild(colors[0]);
+    }
+}
+
+function removeColorFromPalette(id) {
+    getE("ls-palette-colors").removeChild(getE("ls-palette-" + id));
+    setColorPalette();
+}
+
+function getPaletteColorsJson() {
+    var colors = getE("ls-palette-colors").childNodes;
+    var json = "[";
+    for (var i = 0; i < colors.length; i++) {
+        if (colors[i].id && colors[i].id.indexOf("ls-palette-#") !== -1) {
+            json += parseInt("0x" + colors[i].id.split("-")[2].substring(1), 16);
+            json += ",";
+        }
+    }
+    if (json.charAt(json.length - 1) === ',') {
+        json = json.substring(0, json.length - 2);
+    }
+    return json + "]";
+}
+
+function addColorToPalette(color, update) {
+    var newColor = htmlToElement("<li id=\"ls-palette-" + color + "\" " +
+        "onclick=\"removeColorFromPalette('" + color + "')\" " +
+        "class='ls-palette-color' " +
+        "type=\"button\" " +
+        "style=\"background: " + color + "\">&minus;</li>");
+    getE("ls-palette-colors").insertBefore(newColor, getE("ls-palette-button"));
+    if (update) {
+        setColorPalette();
+    }
 }

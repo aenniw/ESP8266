@@ -13,13 +13,13 @@
 class RestFullLedStripService : public LedStripService {
 public:
     RestFullLedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE m, const uint16_t l,
-                            RestService *web_service)
+                            RestService *web_service, const bool auth = true)
             : LedStripService(t, m, l) {
 #ifdef RESTFULL_UI
         web_service->add_handler_file(HTML_STRIP, HTTP_ANY, RESP_HTML, HTML_STRIP
-                ".gz", true);
+                ".gz", auth);
         web_service->add_handler_file(JS_STRIP, HTTP_ANY, RESP_JS, JS_STRIP
-                ".gz", true);
+                ".gz", auth);
 #endif
         web_service->add_handler("/led-strip/get-config", HTTP_GET, RESP_JSON, [this](String arg) -> String {
             String resp = "{ \"animation-type\" :";
@@ -27,7 +27,7 @@ public:
             resp += ", \"length\" :";
             resp += get_len();
             resp += ", \"color\" :";
-            resp += get_color();
+            resp += get_rgb();
             resp += ", \"brightness\" :";
             resp += get_brightness();
             resp += ", \"speed\" :";
@@ -37,7 +37,38 @@ public:
             resp += ", \"type\" :";
             resp += get_type();
             return resp + "}";
-        }, true);
+        }, auth);
+        web_service->add_handler("/led-strip/get-animation-colors", HTTP_GET, RESP_JSON, [this](String arg) -> String {
+            String resp = "{ \"animation-colors\" : [";
+            uint8_t len = 0;
+            const uint32_t *palette = get_animation_palette_rgb(&len);
+            for (uint8_t i = 0; i < len; i++) {
+                resp += palette[i];
+                if (i + 1 < len) resp += ",";
+            }
+            return resp + "]}";
+        }, auth);
+        web_service->add_handler("/led-strip/set-animation-colors", HTTP_POST, RESP_JSON, [this](String arg) -> String {
+            StaticJsonBuffer<512> jsonBuffer;
+            JsonObject &json = jsonBuffer.parseObject(arg);
+            if (!json.success())
+                return JSON_RESP_NOK;
+            if (json.containsKey("animation-colors") && json["animation-colors"].is<JsonArray>()) {
+                JsonArray &array = json["animation-colors"].as<JsonArray>();
+                uint8_t len = 0;
+                for (auto &color:array) {
+                    len++;
+                }
+                uint32_t colors[len];
+                len = 0;
+                for (auto &color:array) {
+                    colors[len++] = color.as<uint32_t>();
+                    Log::println("Color palette: %d", colors[len - 1]);
+                }
+                set_animation_palette_rgb(colors, len);
+            }
+            return JSON_RESP_NOK;
+        }, auth);
         web_service->add_handler("/led-strip/set-mode", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
@@ -49,7 +80,7 @@ public:
                 return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
-        }, true);
+        }, auth);
         web_service->add_handler("/led-strip/set-speed", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
@@ -61,16 +92,16 @@ public:
                 return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
-        }, true);
+        }, auth);
         web_service->add_handler("/led-strip/set-color", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);
             if (!json.success())
                 return JSON_RESP_NOK;
-            const uint32_t color = parseJSON<uint32_t>(json, "color", 0);
-            set_color(color);
+            const uint32_t color = parseJSON<uint32_t>(json, "rgb", 0);
+            set_rgb(color);
             return JSON_RESP_OK;
-        }, true);
+        }, auth);
         web_service->add_handler("/led-strip/set-brightness", HTTP_POST, RESP_JSON,
                                  [this](String arg) -> String {
                                      StaticJsonBuffer<100> jsonBuffer;
@@ -83,7 +114,7 @@ public:
                                          return JSON_RESP_OK;
                                      }
                                      return JSON_RESP_NOK;
-                                 }, true);
+                                 }, auth);
     }
 };
 

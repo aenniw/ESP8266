@@ -13,7 +13,6 @@
 #define HTML_WIFI               "/html/wifi.html"
 #define HTML_LOG                "/html/log.html"
 #define CSS_COMMON              "/css/common_style.css"
-#define CSS_INDEX               "/css/index_style.css"
 #define CSS_LOGIN               "/css/login_style.css"
 #define JS_COMMON               "/js/common.js"
 #define JS_LOG                  "/js/log.js"
@@ -36,27 +35,25 @@ public:
 #ifdef RESTFULL_UI
         if ((scope & HTML_ALL_FILES) == HTML_ALL_FILES) {
             add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML, HTML_ADMINISTRATION
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON
-                    ".gz");
+                    ".gz", false, true);
             add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG
-                    ".gz", true);
+                    ".gz", true, true);
             add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON
-                    ".gz");
-            add_handler_file(CSS_INDEX, HTTP_ANY, RESP_CSS, CSS_INDEX
-                    ".gz");
+                    ".gz", false, true);
             add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS, CSS_LOGIN
-                    ".gz");
+                    ".gz", false, true);
             add_handler_file("/get-config-global", HTTP_ANY, RESP_JSON, CONFIG_GLOBAL_JSON, true);
         }
 #endif

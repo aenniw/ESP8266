@@ -8,13 +8,20 @@
 
 class PersistentLedStripService : public RestFullLedStripService {
 public:
-    PersistentLedStripService(RestService *web_service) : RestFullLedStripService(
+    PersistentLedStripService(RestService *web_service, const bool auth = true) : RestFullLedStripService(
             (LED_STRIP_TYPE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"type"}),
             (LED_STRIP_TRANSFER_MODE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"transfer-mode"}),
             ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"length"}),
-            web_service) {
-        RestFullLedStripService::set_color(ConfigJSON::get<uint32>(CONFIG_LS_JSON, {"color"}));
-        RestFullLedStripService::set_mode((LED_STRIP_ANIM_MODE) ConfigJSON::get<uint8>(CONFIG_LS_JSON, {"mode"}));
+            web_service, auth) {
+        RestFullLedStripService::set_rgb(ConfigJSON::get<uint32>(CONFIG_LS_JSON, {"color"}));
+        RestFullLedStripService::set_delay(ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"delay"}));
+        const uint8_t len = ConfigJSON::get_array_len(CONFIG_LS_JSON, {"palette"});
+        if (len) {
+            uint32_t *palette = ConfigJSON::get_array<uint32_t>(CONFIG_LS_JSON, {"palette"});
+            RestFullLedStripService::set_animation_palette_rgb(palette, len);
+            delete palette;
+        }
+        RestFullLedStripService::set_mode((LED_STRIP_ANIM_MODE) ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"mode"}));
 
         web_service->add_handler("/led-strip/set-config", HTTP_POST, RESP_JSON, [this](String arg) -> String {
             StaticJsonBuffer<150> jsonBuffer;
@@ -39,14 +46,27 @@ public:
         ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"mode"}, (uint8_t) m);
     }
 
-    void set_color(const uint32_t color) override {
-        RestFullLedStripService::set_color(color);
+    void set_rgb(const uint32_t color) override {
+        RestFullLedStripService::set_rgb(color);
         ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, color);
     }
 
     void set_brightness(const uint8_t b) override {
         RestFullLedStripService::set_brightness(b);
-        ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, get_color());
+        ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, get_rgb());
+    }
+
+    void set_delay(const uint16_t d) override {
+        RestFullLedStripService::set_delay(d);
+        ConfigJSON::set<uint16_t>(CONFIG_LS_JSON, {"delay"}, d);
+    }
+
+    void set_animation_palette_rgb(const uint32_t *p, const uint8_t len) override {
+        RestFullLedStripService::set_animation_palette_rgb(p, len);
+        ConfigJSON::clear_array(CONFIG_LS_JSON, {"palette"});
+        for (uint8_t i = 0; i < len; i++) {
+            ConfigJSON::add_to_array<uint32_t>(CONFIG_LS_JSON, {"palette"}, p[i]);
+        }
     }
 };
 
