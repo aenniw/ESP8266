@@ -23,11 +23,15 @@ function getLsConfig() {
             var resp = JSON.parse(req.responseText);
             set("ls-length", resp["length"]);
             set("ls-color", "#" + decimalToHex(resp["color"], 6));
-            set("ls-speed", resp["speed"]);
             set("ls-brightness", resp["brightness"]);
             set("ls-animation-type", resp["animation-type"]);
             set("ls-mode", resp["mode"]);
             set("ls-type", resp["type"]);
+            if (getS("ls-animation-type").value < 3) {
+                set("ls-speed", resp["speed"] / 0.7 - 185);
+            } else {
+                set("ls-speed", resp["speed"] / 0.8 - 150);
+            }
         }
         refreshLsElemLayout();
     };
@@ -73,8 +77,14 @@ function setLsColor() {
 }
 
 function setLsSpeed() {
+    var lsSpeed = 0;
+    if (getS("ls-animation-type").value < 3) {
+        lsSpeed = 185 + get("ls-speed") * 0.7;
+    } else {
+        lsSpeed = 150 + get("ls-speed") * 0.8;
+    }
     CORSRequest("POST", "led-strip/set-speed")
-        .send("{ \"speed\" : " + get("ls-speed") + "}");
+        .send("{ \"speed\" : " + lsSpeed + "}");
 }
 
 function setLsBrightness() {
