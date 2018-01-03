@@ -1,1 +1,9 @@
-../../../IOTbase/resources/json/config-ls.json
+{
+  "type": 0,
+  "transfer-mode": 1,
+  "length": 1,
+  "color": 0,
+  "mode": 0,
+  "delay": 150,
+  "palette": []
+}
