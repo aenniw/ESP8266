@@ -7,7 +7,7 @@
 #include <service_rest_robust.h>
 #include <service_led_strip_persist.h>
 
-#define MODE_CYCLE_BUTTON 0
+#define CYCLE_BUTTON D8
 
 std::vector<Service *> services;
 LedStripService *strip = nullptr;
@@ -17,16 +17,20 @@ void ICACHE_FLASH_ATTR setup() {
     Log::init();
     if (!SPIFFS.begin()) {
         Log::println("SPIFFS failed to initialize flash corrupted?");
+        return;
     }
 
     // Double pressing reset button causes wifi config reset.
-    if (get_wifi_config_reset()) {
+    pinMode(LED_BUILTIN, OUTPUT);
+    if (!get_wifi_config_reset()) {
         wifi_config_reset();
     } else {
+        digitalWrite(LED_BUILTIN, HIGH);
         set_wifi_config_reset(true);
         Log::println("Waiting for config reset event.");
-        delay(1000);
+        delay(3000);
         set_wifi_config_reset(false);
+        digitalWrite(LED_BUILTIN, LOW);
     }
 
     Log::println("Starting up.");
@@ -47,13 +51,20 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_pass);
         checked_free(host_name);
 
-        attachInterrupt(MODE_CYCLE_BUTTON, ledStripCycleModesCallback, FALLING);
+        attachInterrupt(CYCLE_BUTTON, ledStripCycleModesCallback, FALLING);
     }
+    Log::println("Started.");
     delay(500);
 }
 
 void ledStripCycleModesCallback() {
-    strip->set_mode(LED_STRIP_ANIM_MODE((strip->get_mode() + 1) % (ANIMATION_3 + 1)));
+    static unsigned long last_interrupt_time = 0;
+    unsigned long interrupt_time = millis();
+    // If interrupts come faster than 200ms, assume it's a bounce and ignore
+    if (interrupt_time - last_interrupt_time > 200) {
+        strip->set_mode(LED_STRIP_ANIM_MODE((strip->get_mode() + 1) % (ANIMATION_3 + 1)));
+    }
+    last_interrupt_time = interrupt_time;
 }
 
 void loop() {
