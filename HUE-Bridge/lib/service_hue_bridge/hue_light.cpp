@@ -34,14 +34,14 @@ void LedLight::set_color_ct(const uint32_t ct) {
 }
 
 void LedLight::set_color_rgb(const uint8_t _r, const uint8_t _g, const uint8_t _b) {
-    ls->set_color(_r, _g, _b);
+    ls->set_rgb(_r, _g, _b);
     HueLight::set_color_rgb(_r, _g, _b);
 }
 
 void LedLight::set_state(const bool s) {
     if (s) {
-        ls->set_color(r, g, b);
-    } else ls->set_color(0, 0, 0);
+        ls->set_rgb(r, g, b);
+    } else ls->set_rgb(0, 0, 0);
     ConfigJSON::set<bool>(cf->name, {"state", "on"}, s);
     mark_for_reindex();
 }
