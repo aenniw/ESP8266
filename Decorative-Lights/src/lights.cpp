@@ -73,7 +73,7 @@ void ledStripButtonChange() {
 
 void ledStripChangeBrightness() {
     if (pressed && millis() - last_interrupt_time >= timeout_millis) {
-        strip->set_brightness((uint8_t) (strip->get_brightness() + 5));
+        strip->set_brightness((uint8_t) (strip->get_brightness() + (strip->get_brightness() > 40 ? 10 : 2)));
         delay(timeout_millis);
     }
 }
