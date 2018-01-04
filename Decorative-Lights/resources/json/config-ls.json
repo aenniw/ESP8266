@@ -1,9 +1,14 @@
 {
   "type": 0,
   "transfer-mode": 1,
-  "length": 1,
-  "color": 0,
+  "length": 7,
+  "color": 16711680,
   "mode": 0,
-  "delay": 150,
-  "palette": []
+  "delay": 200,
+  "palette": [
+    16711680,
+    16449280,
+    2097407,
+    0
+  ]
 }

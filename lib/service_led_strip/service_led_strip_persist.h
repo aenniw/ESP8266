@@ -14,8 +14,8 @@ public:
             ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"length"}),
             web_service, auth) {
         RestFullLedStripService::set_rgb(ConfigJSON::get<uint32>(CONFIG_LS_JSON, {"color"}));
-        RestFullLedStripService::set_delay(ConfigJSON::get<uint16_t>(CONFIG_LS_JSON, {"delay"}));
-        const uint8_t len = ConfigJSON::get_array_len(CONFIG_LS_JSON, {"palette"});
+        RestFullLedStripService::set_delay(ConfigJSON::get<uint8_t>(CONFIG_LS_JSON, {"delay"}));
+        const uint8_t len = (uint8_t) ConfigJSON::get_array_len(CONFIG_LS_JSON, {"palette"});
         if (len) {
             uint32_t *palette = ConfigJSON::get_array<uint32_t>(CONFIG_LS_JSON, {"palette"});
             RestFullLedStripService::set_animation_palette_rgb(palette, len);
@@ -56,9 +56,9 @@ public:
         ConfigJSON::set<uint32_t>(CONFIG_LS_JSON, {"color"}, get_rgb());
     }
 
-    void set_delay(const uint16_t d) override {
+    void set_delay(const uint8_t d) override {
         RestFullLedStripService::set_delay(d);
-        ConfigJSON::set<uint16_t>(CONFIG_LS_JSON, {"delay"}, d);
+        ConfigJSON::set<uint8_t>(CONFIG_LS_JSON, {"delay"}, d);
     }
 
     void set_animation_palette_rgb(const uint32_t *p, const uint8_t len) override {

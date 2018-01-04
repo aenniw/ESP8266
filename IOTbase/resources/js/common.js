@@ -68,6 +68,7 @@ function get(id) {
 }
 
 function set(id, value) {
+    console.log("Set", id, value);
     getE(id).value = value;
 }
 

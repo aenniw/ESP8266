@@ -31,7 +31,7 @@ public:
             resp += ", \"brightness\" :";
             resp += get_brightness();
             resp += ", \"speed\" :";
-            resp += get_delay();
+            resp += 255 - get_delay();
             resp += ", \"mode\" :";
             resp += get_transfer_mode();
             resp += ", \"type\" :";
@@ -86,9 +86,9 @@ public:
             JsonObject &json = jsonBuffer.parseObject(arg);
             if (!json.success())
                 return JSON_RESP_NOK;
-            const int32_t delay = parseJSON<int32_t>(json, "speed", -1);
-            if (delay >= 0) {
-                set_delay((uint16_t) ((255 - (uint8_t) (delay))));
+            const int16_t speed = parseJSON<int16_t>(json, "speed", -1);
+            if (speed >= 0) {
+                set_delay((uint8_t) (255 - speed));
                 return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
