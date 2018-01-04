@@ -204,7 +204,7 @@ uint8_t LedStripService::get_brightness() const {
     return (uint8_t) (color.B * 100);
 }
 
-void LedStripService::set_delay(const uint16_t d) {
+void LedStripService::set_delay(const uint8_t d) {
     animator->setTimeScale(d);
 }
 
@@ -238,6 +238,9 @@ void LedStripService::set_mode(const LED_STRIP_ANIM_MODE m) {
         START_ANIMATION(1);
         START_ANIMATION(2);
         START_ANIMATION(3);
+        case OFF:
+            led_strip->set_all_pixels(HsbColor(0, 0, 0));
+            return;
     }
 }
 

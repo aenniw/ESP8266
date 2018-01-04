@@ -3,6 +3,9 @@ serviceOnLoad.set("svc/l-strip", function () {
     getColorPalette();
 });
 
+const SWITCH_MIN = 130, RAINBOW_MIN = 185,
+    SWITCH_RATIO = 0.8, RAINBOW_RATIO = 0.7;
+
 function decimalToHex(d, padding) {
     var hex = Number(d).toString(16).toUpperCase();
     while (hex.length < padding) {
@@ -28,9 +31,9 @@ function getLsConfig() {
             set("ls-mode", resp["mode"]);
             set("ls-type", resp["type"]);
             if (getS("ls-animation-type").value < 3) {
-                set("ls-speed", resp["speed"] / 0.7 - 185);
+                set("ls-speed", Math.round(resp["speed"] - RAINBOW_MIN) / RAINBOW_RATIO);
             } else {
-                set("ls-speed", resp["speed"] / 0.8 - 150);
+                set("ls-speed", Math.round(resp["speed"] - SWITCH_MIN) / SWITCH_RATIO);
             }
         }
         refreshLsElemLayout();
@@ -79,9 +82,9 @@ function setLsColor() {
 function setLsSpeed() {
     var lsSpeed = 0;
     if (getS("ls-animation-type").value < 3) {
-        lsSpeed = 185 + get("ls-speed") * 0.7;
+        lsSpeed = RAINBOW_MIN + Math.round(get("ls-speed") * RAINBOW_RATIO);
     } else {
-        lsSpeed = 150 + get("ls-speed") * 0.8;
+        lsSpeed = SWITCH_MIN + Math.round(get("ls-speed") * SWITCH_RATIO);
     }
     CORSRequest("POST", "led-strip/set-speed")
         .send("{ \"speed\" : " + lsSpeed + "}");

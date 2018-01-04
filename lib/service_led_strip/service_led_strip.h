@@ -47,6 +47,7 @@ typedef enum {
     ANIMATION_1, //
     ANIMATION_2, //
     ANIMATION_3,  //
+    OFF,  //
 } LED_STRIP_ANIM_MODE;
 
 typedef enum {
@@ -122,11 +123,11 @@ public:
     [[deprecated]]
     uint8_t get_brightness() const;
 
-    virtual void set_delay(const uint16_t);
+    virtual void set_delay(const uint8_t);
 
     void set_animated_color_change(const bool);
 
-    uint16_t get_delay() const { return animator->getTimeScale(); }
+    uint8_t get_delay() const { return (uint8_t) animator->getTimeScale(); }
 
     virtual void set_mode(const LED_STRIP_ANIM_MODE);
 

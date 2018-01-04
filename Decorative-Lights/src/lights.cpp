@@ -11,8 +11,12 @@
 
 std::vector<Service *> services;
 LedStripService *strip = nullptr;
+// BUTTON HANDLING
+static bool pressed = false;
+static unsigned long last_interrupt_time = 0;
+const uint16_t timeout_millis = 250;
 
-void ledStripCycleModesCallback();
+void ledStripButtonChange();
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
     if (!SPIFFS.begin()) {
@@ -51,23 +55,31 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_pass);
         checked_free(host_name);
 
-        attachInterrupt(CYCLE_BUTTON, ledStripCycleModesCallback, FALLING);
+        attachInterrupt(CYCLE_BUTTON, ledStripButtonChange, CHANGE);
     }
     Log::println("Started.");
     delay(500);
 }
 
-void ledStripCycleModesCallback() {
-    static unsigned long last_interrupt_time = 0;
+void ledStripButtonChange() {
     unsigned long interrupt_time = millis();
-    // If interrupts come faster than 200ms, assume it's a bounce and ignore
-    if (interrupt_time - last_interrupt_time > 200) {
-        strip->set_mode(LED_STRIP_ANIM_MODE((strip->get_mode() + 1) % (ANIMATION_3 + 1)));
+    pressed = digitalRead(CYCLE_BUTTON) != 0;
+    if (pressed) {
+        last_interrupt_time = interrupt_time;
+    } else if (interrupt_time - last_interrupt_time < timeout_millis) {
+        strip->set_mode(LED_STRIP_ANIM_MODE((strip->get_mode() + 1) % (OFF + 1)));
     }
-    last_interrupt_time = interrupt_time;
+}
+
+void ledStripChangeBrightness() {
+    if (pressed && millis() - last_interrupt_time >= timeout_millis) {
+        strip->set_brightness((uint8_t) (strip->get_brightness() + 5));
+        delay(timeout_millis);
+    }
 }
 
 void loop() {
+    ledStripChangeBrightness();
     for (auto &service : services) {
         service->cycle_routine();
         yield(); // WATCHDOG/WIFI feed
