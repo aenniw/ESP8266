@@ -7,8 +7,8 @@ IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/marksza
 [RTOS API](https://espressif.com/sites/default/files/documentation/20b-esp8266_rtos_sdk_api_reference_v1.4.0_0.pdf) | 
 [RTOS programing guide](https://espressif.com/sites/default/files/documentation/20a-esp8266_rtos_sdk_programming_guide_en.pdf)
 
-![ESP-8266 layout](img/ESP8266_layout.jpg)
-![Wemos D1 layout](img/Wemos_layout.jpg)
+![ESP-8266 layout](img/ESP8266_layout.png)
+![Wemos D1 layout](img/Wemos_layout.png)
 
 | Wemos D1  | ESP-8266 | Value | Function                      |
 |:---------:|:--------:|:-----:|:------------------------------|
@@ -62,6 +62,7 @@ done
 ## SubProjects
 [Ambi-Light-SamyGO](Ambi-Light-LE46B650/README.md) |
 [HID-Emulator](HID-Emulator/README.md) |
+[Decorative-Lights](Decorative-Lights/README.md) |
 [Template](IOTbase/README.md)
 
 #### References
