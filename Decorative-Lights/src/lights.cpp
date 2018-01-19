@@ -16,7 +16,7 @@ static bool pressed = false;
 static unsigned long last_interrupt_time = 0;
 const uint16_t timeout_millis = 250;
 
-void ledStripButtonChange();
+void led_strip_button_change();
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
     if (!SPIFFS.begin()) {
@@ -55,13 +55,13 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_pass);
         checked_free(host_name);
 
-        attachInterrupt(CYCLE_BUTTON, ledStripButtonChange, CHANGE);
+        attachInterrupt(CYCLE_BUTTON, led_strip_button_change, CHANGE);
     }
     Log::println("Started.");
     delay(500);
 }
 
-void ledStripButtonChange() {
+void led_strip_button_change() {
     unsigned long interrupt_time = millis();
     pressed = digitalRead(CYCLE_BUTTON) != 0;
     if (pressed) {
@@ -71,15 +71,27 @@ void ledStripButtonChange() {
     }
 }
 
-void ledStripChangeBrightness() {
+uint8_t get_brightness_step(const uint8_t b) {
+    if (b < 15) {
+        return 1;
+    } else if (b < 40) {
+        return 2;
+    } else if (b < 65) {
+        return 8;
+    } else {
+        return 10;
+    }
+}
+
+void led_strip_change_brightness() {
     if (pressed && millis() - last_interrupt_time >= timeout_millis) {
-        strip->set_brightness((uint8_t) (strip->get_brightness() + (strip->get_brightness() > 40 ? 10 : 2)));
+        strip->set_brightness((uint8_t) (strip->get_brightness() + get_brightness_step(strip->get_brightness())));
         delay(timeout_millis);
     }
 }
 
 void loop() {
-    ledStripChangeBrightness();
+    led_strip_change_brightness();
     for (auto &service : services) {
         service->cycle_routine();
         yield(); // WATCHDOG/WIFI feed
