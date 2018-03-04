@@ -40,7 +40,7 @@ int MultiFileStream::read(byte *buf, uint16_t nbyte) {
     return rd;
 }
 
-int MultiFileStream::available() const {
+int MultiFileStream::available() {
     const uint32_t s = size();
     return (int) ((s - p) > 0 ? s - p : 0);
 };

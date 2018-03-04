@@ -21,7 +21,7 @@ public:
 
     virtual int read(byte *buf, uint16_t nbyte) override;
 
-    int available() const override;
+    int available() override;
 
     uint32_t size() const override;
 
@@ -55,7 +55,7 @@ public:
 
     virtual int read(byte *buf, uint16_t nbyte) override;
 
-    int available() const override;
+    int available() override;
 
     uint32_t size() const override;
 

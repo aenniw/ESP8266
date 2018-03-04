@@ -61,7 +61,7 @@ int HueObjectConfigStream::read(byte *buf, uint16_t nbyte) {
     return rd;
 }
 
-int HueObjectConfigStream::available() const {
+int HueObjectConfigStream::available() {
     return (int) ((_size - p) > 0 ? _size - p : 0);
 }
 
@@ -132,7 +132,7 @@ uint32_t HueObjectsConfigStream::size() const {
     return _size;
 }
 
-int HueObjectsConfigStream::available() const {
+int HueObjectsConfigStream::available() {
     return (int) ((_size - p) > 0 ? _size - p : 0);
 }
 
