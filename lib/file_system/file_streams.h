@@ -4,7 +4,7 @@
 #include <FS.h>
 #include <initializer_list>
 
-class FStream {
+class FStream : public Stream {
 public:
     virtual int read(byte *buf, uint16_t nbyte) = 0;
 
