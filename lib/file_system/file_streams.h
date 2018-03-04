@@ -6,9 +6,27 @@
 
 class FStream : public Stream {
 public:
+    virtual int read() {
+        byte d = 0;
+        if (available()) {
+            read(&d, 1);
+        }
+        return d;
+    };
+
+    virtual int peek() {
+        if (available())
+            return read();
+        return 0;
+    };
+
+    virtual size_t write(uint8_t) {
+        return 0;
+    };
+
     virtual int read(byte *buf, uint16_t nbyte) = 0;
 
-    virtual int available() const = 0;
+    virtual int available() = 0;
 
     virtual uint32_t size() const = 0;
 
@@ -28,7 +46,7 @@ public:
 
     virtual int read(byte *buf, uint16_t nbyte) override;
 
-    int available() const override;
+    int available() override;
 
     uint32_t size() const override;
 
