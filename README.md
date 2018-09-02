@@ -54,9 +54,7 @@ sudo pip install platformio
 
 ## Build
 ```
-for PROJECT in ./*/platformio.ini; do
-    cd ${PROJECT%*/*} && platformio run && cd ../;
-done
+./make
 ```
 
 ## SubProjects
