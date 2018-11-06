@@ -197,7 +197,7 @@ bool SSDPClass::begin(){
 
 void SSDPClass::_send(ssdp_method_t method){
   char buffer[1460];
-  uint32_t ip = WiFi.localIP();
+  IPAddress ip = WiFi.localIP();
 
   int len;
   if (_messageFormatCallback) {
@@ -211,7 +211,7 @@ void SSDPClass::_send(ssdp_method_t method){
       _uuid,
       (method == NONE)?"ST":"NT",
       _deviceType,
-      IP2STR(&ip), _port, _schemaURL
+      ip[0], ip[1], ip[2], ip[3], _port, _schemaURL
     );
   }
 
@@ -242,9 +242,9 @@ void SSDPClass::_send(ssdp_method_t method){
 }
 
 void SSDPClass::schema(WiFiClient client){
-  uint32_t ip = WiFi.localIP();
+  IPAddress ip = WiFi.localIP();
   client.printf(_ssdp_schema_template,
-    IP2STR(&ip), _port,
+    ip[0], ip[1], ip[2], ip[3], _port,
     _deviceType,
     _friendlyName,
     _presentationURL,
