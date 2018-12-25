@@ -14,7 +14,7 @@ std::vector<Service *> services;
 void ICACHE_FLASH_ATTR setup() {
     Log::init();
 
-    auto *ledstrip = new LedStripService(GRB, UART800, 1);
+    auto *ledstrip = new LedStripService(GRB, UART1800, 1);
     ledstrip->set_brightness(0);
     ledstrip->cycle_routine();
 

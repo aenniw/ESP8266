@@ -93,8 +93,11 @@ LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFE
                 case DMA800:
                     led_strip = new PixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod>(len);
                     return;
-                case UART800:
-                    led_strip = new PixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod>(len);
+                case UART0800:
+                    led_strip = new PixelBus<NeoGrbFeature, NeoEsp8266Uart0800KbpsMethod>(len);
+                    return;
+                case UART1800:
+                    led_strip = new PixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod>(len);
                     return;
             }
         case GRBW:
@@ -102,8 +105,11 @@ LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFE
                 case DMA800:
                     led_strip = new PixelBus<NeoGrbwFeature, NeoEsp8266Dma800KbpsMethod>(len);
                     return;
-                case UART800:
-                    led_strip = new PixelBus<NeoGrbwFeature, NeoEsp8266Uart800KbpsMethod>(len);
+                case UART0800:
+                    led_strip = new PixelBus<NeoGrbwFeature, NeoEsp8266Uart0800KbpsMethod>(len);
+                    return;
+                case UART1800:
+                    led_strip = new PixelBus<NeoGrbwFeature, NeoEsp8266Uart1800KbpsMethod>(len);
                     return;
             }
     }

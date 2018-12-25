@@ -55,7 +55,7 @@ typedef enum {
 } LED_STRIP_TYPE;
 
 typedef enum {
-    DMA800, UART800
+    DMA800, UART1800, UART0800
 } LED_STRIP_TRANSFER_MODE;
 
 class LedStripService : public Service {
