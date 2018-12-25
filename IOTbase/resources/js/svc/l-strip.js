@@ -60,9 +60,11 @@ function refreshLsElemLayout() {
     }
     var mode = getS("ls-mode").innerHTML.toUpperCase();
     if (mode.indexOf("DMA") >= 0) {
-        getE("ls-pin-out").innerHTML = "RDX0/GPIO3";
-    } else if (mode.indexOf("UART") >= 0) {
-        getE("ls-pin-out").innerHTML = "TXD1/GPIO2";
+        getE("ls-pin-out").innerHTML = "RX/GPIO3";
+    } else if (mode.indexOf("UART0") >= 0) {
+        getE("ls-pin-out").innerHTML = "TX/GPIO1";
+    } else if (mode.indexOf("UART1") >= 0) {
+        getE("ls-pin-out").innerHTML = "D4/GPIO2";
     }
 }
 
