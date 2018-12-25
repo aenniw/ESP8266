@@ -1,5 +1,5 @@
 # ESP8266 based projects
-[![N|Solid](https://travis-ci.org/aenniw/ESP8266.svg?branch=master)](https://travis-ci.org/aenniw/wemos_d1)
+[![N|Solid](https://travis-ci.org/aenniw/ESP8266.svg?branch=master)](https://travis-ci.org/aenniw/ESP8266)
 
 IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/markszabo/IRremoteESP8266)
 
