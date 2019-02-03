@@ -1,7 +1,17 @@
 #include "service_led_strip.h"
 
 #define ANIMATION_INDEX 0
-#define ANIMATION_END 1000
+#define ANIMATION_END 2000
+
+static int animation_end(LED_STRIP_ANIM_MODE mode) {
+    switch (mode) {
+        case ANIMATION_2:
+        case ANIMATION_3:
+            return ANIMATION_END * 5;
+        default:
+            return ANIMATION_END;
+    }
+}
 
 static RgbColor wheel(uint8_t pos) {
     if (pos < 85) {
@@ -232,7 +242,7 @@ const uint32_t *LedStripService::get_animation_palette_rgb(uint8_t *len) const {
     return color_palette;
 }
 
-#define START_ANIMATION(I) case ANIMATION_  ## I : animator->StartAnimation(ANIMATION_INDEX, ANIMATION_END, [this](const AnimationParam &param) { animation_  ## I (param); }); break;
+#define START_ANIMATION(I) case ANIMATION_  ## I : animator->StartAnimation(ANIMATION_INDEX, animation_end(ANIMATION_  ## I), [this](const AnimationParam &param) { animation_  ## I (param); }); break;
 
 void LedStripService::set_mode(const LED_STRIP_ANIM_MODE m) {
     animator->StopAll();
