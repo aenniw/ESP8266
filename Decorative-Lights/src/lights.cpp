@@ -25,17 +25,7 @@ void ICACHE_FLASH_ATTR setup() {
     }
 
     // Double pressing reset button causes wifi config reset.
-    pinMode(LED_BUILTIN, OUTPUT);
-    if (!get_wifi_config_reset()) {
-        wifi_config_reset();
-    } else {
-        digitalWrite(LED_BUILTIN, HIGH);
-        set_wifi_config_reset(true);
-        Log::println("Waiting for config reset event.");
-        delay(3000);
-        set_wifi_config_reset(false);
-        digitalWrite(LED_BUILTIN, LOW);
-    }
+    config_reset_check();
 
     Log::println("Starting up.");
     {   // Services setup

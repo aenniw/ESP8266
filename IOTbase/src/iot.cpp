@@ -15,7 +15,15 @@ void ICACHE_FLASH_ATTR setup() {
     if (!SPIFFS.begin()) {
         Log::println("SPIFFS failed to initialize flash corrupted?");
     }
-    {   // Services setup
+
+    // Double pressing reset button causes wifi config reset.
+    config_reset_check();
+
+    Log::println("Starting up.");
+    WiFi.setAutoConnect(true);
+    WiFi.setAutoReconnect(true);
+
+    { // Services setup
         char *admin_acc = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-acc"}),
                 *admin_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"rest-pass"}),
                 *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
@@ -32,7 +40,6 @@ void ICACHE_FLASH_ATTR setup() {
         checked_free(admin_pass);
         checked_free(host_name);
     }
-    wifi_config_reset();
     RestFullIO::parse_devices(CONFIG_IO_JSON, DIGITAL_IO);
     delay(500);
 }

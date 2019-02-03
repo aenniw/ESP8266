@@ -78,11 +78,8 @@ public:
                             String resp = "{\"chip-id\":";
                             resp += ESP.getFlashChipId();
                             resp += ",\"up-time\":";
-                            resp += (system_get_rtc_time() *
-                                     system_rtc_clock_cali_proc() *
-                                     1000000); // seconds
-                            resp += ",\"firmware\":\""
-                                    FIRMWARE;
+                            resp += millis();
+                            resp += ",\"firmware\":\"" FIRMWARE;
                             resp += "\",\"model\":\" Wemos D1 mini";
                             return resp + "\"}";
                         },
@@ -186,10 +183,10 @@ public:
                         if (!json.success())
                             return JSON_RESP_NOK;
                         const char *ssid = parseJSON<const char *>(json, "ssid"),
-                                *passphrase = parseJSON<const char *>(json, "pass", NULL);
+                                *passphrase = parseJSON<const char *>(json, "pass");
                         const uint8_t channel = parseJSON<uint8_t>(json, "channel", 1),
                                 ssid_hidden = parseJSON<uint8_t>(json, "hidden", 0);
-                        if (ssid != NULL) {
+                        if (ssid != NULL && passphrase != NULL) {
                             WiFi.softAP(ssid, passphrase, channel, ssid_hidden);
                         } else
                             return JSON_RESP_NOK;
@@ -216,9 +213,8 @@ public:
                         if (!json.success())
                             return JSON_RESP_NOK;
                         const char *ssid = parseJSON<const char *>(json, "ssid"),
-                                *passphrase = parseJSON<const char *>(json, "pass", NULL);
-                        if (ssid != NULL) {
-                            WiFi.softAPdisconnect(true);
+                                *passphrase = parseJSON<const char *>(json, "pass");
+                        if (ssid != NULL && passphrase != NULL) {
                             WiFi.begin(ssid, passphrase);
                         } else
                             return JSON_RESP_NOK;
