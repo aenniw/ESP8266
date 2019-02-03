@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <vector>
+#include <ESP8266mDNS.h>
 
 #include <commons.h>
 #include <file_system.h>
@@ -49,6 +49,7 @@ void ICACHE_FLASH_ATTR setup() {
         services.push_back((Service *) strip);
         Log::println("Credentials: [%s:%s]", admin_acc, admin_pass);
         if (MDNS.begin(host_name)) {
+            MDNS.setInstanceName(host_name);
             Log::println("Hostname: [%s]", host_name);
         }
         checked_free(admin_acc);
@@ -96,4 +97,5 @@ void loop() {
         service->cycle_routine();
         yield(); // WATCHDOG/WIFI feed
     }
+    MDNS.update();
 }
