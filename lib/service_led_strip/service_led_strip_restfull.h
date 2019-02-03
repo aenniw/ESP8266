@@ -66,6 +66,7 @@ public:
                     Log::println("Color palette: %d", colors[len - 1]);
                 }
                 set_animation_palette_rgb(colors, len);
+                return JSON_RESP_OK;
             }
             return JSON_RESP_NOK;
         }, auth);
@@ -88,6 +89,7 @@ public:
                 return JSON_RESP_NOK;
             const int16_t speed = parseJSON<int16_t>(json, "speed", -1);
             if (speed >= 0) {
+                Log::println("set delay: %d",(uint8_t) (255 - speed));
                 set_delay((uint8_t) (255 - speed));
                 return JSON_RESP_OK;
             }
