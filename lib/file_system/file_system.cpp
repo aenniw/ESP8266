@@ -4,6 +4,21 @@ void set_wifi_config_reset(const bool flag) {
     ConfigJSON::set<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"}, !flag);
 }
 
+void config_reset_check() {
+    // Double pressing reset button causes wifi config reset.
+    pinMode(LED_BUILTIN, OUTPUT);
+    if (!get_wifi_config_reset()) {
+        wifi_config_reset();
+    } else {
+        digitalWrite(LED_BUILTIN, HIGH);
+        set_wifi_config_reset(true);
+        Log::println("Waiting for config reset event.");
+        delay(3000);
+        set_wifi_config_reset(false);
+        digitalWrite(LED_BUILTIN, LOW);
+    }
+}
+
 bool get_wifi_config_reset() {
     return ConfigJSON::get<bool>(CONFIG_GLOBAL_JSON, {"default-config", "config-restored"});
 }
