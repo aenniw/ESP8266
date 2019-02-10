@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <vector>
 
 #include <commons.h>
 #include <file_system.h>
@@ -42,6 +41,8 @@ void ICACHE_FLASH_ATTR setup() {
     }
     RestFullIO::parse_devices(CONFIG_IO_JSON, DIGITAL_IO);
     delay(500);
+
+    Log::println("Started.");
 }
 
 void loop() {

@@ -7,17 +7,9 @@
 
 #if defined(RESTFULL_UI) || defined(RESTFULL_CALLS)
 
-#define HTML_INDEX              "/index.html"
-#define HTML_ADMINISTRATION     "/html/administration.html"
-#define HTML_STATUS             "/html/status.html"
-#define HTML_WIFI               "/html/wifi.html"
-#define HTML_LOG                "/html/log.html"
-#define CSS_COMMON              "/css/common_style.css"
-#define CSS_LOGIN               "/css/login_style.css"
-#define JS_COMMON               "/js/common.js"
-#define JS_LOG                  "/js/log.js"
-#define JS_ADMINISTRATION       "/js/administration.js"
-#define JS_STATUS               "/js/status.js"
+#define HTML_INDEX  "/index.html"
+#define JS_BUNDLE   "/bundle.js"
+#define JS_SW       "/sw.js"
 
 typedef enum {
     ALL = 0xFFFFFFFF,
@@ -34,27 +26,14 @@ public:
             RestService(usr, pass, p) {
 #ifdef RESTFULL_UI
         if ((scope & HTML_ALL_FILES) == HTML_ALL_FILES) {
-            add_handler_file(HTML_ADMINISTRATION, HTTP_ANY, RESP_HTML, HTML_ADMINISTRATION
-                    ".gz", true, true);
-            add_handler_file(HTML_STATUS, HTTP_ANY, RESP_HTML, HTML_STATUS
-                    ".gz", true, true);
-            add_handler_file(HTML_LOG, HTTP_ANY, RESP_HTML, HTML_LOG
-                    ".gz", true, true);
-            add_handler_file("/", HTTP_ANY, RESP_HTML, HTML_INDEX
-                    ".gz", true, true);
-            add_handler_file(JS_ADMINISTRATION, HTTP_ANY, RESP_JS, JS_ADMINISTRATION
-                    ".gz", true, true);
-            add_handler_file(JS_STATUS, HTTP_ANY, RESP_JS, JS_STATUS
-                    ".gz", true, true);
-            add_handler_file(JS_COMMON, HTTP_ANY, RESP_JS, JS_COMMON
-                    ".gz", false, true);
-            add_handler_file(JS_LOG, HTTP_ANY, RESP_JS, JS_LOG
-                    ".gz", true, true);
-            add_handler_file(CSS_COMMON, HTTP_ANY, RESP_CSS, CSS_COMMON
-                    ".gz", false, true);
-            add_handler_file(CSS_LOGIN, HTTP_ANY, RESP_CSS, CSS_LOGIN
-                    ".gz", false, true);
-            add_handler_file("/get-config-global", HTTP_ANY, RESP_JSON, CONFIG_GLOBAL_JSON, true);
+            add_handler_file(JS_BUNDLE, HTTP_GET, RESP_JS, JS_BUNDLE".gz", true, true);
+            add_handler_file(JS_SW, HTTP_GET, RESP_JS, JS_SW".gz", true, true);
+            add_handler_file("/", HTTP_GET, RESP_HTML, HTML_INDEX".gz", true, true);
+            add_handler_file("/config", HTTP_GET, RESP_HTML, HTML_INDEX".gz", true, true);
+            add_handler_file("/monitoring", HTTP_GET, RESP_HTML, HTML_INDEX".gz", true, true);
+            add_handler_file("/led-strip", HTTP_GET, RESP_HTML, HTML_INDEX".gz", true, true);
+            add_handler_file("/gpio/digital", HTTP_GET, RESP_HTML, HTML_INDEX".gz", true, true);
+            add_handler_file("/get-config-global", HTTP_GET, RESP_JSON, CONFIG_GLOBAL_JSON, true);
         }
 #endif
         if ((scope & CALLBACKS_SYSTEM) == CALLBACKS_SYSTEM) {
