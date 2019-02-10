@@ -10,3 +10,6 @@ CMakeListsPrivate.txt
 **/lib/readme.txt
 **/data/
 */CMakeLists.txt
+/platformio.ini
+/ESP-WebUI
+*/README

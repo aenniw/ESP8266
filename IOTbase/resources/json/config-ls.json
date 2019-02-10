@@ -1,9 +1,17 @@
 {
   "type": 0,
   "transfer-mode": 1,
-  "length": 1,
+  "length": 7,
   "color": 0,
-  "mode": 0,
+  "mode": 4,
   "delay": 150,
-  "palette": []
+  "palette": [
+    16711680,
+    16711903,
+    7423,
+    65493,
+    1769216,
+    16772608,
+    16777215
+  ]
 }

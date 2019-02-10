@@ -22,15 +22,29 @@ def valid_ffs_name(ffs_name, ffs_max_len=30):
         raise AttributeError("File name is to long for SPIFFS max 30 characters. ", ffs_name)
 
 
-def process_dir(directory):
+def rm_prefix(value, prefix):
+    if value.startswith(prefix):
+        return value[len(prefix):]
+    return value
+
+
+def process_dir(directory, prefix=False):
+    print "process_dir", directory, prefix
     for root, dirs, files in os.walk(directory):
-        dest_root = "./data/" + "/".join(root.split("/")[2:])
+        dest_root = "./data/" + "/".join((rm_prefix(root, directory) if prefix else root).split("/")[2:])
+
+        for dir_to_process in dirs:
+            if not dir_to_process.startswith("."):
+                if not os.path.exists(dest_root + "/" + dir_to_process):
+                    os.mkdir(dest_root + "/" + dir_to_process)
+
         for name in files:
             if directory.count("/") == 1:
                 ffs_name = directory[len(directory):]
             else:
                 ffs_name = directory[directory.find("/", 3):]
             ffs_name += "/" + name
+
             if name.endswith((".html", ".css", ".js")):
                 valid_ffs_name(ffs_name, 27)
                 with open(root + "/" + name, 'rb') as f_in, gzip.open(dest_root + "/" + name + ".gz", 'wb') as f_out:
@@ -48,18 +62,17 @@ def process_dir(directory):
             else:
                 valid_ffs_name(ffs_name)
                 shutil.copyfile(root + "/" + name, dest_root + "/" + name)
-        for dir_to_process in dirs:
-            if not dir_to_process.startswith("."):
-                if not os.path.exists(dest_root + "/" + dir_to_process):
-                    os.mkdir(dest_root + "/" + dir_to_process)
-                process_dir(root + "/" + dir_to_process)
 
 
 def compress_html_resources():
     print "Cleanup of resources for FS"
     cleanup_dir("./data")
+    print "Building Web-UI"
+    os.system("npm run --prefix ../ESP-WebUI/ install")
+    os.system("npm run --prefix ../ESP-WebUI/ build")
     print "Building resources for FS"
     process_dir("./resources")
+    process_dir("../ESP-WebUI/build", True)
 
 
 if "uploadfs" in BUILD_TARGETS or "buildfs" in BUILD_TARGETS:
