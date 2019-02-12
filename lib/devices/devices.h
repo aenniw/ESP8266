@@ -42,9 +42,7 @@ public:
 
     DEVICE_TYPE get_type() const override;
 
-    void clean() override; // FIXME: remove and use only destructor
-
-    //~DigitalIO() override;
+    ~DigitalIO() override;
 };
 
 #endif //ESP8266_PROJECTS_ROOT_DEVICES_H

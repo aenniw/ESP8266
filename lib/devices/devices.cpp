@@ -98,8 +98,6 @@ bool Devices::remove(const uint8_t p) {
     if (d == NULL) {
         return false;
     }
-    // FIXME: remove and use only destructor
-    d->clean();
     delete d;
     devices.erase(p);
     return true;
@@ -136,7 +134,7 @@ DEVICE_TYPE DigitalIO::get_type() const {
     return DIGITAL_IO;
 }
 
-void DigitalIO::clean() {
+DigitalIO::~DigitalIO() {
     char id[4] = {'\0'};
     ConfigJSON::del(CONFIG_IO_JSON, {"digital-io", itoa(pin, id, 10)});
 }
