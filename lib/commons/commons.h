@@ -27,9 +27,7 @@ public:
 
     virtual DEVICE_TYPE get_type() const = 0;
 
-    virtual void clean() = 0; // FIXME: remove and use only destructor
-
-    //virtual ~Device() {};
+    virtual ~Device() {};
 };
 
 #endif //COMMONS_H
