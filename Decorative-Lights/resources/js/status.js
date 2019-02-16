@@ -1,1 +1,0 @@
-../../../IOTbase/resources/js/status.js

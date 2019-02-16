@@ -33,7 +33,6 @@ typedef std::function<String(String, String)> WcRestServiceFunction;
 typedef std::function<String(String)> WcUriTranslator;
 static WcUriTranslator identity = [](String uri) -> String { return uri; };
 
-#define HTML_LOGIN              "/login.html"
 #define CACHE_TTL               "300"
 
 class WcRequestHandler : public RequestHandler {
@@ -62,16 +61,13 @@ class RestService : public Service {
 protected:
     ESP8266WebServer *web_server = NULL;
     char *acc = NULL, *passwd = NULL;
-    uint32_t login_id = 0;
 
-private:
+protected:
     void on_not_found();
 
-    void on_invalid_credentials();
+    virtual void on_invalid_credentials();
 
-    bool valid_credentials();
-
-    uint32_t generate_login_id();
+    virtual bool valid_credentials();
 
 public:
     RestService(const char *, const char *, const uint16_t);
