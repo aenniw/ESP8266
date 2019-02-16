@@ -1,1 +1,1 @@
-../IOTbase/extra_script.py
+../HUE-Bridge/extra_script.py

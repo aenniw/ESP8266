@@ -68,7 +68,7 @@ def compress_html_resources():
     print "Cleanup of resources for FS"
     cleanup_dir("./data")
     print "Building Web-UI"
-    os.system("npm run --prefix ../ESP-WebUI/ install")
+    os.system("npm install --prefix ../ESP-WebUI/")
     os.system("npm run --prefix ../ESP-WebUI/ build")
     print "Building resources for FS"
     process_dir("./resources")

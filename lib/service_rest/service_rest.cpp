@@ -30,33 +30,9 @@ RestService::RestService(const char *user, const char *pass,
         strcpy(acc, user);
         passwd = (char *) malloc(sizeof(char) * (1 + strlen(pass)));
         strcpy(passwd, pass);
-        login_id = generate_login_id();
     }
     web_server = new ESP8266WebServer(port);
-    const char *headerkeys[] = {"Cookie"};
-    web_server->collectHeaders(headerkeys, 1);
     web_server->onNotFound([this]() { on_not_found(); });
-    web_server->on("/login", [=]() {
-        if (!valid_credentials()) {
-            on_invalid_credentials();
-        } else if (HTTP_GET == web_server->method()) {
-            String header("HTTP/1.1 301 OK\r\nSet-Cookie: LOGINID=");
-            header += login_id;
-            header += "\r\nLocation: /\r\nCache-Control: no-cache\r\n\r\n";
-            web_server->sendContent(header);
-        } else
-            on_not_found();
-    });
-    web_server->on("/logout", [=]() {
-        if (!valid_credentials())
-            return on_invalid_credentials();
-        if (HTTP_GET == web_server->method()) {
-            web_server->sendContent("HTTP/1.1 301 OK\r\nSet-Cookie: "
-                                            "LOGINID=0\r\nLocation: /\r\nCache-Control: "
-                                            "no-cache\r\n\r\n");
-        } else
-            on_not_found();
-    });
     web_server->begin();
 }
 
@@ -84,39 +60,13 @@ void RestService::on_not_found() {
 #endif
 }
 
-uint32_t RestService::generate_login_id() {
-    uint32_t id = (ESP.getChipId() + ESP.getCycleCount() + ESP.getFreeHeap()) * analogRead(A0);
-    for (int i = strlen(acc); i >= 0; i--) {
-        id += acc[i] * analogRead(A0);
-    }
-    for (int i = strlen(passwd); i >= 0; i--) {
-        id += passwd[i] * analogRead(A0);
-    }
-    return id;
-}
-
 void RestService::on_invalid_credentials() {
-    File
-    file = SPIFFS.open(HTML_LOGIN
-    ".gz", "r");
-    if (file) {
-        web_server->streamFile(file, RESP_HTML);
-        file.close();
-    } else {
-        web_server->requestAuthentication();
-    }
+    web_server->requestAuthentication();
 }
 
 bool RestService::valid_credentials() {
     if (acc == NULL || passwd == NULL) {
         return true;
-    }
-    if (web_server->hasHeader("Cookie")) {
-        String valid_cookie("LOGINID=");
-        valid_cookie += login_id;
-        if (web_server->header("Cookie").indexOf(valid_cookie) != -1) {
-            return true;
-        }
     }
     return web_server->authenticate(acc, passwd);
 }
@@ -146,7 +96,7 @@ void RestService::add_handler_stream(const char *uri, HTTPMethod method,
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
             if (caching)
-                web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
+                web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
             web_server->streamFile(*st, resp_type);
             st->rewind();
         } else
@@ -178,7 +128,7 @@ void RestService::add_handler_wc_stream(const char *uri, HTTPMethod method, cons
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
             if (caching)
-                web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
+                web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
             web_server->streamFile(*fs, resp_type);
             fs->rewind();
         } else
@@ -197,7 +147,7 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
             File file = SPIFFS.open(file_name, "r");
             if (file) {
                 if (caching)
-                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
+                    web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -220,7 +170,7 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
             File file = SPIFFS.open(file_name, "r");
             if (file) {
                 if (caching)
-                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
+                    web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -244,7 +194,7 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
             File file = SPIFFS.open(file_name, "r");
             if (file) {
                 if (caching)
-                    web_server->sendHeader("Cache-Control", "max-age="CACHE_TTL);
+                    web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
