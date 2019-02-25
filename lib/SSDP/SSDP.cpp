@@ -145,6 +145,7 @@ _notify_time(0)
   _manufacturer[0] = '\0';
   _manufacturerURL[0] = '\0';
   sprintf(_schemaURL, "ssdp/schema.xml");
+  multicast_addr = {.addr = (uint32_t) SSDP_MULTICAST_ADDR};
 }
 
 SSDPClass::~SSDPClass(){
@@ -172,21 +173,19 @@ bool SSDPClass::begin(){
 
   ip_addr_t ifaddr;
   ifaddr.addr = WiFi.localIP();
-  ip_addr_t multicast_addr;
-  multicast_addr.addr = (uint32_t) SSDP_MULTICAST_ADDR;
   if (igmp_joingroup(&ifaddr, &multicast_addr) != ERR_OK ) {
     DEBUGV("SSDP failed to join igmp group");
     return false;
   }
 
-  if (!_server->listen(*IP_ADDR_ANY, SSDP_PORT)) {
+  if (!_server->listen(IP_ADDR_ANY, SSDP_PORT)) {
     return false;
   }
 
   _server->setMulticastInterface(ifaddr);
   _server->setMulticastTTL(_ttl);
   _server->onRx(std::bind(&SSDPClass::_update, this));
-  if (!_server->connect(multicast_addr, SSDP_PORT)) {
+  if (!_server->connect(&multicast_addr, SSDP_PORT)) {
     return false;
   }
 
