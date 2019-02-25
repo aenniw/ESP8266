@@ -111,6 +111,8 @@ class SSDPClass{
     IPAddress _respondToAddr;
     uint16_t  _respondToPort;
 
+    ip_addr_t multicast_addr;
+
     bool _pending;
     unsigned short _delay;
     unsigned long _process_time;
