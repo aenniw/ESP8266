@@ -1,38 +1,38 @@
 #!/bin/bash
 
-EXIT_CODE=0
-LOG_FILE=/tmp/platfomio.log
-LOG_FILE_FS=/tmp/platfomio-fs.log
+LOG_FILE=$( mktemp )
 
-for PROJECT in ./*/platformio.ini; do
-    cd ${PROJECT%*/*}
-    echo -e "\n\t\e[32m\e[1m${PROJECT%*/*}\e[0m" | tr ./ ' '
+function pio-target() {
+    local PROJECT=$1
 
-    platformio run 2>&1 > ${LOG_FILE}
-    EXIT_CODE=$?
+    shift
+    platformio run -d ${PROJECT} $@ 2>&1 > ${LOG_FILE}
+    local EXIT_CODE=$?
 
-	test -d resources && \
-	{ 
-		pio run --target buildfs 2>&1 > ${LOG_FILE_FS};
-		EXIT_CODE=$(( ${EXIT_CODE} + $? ));
-	}
+    echo -e "\n\t\e[32m\e[1m${PROJECT}\e[0m" | tr ./ ' '
+    if grep -q SUMMARY ${LOG_FILE}; then
+        cat ${LOG_FILE} | sed -n -e '/SUMMARY/,$p'
+    else
+        cat ${LOG_FILE} | sed -n -e '/Memory Usage/,$p'
+    fi
 
-    cd ../
+    return ${EXIT_CODE}
+}
 
-    for LOG in ${LOG_FILE} ${LOG_FILE_FS}; do
-    	test -f ${LOG} || continue
+function fail() {
+    cat ${LOG_FILE}
+    exit 1
+}
 
-		if [[ ! ${EXIT_CODE} -eq 0 ]]; then
-	        cat ${LOG}
-	        break
-	    else
-	        if grep -q SUMMARY ${LOG}; then
-	            cat ${LOG} | sed -n -e '/SUMMARY/,$p'
-	        else
-	            cat ${LOG} | sed -n -e '/Memory Usage/,$p'
-	        fi
-	    fi
-    done
+for PIO_PROJECT in ./*/platformio.ini; do
+    PROJECT=${PIO_PROJECT%*/*}
+
+    pio-target ${PROJECT} || fail
+    test -d ${PROJECT}/resources && \
+    {
+        pio-target ${PROJECT} -t buildfs || fail;
+    }
+
 done
 
-exit ${EXIT_CODE}
+exit
