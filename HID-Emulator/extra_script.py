@@ -1,1 +1,1 @@
-../HUE-Bridge/extra_script.py
+../IOT-Template/extra_script.py
