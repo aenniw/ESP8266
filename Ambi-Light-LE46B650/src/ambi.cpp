@@ -3,13 +3,13 @@
 #include <ESP8266mDNS.h>
 #include <NeoPixelBus.h>
 
-// TODO: remove, these needs to be changeable during runtime/reboot per user
 #define WIFI_SSID "****"
 #define WIFI_PASS "****"
 #define HORIZONTAL_LEDS 60
 #define VERTICAL_LEDS 34
-// TODO: this may be shifted to LE46B650 logic if possible
 #define SMOOTH_FADING
+#define WIFI_CONNECTION_TIMEOUT_MIN 10
+#define WIFI_FALLBACK_AP "LE46B650-AP"
 
 static WiFiUDP *udp_socket;
 static int missed_ticks = 0;
@@ -17,15 +17,24 @@ static NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> *strip;
 
 void ICACHE_FLASH_ATTR setup() {
     Serial.begin(115200);
+
     strip = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod>(2 * (HORIZONTAL_LEDS + VERTICAL_LEDS), 0);
     strip->Begin();
+
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    // TODO: if not connected in few second go to AP mode, to be able to reflash or update settings of module.
-    while (WiFi.status() != WL_CONNECTED) {
+    for (int i = 0; WiFi.status() != WL_CONNECTED && i < 1200 * WIFI_CONNECTION_TIMEOUT_MIN; i++) {
         delay(50);
         Serial.print(".");
     }
+    if (WiFi.status() != WL_CONNECTED) {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(WIFI_FALLBACK_AP);
+        Serial.print("AP: "WIFI_FALLBACK_AP" created");
+    } else {
+        Serial.print("STA connected.");
+    }
+
     udp_socket = new WiFiUDP();
     udp_socket->begin(65000);
     ArduinoOTA.setPort(8266);
