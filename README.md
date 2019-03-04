@@ -1,7 +1,6 @@
 # ESP8266 based projects
 [![N|Solid](https://travis-ci.org/aenniw/ESP8266.svg?branch=master)](https://travis-ci.org/aenniw/ESP8266)
-
-IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/markszabo/IRremoteESP8266)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=J96CRYPYAY2VE&currency_code=EUR&source=url)
 
 [Datasheet](https://espressif.com/sites/default/files/documentation/0a-esp8266ex_datasheet_en.pdf) | 
 [RTOS API](https://espressif.com/sites/default/files/documentation/20b-esp8266_rtos_sdk_api_reference_v1.4.0_0.pdf) | 
@@ -59,9 +58,12 @@ sudo pip install platformio
 
 ## SubProjects
 [Ambi-Light-SamyGO](Ambi-Light-LE46B650/README.md) |
-[HID-Emulator](HID-Emulator/README.md) |
 [Decorative-Lights](Decorative-Lights/README.md) |
-[Template](IOTbase/README.md)
+[HID-Emulator](HID-Emulator/README.md) |
+[HUE-Emulator](HUE-Emulator/README.md) |
+[IOT-Template](IOT-Template/README.md)
 
 #### References
-How to setup [ESP8266-01 I2C](http://www.forward.com.au/pfod/ESP8266/GPIOpins/ESP8266_01_pin_magic.html)
+- How to setup [ESP8266-01 I2C](http://www.forward.com.au/pfod/ESP8266/GPIOpins/ESP8266_01_pin_magic.html)
+- IRremote ESP8266 Library credentials goes to [GitHub](https://github.com/markszabo/IRremoteESP8266)
+- SSDP ESP8266 Library credentials goes to [GitHub](https://github.com/nomadnt/uSSDP)
