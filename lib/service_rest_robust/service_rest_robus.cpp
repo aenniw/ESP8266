@@ -34,6 +34,7 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
         add_handler_file("/get-config-global", HTTP_GET, RESP_JSON, CONFIG_GLOBAL_JSON, true);
     }
     if ((scope & CALLBACKS_SYSTEM) == CALLBACKS_SYSTEM) {
+        add_handler_update("/ota/update", true);
         add_handler("/set-config-global", HTTP_POST, RESP_JSON, [](String arg) -> String {
             StaticJsonBuffer<100> jsonBuffer;
             JsonObject &json = jsonBuffer.parseObject(arg);

@@ -8,6 +8,8 @@
 #include <devices.h>
 #include <service_log.h>
 #include <file_streams.h>
+#include <StreamString.h>
+#include <ESP8266httpUpdate.h>
 
 extern "C" {
 #include <user_interface.h>
@@ -69,8 +71,12 @@ protected:
 
     virtual bool valid_credentials();
 
+    void log_update_error();
+
 public:
     RestService(const char *, const char *, const uint16_t);
+
+    void add_handler_update(const char *, const bool authentication = 0);
 
     void add_handler(const char *, HTTPMethod, const char *, RestServiceFunction,
                      const bool authentication = 0);

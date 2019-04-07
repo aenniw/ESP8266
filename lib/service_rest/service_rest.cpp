@@ -71,6 +71,61 @@ bool RestService::valid_credentials() {
     return web_server->authenticate(acc, passwd);
 }
 
+void RestService::log_update_error() {
+    StreamString str;
+    Update.printError(str);
+    Log::println(str);
+}
+
+void RestService::add_handler_update(const char *uri, const bool authentication) {
+    web_server->on(uri, HTTP_POST, [&]() {
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+        if (Update.hasError()) {
+            web_server->send(200, RESP_JSON, JSON_RESP_NOK);
+        } else {
+            web_server->client().setNoDelay(true);
+            web_server->send_P(200, RESP_JSON, JSON_RESP_OK);
+            delay(100);
+            web_server->client().stop();
+            ESP.restart();
+        }
+    }, [&]() {
+        if (authentication && !valid_credentials())
+            return on_invalid_credentials();
+
+        int uploadDestination = U_FLASH;
+        if (web_server->hasArg("mode")) {
+            uploadDestination = web_server->arg("mode").toInt();
+        }
+
+        HTTPUpload &upload = web_server->upload();
+        if (upload.status == UPLOAD_FILE_START) {
+            WiFiUDP::stopAll();
+            Log::println("Update: %s mode: %d", upload.filename.c_str(), uploadDestination);
+            uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+            if (!Update.begin(maxSketchSpace, uploadDestination)) {
+                log_update_error();
+            }
+        } else if (upload.status == UPLOAD_FILE_WRITE && !Update.hasError()) {
+            Log::print(".");
+            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                log_update_error();
+            }
+        } else if (upload.status == UPLOAD_FILE_END && !Update.hasError()) {
+            if (Update.end(true)) {
+                Log::println("Update Success: %u\nRebooting...", upload.totalSize);
+            } else {
+                log_update_error();
+            }
+        } else if (upload.status == UPLOAD_FILE_ABORTED) {
+            Update.end();
+            Log::println("Update was aborted");
+        }
+        delay(0);
+    });
+}
+
 void RestService::add_handler(const char *uri, HTTPMethod method,
                               const char *resp_type,
                               RestServiceFunction handler,
