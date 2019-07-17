@@ -15,3 +15,4 @@ CMakeLists.txt
 **/.project
 **/.cproject
 **/.settings
+.pio
