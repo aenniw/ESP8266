@@ -29,7 +29,7 @@ def rm_prefix(value, prefix):
 
 
 def process_dir(directory, prefix=False):
-    print "process_dir", directory, prefix
+    print ("process_dir", directory, prefix)
     for root, dirs, files in os.walk(directory):
         dest_root = "./data/" + "/".join((rm_prefix(root, directory) if prefix else root).split("/")[2:])
 
@@ -65,12 +65,12 @@ def process_dir(directory, prefix=False):
 
 
 def compress_html_resources():
-    print "Cleanup of resources for FS"
+    print("Cleanup of resources for FS")
     cleanup_dir("./data")
-    print "Building Web-UI"
+    print("Building Web-UI")
     os.system("npm install --prefix ../ESP-WebUI/")
     os.system("npm run --prefix ../ESP-WebUI/ build")
-    print "Building resources for FS"
+    print("Building resources for FS")
     process_dir("./resources")
     process_dir("../ESP-WebUI/build", True)
 

@@ -19,7 +19,8 @@ def cleanup_dir(directory):
 
 def valid_ffs_name(ffs_name, ffs_max_len=30):
     if len(ffs_name) >= ffs_max_len:
-        raise AttributeError("File name is to long for SPIFFS max 30 characters. ", ffs_name)
+        raise AttributeError(
+            "File name is to long for SPIFFS max 30 characters. ", ffs_name)
 
 
 def process_dir(directory):
@@ -46,9 +47,9 @@ def process_dir(directory):
 
 
 def compress_html_resources():
-    print "Cleanup of resources for FS"
+    print("Cleanup of resources for FS")
     cleanup_dir("./data")
-    print "Building resources for FS"
+    print("Building resources for FS")
     process_dir("./resources")
 
 
