@@ -14,6 +14,7 @@ void *checked_free(void *ptr);
 
 class Service {
 public:
+    virtual void begin() {};
     virtual void cycle_routine() = 0;
 };
 

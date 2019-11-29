@@ -6,7 +6,7 @@ CMakeListsPrivate.txt
 .vscode
 /target
 **/.idea/
-**/cmake-build-debug/
+**/cmake-build-*/
 **/lib/readme.txt
 **/data/
 CMakeLists.txt
