@@ -202,7 +202,9 @@ RestService::add_handler_wc(const char *uri, HTTPMethod method, const char *resp
         if (method == HTTP_ANY || method == web_server->method()) {
             String args = web_server->arg("plain");
             String resp = handler(args, web_server->uri());
+#ifdef __CORS__
             web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
             web_server->send(200, resp_type, resp);
         } else
             on_not_found();

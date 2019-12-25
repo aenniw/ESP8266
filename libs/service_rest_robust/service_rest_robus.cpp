@@ -136,7 +136,6 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                             }
                         }
                         if (parseJSON<boolean>(json, "restart", false)) {
-                            Log::println("restart");
                             ESP.restart();
                         }
                         return JSON_RESP_OK;
