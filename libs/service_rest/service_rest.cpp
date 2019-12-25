@@ -311,7 +311,6 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
 
 void RestService::cycle_routine() {
     web_server->handleClient();
-    MDNS.update();
 }
 
 WcRequestHandler::WcRequestHandler(const ESP8266WebServer::THandlerFunction fn, const String &u, const HTTPMethod m) {
