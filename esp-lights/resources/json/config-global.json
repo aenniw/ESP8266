@@ -1,10 +1,10 @@
 {
   "rest-acc": "admin",
   "rest-pass": "admin",
-  "host-name": "decorative-lights",
+  "host-name": "esp-lights",
   "default-config": {
     "wifi-mode": 2,
-    "wifi-ap-ssid": "decorative-lights",
+    "wifi-ap-ssid": "esp-lights",
     "wifi-ap-pass": "",
     "rest-acc": "admin",
     "rest-pass": "admin",
