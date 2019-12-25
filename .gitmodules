@@ -1,3 +1,4 @@
 [submodule "ESP-WebUI"]
-	path = ESP-WebUI
-	url = git@github.com:aenniw/ESP-WebUI.git
+    path = ESP-WebUI
+    url = git@github.com:aenniw/ESP-WebUI.git
+    branch = master
