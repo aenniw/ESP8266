@@ -1,8 +1,12 @@
 import gzip
 import os
 import shutil
+import requests
+import json
 
 Import("env")
+
+UI_DIRECTORY = "../esp-webui"
 
 
 def cleanup_dir(directory):
@@ -19,7 +23,8 @@ def cleanup_dir(directory):
 
 def valid_ffs_name(ffs_name, ffs_max_len=30):
     if len(ffs_name) >= ffs_max_len:
-        raise AttributeError("File name is to long for SPIFFS max 30 characters. ", ffs_name)
+        raise AttributeError(
+            "File name is to long for SPIFFS max 30 characters. ", ffs_name)
 
 
 def rm_prefix(value, prefix):
@@ -29,9 +34,11 @@ def rm_prefix(value, prefix):
 
 
 def process_dir(directory, prefix=False):
-    print ("process_dir", directory, prefix)
+    print("process_dir", directory, prefix)
     for root, dirs, files in os.walk(directory):
-        dest_root = "./data/" + "/".join((rm_prefix(root, directory) if prefix else root).split("/")[2:])
+        dest_root = "./data/" + \
+            "/".join((rm_prefix(root, directory)
+                      if prefix else root).split("/")[2:])
 
         for dir_to_process in dirs:
             if not dir_to_process.startswith("."):
@@ -64,15 +71,31 @@ def process_dir(directory, prefix=False):
                 shutil.copyfile(root + "/" + name, dest_root + "/" + name)
 
 
+def download_resource(url, directory):
+    file_name = '%s/%s' % (directory, url.split('/')[-1:][0])
+    if not os.path.isfile(file_name):
+        with open(file_name, 'wb') as file:
+            file.write(requests.get(url).content)
+        return True
+    return False
+
+
 def compress_html_resources():
     print("Cleanup of resources for FS")
     cleanup_dir("./data")
-    print("Building Web-UI")
-    os.system("npm install --prefix ../ESP-WebUI/")
-    os.system("npm run --prefix ../ESP-WebUI/ build")
+
+    print("Download Web-UI")
+    if not os.path.isdir(UI_DIRECTORY):
+        os.mkdir(UI_DIRECTORY)
+    releases = requests.get(
+        "https://api.github.com/repos/aenniw/esp-webui/releases/latest").content.decode('utf-8')
+    for asset_url in [x['browser_download_url'] for x in json.loads(releases)['assets']]:
+        if download_resource(asset_url, UI_DIRECTORY):
+            print("Downloaded %s" % asset_url)
+
     print("Building resources for FS")
     process_dir("./resources")
-    process_dir("../ESP-WebUI/build", True)
+    process_dir(UI_DIRECTORY, True)
 
 
 if "uploadfs" in BUILD_TARGETS or "buildfs" in BUILD_TARGETS:
