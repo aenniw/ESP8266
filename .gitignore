@@ -16,3 +16,4 @@ CMakeLists.txt
 **/.cproject
 **/.settings
 .pio
+**/qr/

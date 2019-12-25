@@ -7,7 +7,7 @@ static int animation_end(LED_STRIP_ANIM_MODE mode) {
     switch (mode) {
         case ANIMATION_2:
         case ANIMATION_3:
-            return ANIMATION_END * 5;
+            return ANIMATION_END * 20;
         default:
             return ANIMATION_END;
     }
@@ -94,7 +94,7 @@ void LedStripService::animation_transition(const AnimationParam &param, HsbColor
 }
 
 LedStripService::LedStripService(const LED_STRIP_TYPE t, const LED_STRIP_TRANSFER_MODE mode, const uint16_t len) {
-    animator = new NeoPixelAnimator(1, 10);
+    animator = new NeoPixelAnimator(1, 1000);
     t_mode = mode;
     type = t;
     switch (type) {
@@ -190,19 +190,22 @@ uint32_t LedStripService::get_hsb() const {
 //TODO: remove
 void LedStripService::set_hue(const uint16_t h) {
     color = HsbColor((h % 65535) / (float) 100, color.S, color.B);
-    led_strip->set_all_pixels(color);
+    if (SINGLE_COLOR == mode)
+        led_strip->set_all_pixels(color);
 }
 
 //TODO: remove
 void LedStripService::set_saturation(const uint8_t s) {
     color = HsbColor(color.H, (s % 101) / (float) 100, color.B);
-    led_strip->set_all_pixels(color);
+    if (SINGLE_COLOR == mode)
+        led_strip->set_all_pixels(color);
 }
 
 //TODO: remove
 void LedStripService::set_brightness(const uint8_t b) {
     color = HsbColor(color.H, color.S, (b % 101) / (float) 100);
-    led_strip->set_all_pixels(color);
+    if (SINGLE_COLOR == mode)
+        led_strip->set_all_pixels(color);
 }
 
 //TODO: remove

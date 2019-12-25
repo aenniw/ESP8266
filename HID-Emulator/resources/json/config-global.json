@@ -5,6 +5,8 @@
     "wifi-mode": 2,
     "wifi-ap-ssid": "HID-Emulator",
     "wifi-ap-pass": "",
+    "rest-acc": "admin",
+    "rest-pass": "admin",
     "config-restored": 0
   }
 }

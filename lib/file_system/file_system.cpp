@@ -8,9 +8,12 @@ void config_reset_check() {
     // Double pressing reset button causes wifi config reset.
     pinMode(LED_BUILTIN, OUTPUT);
     if (!get_wifi_config_reset()) {
+        ESP.eraseConfig();
         wifi_config_reset();
+        ESP.restart();
     } else {
         digitalWrite(LED_BUILTIN, HIGH);
+        delay(200);
         set_wifi_config_reset(true);
         Log::println("Waiting for config reset event.");
         delay(3000);
@@ -26,6 +29,14 @@ bool get_wifi_config_reset() {
 const bool ICACHE_FLASH_ATTR wifi_config_reset() {
     if (!get_wifi_config_reset()) {
         Log::println("Restore default config");
+
+        char *rest_acc = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "rest-acc"}),
+                *rest_pass = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"default-config", "rest-pass"});
+        if (rest_acc) { ConfigJSON::set<const char *>(CONFIG_GLOBAL_JSON, {"rest-acc"}, rest_acc); }
+        if (rest_pass) { ConfigJSON::set<const char *>(CONFIG_GLOBAL_JSON, {"rest-pass"}, rest_pass); }
+        checked_free(rest_acc);
+        checked_free(rest_pass);
+
         const WiFiMode_t wifi_mode = (WiFiMode_t) ConfigJSON::get<int>(CONFIG_GLOBAL_JSON,
                                                                        {"default-config", "wifi-mode"});
         WiFi.mode(wifi_mode);
