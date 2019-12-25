@@ -1,7 +1,9 @@
 import os
 import json
-import uuid
 import qrcode
+import string
+import random
+from password_generator import PasswordGenerator
 from PIL import Image, ImageFont, ImageDraw
 
 Import("env")
@@ -24,6 +26,17 @@ template = '''
 '''
 
 
+def gen_uuid(len=8):
+    return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(len))
+
+
+def gen_password(len=8):
+    pwo = PasswordGenerator()
+    pwo.minlen = len
+    pwo.maxlen = len
+    return pwo.generate()
+
+
 def process_dir(path, hostname, ssid, passwd):
     with open(path, 'w') as json_file:
         data = json.loads(template)
@@ -36,10 +49,10 @@ def process_dir(path, hostname, ssid, passwd):
 
 
 def template_resources(project):
-    SSID_SUFIX = uuid.uuid4().hex[-8:]
+    SSID_SUFIX = gen_uuid()
     HOSTNAME = "%s-%s" % (project, SSID_SUFIX)
     SSID = "%s-%s" % (project.split("-")[-1:][0], SSID_SUFIX)
-    PWD = uuid.uuid4().hex[-8:]
+    PWD = gen_password()
 
     process_dir("./resources/json/config-global.json", HOSTNAME, SSID, PWD)
     img = qrcode.make('WIFI:S:%s;T:WPA;P:%s;;' % (SSID, PWD)).convert('RGB')
