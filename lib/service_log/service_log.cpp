@@ -32,7 +32,7 @@ void Log::init() {
     Log::webSocket.begin();
     Log::webSocket.onEvent(webSocketEvent);
 #ifdef __LOG_DEBUG__
-    Serial.begin(115200);
+    Serial.begin(74880);
     Serial.println();
 #endif
     initialized = true;

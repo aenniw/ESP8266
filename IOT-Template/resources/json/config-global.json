@@ -8,6 +8,8 @@
     "wifi-ap-pass": "",
     "wifi-sta-ssid": "",
     "wifi-sta-pass": "",
+    "rest-acc": "admin",
+    "rest-pass": "admin",
     "config-restored": 0
   }
 }

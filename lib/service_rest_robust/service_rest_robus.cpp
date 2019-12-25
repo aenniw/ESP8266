@@ -96,7 +96,7 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                     true);
     }
     if ((scope & CALLBACKS_WIFI) == CALLBACKS_WIFI) {
-        add_handler("/get-config-wifi", HTTP_ANY, RESP_JSON,
+        add_handler("/get-config-wifi", HTTP_GET, RESP_JSON,
                     [](String arg) -> String {
                         char *host_name = ConfigJSON::getString(CONFIG_GLOBAL_JSON, {"host-name"});
                         String resp = "{\"mode\":";
@@ -117,7 +117,7 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                         const char *hostname =
                                 parseJSON<const char *>(json, "hostname");
                         if (hostname != NULL) {
-                            MDNS.setInstanceName(hostname);
+                            MDNS.setHostname(hostname);
                             WiFi.hostname(hostname);
                             ConfigJSON::set<const char *>(CONFIG_GLOBAL_JSON, {"host-name"}, hostname);
                         }
@@ -135,10 +135,14 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                                 WiFi.macAddress(mac);
                             }
                         }
+                        if (parseJSON<boolean>(json, "restart", false)) {
+                            Log::println("restart");
+                            ESP.restart();
+                        }
                         return JSON_RESP_OK;
                     },
                     true);
-        add_handler("/get-config-wifi-ap", HTTP_ANY, RESP_JSON,
+        add_handler("/get-config-wifi-ap", HTTP_GET, RESP_JSON,
                     [](String arg) -> String {
                         String resp = "{\"ssid\":\"";
                         softap_config ap_config;
@@ -171,7 +175,7 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                 },
                 true);
         add_handler(
-                "/get-config-wifi-sta", HTTP_ANY, RESP_JSON, [](String arg) -> String {
+                "/get-config-wifi-sta", HTTP_GET, RESP_JSON, [](String arg) -> String {
                     String resp = "{\"ssid\":\"";
                     station_config sta_config;
                     wifi_station_get_ap_info(&sta_config);
@@ -192,6 +196,7 @@ RestServiceRobust::RestServiceRobust(const char *usr, const char *pass, const ui
                     const char *ssid = parseJSON<const char *>(json, "ssid"),
                             *passphrase = parseJSON<const char *>(json, "pass");
                     if (ssid != NULL && passphrase != NULL) {
+                        WiFi.disconnect();
                         WiFi.begin(ssid, passphrase);
                     } else
                         return JSON_RESP_NOK;

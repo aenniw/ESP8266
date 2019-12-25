@@ -1,1 +1,0 @@
-../IOT-Template/extra_script.py

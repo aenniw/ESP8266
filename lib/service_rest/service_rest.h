@@ -73,6 +73,8 @@ protected:
 
     void log_update_error();
 
+    void set_auth(const char *user, const char *pass);
+
 public:
     RestService(const char *, const char *, const uint16_t);
 

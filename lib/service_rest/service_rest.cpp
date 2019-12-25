@@ -23,20 +23,37 @@ static bool strmatch(const char *s, const char *p, const int n, const int m) {
 }
 
 
-RestService::RestService(const char *user, const char *pass,
-                         const uint16_t port) {
-    if (user != NULL && pass != NULL && strlen(user) > 0 && strlen(pass) > 0) {
+void RestService::set_auth(const char *user, const char *pass) {
+    if (user != NULL && strlen(user) > 0) {
+        if (acc) free(acc);
         acc = (char *) malloc(sizeof(char) * (1 + strlen(user)));
         strcpy(acc, user);
+    }
+    if (pass != NULL && strlen(pass) > 0) {
+        if (passwd) free(passwd);
         passwd = (char *) malloc(sizeof(char) * (1 + strlen(pass)));
         strcpy(passwd, pass);
     }
+}
+
+RestService::RestService(const char *user, const char *pass, const uint16_t port) {
+    set_auth(user, pass);
     web_server = new ESP8266WebServer(port);
     web_server->onNotFound([this]() { on_not_found(); });
     web_server->begin();
 }
 
 void RestService::on_not_found() {
+#ifdef __CORS__
+    if (web_server->method() == HTTP_OPTIONS) {
+        web_server->sendHeader("Access-Control-Allow-Origin", "*");
+        web_server->sendHeader("Access-Control-Max-Age", "10000");
+        web_server->sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+        web_server->sendHeader("Access-Control-Allow-Headers", "*");
+        web_server->send(204);
+        return;
+    }
+#endif
 #ifdef __DEBUG__
     String message = "Not Found\n\nURI: ";
     message += web_server->uri();
@@ -61,6 +78,16 @@ void RestService::on_not_found() {
 }
 
 void RestService::on_invalid_credentials() {
+#ifdef __CORS__
+    if (web_server->method() == HTTP_OPTIONS) {
+        web_server->sendHeader("Access-Control-Allow-Origin", "*");
+        web_server->sendHeader("Access-Control-Max-Age", "10000");
+        web_server->sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+        web_server->sendHeader("Access-Control-Allow-Headers", "*");
+        web_server->send(204);
+        return;
+    }
+#endif
     web_server->requestAuthentication();
 }
 
@@ -136,6 +163,9 @@ void RestService::add_handler(const char *uri, HTTPMethod method,
             return on_invalid_credentials();
         if (method == HTTP_ANY || method == web_server->method()) {
             String resp = handler(web_server->arg("plain"));
+#ifdef __CORS__
+            web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
             web_server->send(200, resp_type, resp);
         } else
             on_not_found();
@@ -152,6 +182,9 @@ void RestService::add_handler_stream(const char *uri, HTTPMethod method,
         if (method == HTTP_ANY || method == web_server->method()) {
             if (caching)
                 web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
+#ifdef __CORS__
+            web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
             web_server->streamFile(*st, resp_type);
             st->rewind();
         } else
@@ -169,6 +202,7 @@ RestService::add_handler_wc(const char *uri, HTTPMethod method, const char *resp
         if (method == HTTP_ANY || method == web_server->method()) {
             String args = web_server->arg("plain");
             String resp = handler(args, web_server->uri());
+            web_server->sendHeader("Access-Control-Allow-Origin", "*");
             web_server->send(200, resp_type, resp);
         } else
             on_not_found();
@@ -184,6 +218,9 @@ void RestService::add_handler_wc_stream(const char *uri, HTTPMethod method, cons
         if (method == HTTP_ANY || method == web_server->method()) {
             if (caching)
                 web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
+#ifdef __CORS__
+            web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
             web_server->streamFile(*fs, resp_type);
             fs->rewind();
         } else
@@ -203,6 +240,9 @@ void RestService::add_handler_file(const char *uri, HTTPMethod method,
             if (file) {
                 if (caching)
                     web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
+#ifdef __CORS__
+                web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -226,6 +266,9 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
             if (file) {
                 if (caching)
                     web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
+#ifdef __CORS__
+                web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {
@@ -250,6 +293,9 @@ void RestService::add_handler_wc_file(const char *uri, HTTPMethod method,
             if (file) {
                 if (caching)
                     web_server->sendHeader("Cache-Control", "max-age=" CACHE_TTL);
+#ifdef __CORS__
+                web_server->sendHeader("Access-Control-Allow-Origin", "*");
+#endif
                 web_server->streamFile(file, resp_type);
                 file.close();
             } else {

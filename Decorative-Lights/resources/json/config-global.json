@@ -6,6 +6,8 @@
     "wifi-mode": 2,
     "wifi-ap-ssid": "decorative-lights",
     "wifi-ap-pass": "",
+    "rest-acc": "admin",
+    "rest-pass": "admin",
     "config-restored": 0
   }
 }
