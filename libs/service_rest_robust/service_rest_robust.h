@@ -4,6 +4,7 @@
 #include <file_system.h>
 #include <commons_json.h>
 #include <service_rest.h>
+#include <ESP8266mDNS.h>
 
 #define SESSION_ID "SESSION_ID"
 #define HTML_LOGIN  "/login.html"
