@@ -7,6 +7,11 @@ import json
 Import("env")
 
 UI_DIRECTORY = "../esp-webui"
+OAUTH_TOKEN = "GH_TOKEN"
+
+HEADERS = []
+if os.getenv(OAUTH_TOKEN):
+    HEADERS = {'Authorization': 'token ' + os.getenv(OAUTH_TOKEN)}
 
 
 def cleanup_dir(directory):
@@ -75,7 +80,7 @@ def download_resource(url, directory):
     file_name = '%s/%s' % (directory, url.split('/')[-1:][0])
     if not os.path.isfile(file_name):
         with open(file_name, 'wb') as file:
-            file.write(requests.get(url).content)
+            file.write(requests.get(url, headers=HEADERS).content)
         return True
     return False
 
@@ -88,7 +93,7 @@ def compress_html_resources():
     if not os.path.isdir(UI_DIRECTORY):
         os.mkdir(UI_DIRECTORY)
     releases = requests.get(
-        "https://api.github.com/repos/aenniw/esp-webui/releases/latest").content.decode('utf-8')
+        "https://api.github.com/repos/aenniw/esp-webui/releases/latest", headers=HEADERS).content.decode('utf-8')
     for asset_url in [x['browser_download_url'] for x in json.loads(releases)['assets']]:
         if download_resource(asset_url, UI_DIRECTORY):
             print("Downloaded %s" % asset_url)
