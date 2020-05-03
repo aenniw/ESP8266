@@ -9,9 +9,9 @@ Import("env")
 UI_DIRECTORY = "../esp-webui"
 OAUTH_TOKEN = "GH_TOKEN"
 
-HEADERS = []
+HEADERS = {'User-Agent': 'gh-actions'}
 if os.getenv(OAUTH_TOKEN):
-    HEADERS = {'Authorization': 'token ' + os.getenv(OAUTH_TOKEN)}
+    HEADERS['Authorization'] = 'token ' + os.getenv(OAUTH_TOKEN)
 
 
 def cleanup_dir(directory):
